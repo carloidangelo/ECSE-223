@@ -1,0 +1,92 @@
+namespace ca.mcgill.ecse223.resto.model;
+
+class Customer
+{
+  boolean hasPaid;
+  boolean hasReservation;
+  isA Person;
+  1 seating -- 1 Seat sittingIn;
+  1 bookedBy -- 1 Reservation booked;
+  1 placedBy -- 0..* Order placed;
+  1 contains -- 1..* BillingGroup partOf;
+  }
+
+class Seat
+{
+  boolean isOccupied;
+  }
+
+class Table
+{
+  int tableNumber;
+  int numSeats;
+  boolean isAvailable;
+  1 assignedTo -- * Seat seating;
+  1..* reserves -- 1 Reservation reservedFor;
+  1 occupiedBy -- 1 TableLocation locatedAt;
+  }
+
+class TableLocation
+{
+  locationName;
+}
+
+class Reservation
+{
+  Date date;
+  Time time;
+  int numPersons;
+  int reservationNumber;
+}
+
+class Person
+{
+  name;
+  phoneNumber;
+  emailAddress;
+}
+
+class Waiter
+{
+  isA Person;
+  1 waitedBy -- * Table waitsOn;
+}
+
+class Order
+{
+}
+
+class OrderedDish
+{
+  int numItems;
+  boolean isShared;
+  1..* contains -- 1..* Order partOf;
+  0..1 -> 1 DishName isDishOf;
+}
+
+class DishName
+{
+  name;
+  price;
+}
+
+class DishCategory
+{
+  categoryName;
+  1 isType -- * DishName contains;
+}
+
+class BillingGroup
+{
+}
+
+class Bill
+{
+  1 pays -- 1 BillingGroup paidBy;
+}
+
+class Restaurant
+{
+  restaurantName;
+  0..1 -> * Table tabling;
+}
