@@ -16,7 +16,7 @@ public class DishCategory
   private String categoryName;
 
   //DishCategory Associations
-  private List<DishName> contains;
+  private List<DishName> categoryItem;
 
   //------------------------
   // CONSTRUCTOR
@@ -25,7 +25,7 @@ public class DishCategory
   public DishCategory(String aCategoryName)
   {
     categoryName = aCategoryName;
-    contains = new ArrayList<DishName>();
+    categoryItem = new ArrayList<DishName>();
   }
 
   //------------------------
@@ -45,114 +45,114 @@ public class DishCategory
     return categoryName;
   }
 
-  public DishName getContain(int index)
+  public DishName getCategoryItem(int index)
   {
-    DishName aContain = contains.get(index);
-    return aContain;
+    DishName aCategoryItem = categoryItem.get(index);
+    return aCategoryItem;
   }
 
-  public List<DishName> getContains()
+  public List<DishName> getCategoryItem()
   {
-    List<DishName> newContains = Collections.unmodifiableList(contains);
-    return newContains;
+    List<DishName> newCategoryItem = Collections.unmodifiableList(categoryItem);
+    return newCategoryItem;
   }
 
-  public int numberOfContains()
+  public int numberOfCategoryItem()
   {
-    int number = contains.size();
+    int number = categoryItem.size();
     return number;
   }
 
-  public boolean hasContains()
+  public boolean hasCategoryItem()
   {
-    boolean has = contains.size() > 0;
+    boolean has = categoryItem.size() > 0;
     return has;
   }
 
-  public int indexOfContain(DishName aContain)
+  public int indexOfCategoryItem(DishName aCategoryItem)
   {
-    int index = contains.indexOf(aContain);
+    int index = categoryItem.indexOf(aCategoryItem);
     return index;
   }
 
-  public static int minimumNumberOfContains()
+  public static int minimumNumberOfCategoryItem()
   {
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public DishName addContain(String aName, String aPrice)
+  public DishName addCategoryItem(String aName, float aPrice)
   {
     return new DishName(aName, aPrice, this);
   }
 
-  public boolean addContain(DishName aContain)
+  public boolean addCategoryItem(DishName aCategoryItem)
   {
     boolean wasAdded = false;
-    if (contains.contains(aContain)) { return false; }
-    DishCategory existingIsType = aContain.getIsType();
-    boolean isNewIsType = existingIsType != null && !this.equals(existingIsType);
-    if (isNewIsType)
+    if (categoryItem.contains(aCategoryItem)) { return false; }
+    DishCategory existingCategory = aCategoryItem.getCategory();
+    boolean isNewCategory = existingCategory != null && !this.equals(existingCategory);
+    if (isNewCategory)
     {
-      aContain.setIsType(this);
+      aCategoryItem.setCategory(this);
     }
     else
     {
-      contains.add(aContain);
+      categoryItem.add(aCategoryItem);
     }
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeContain(DishName aContain)
+  public boolean removeCategoryItem(DishName aCategoryItem)
   {
     boolean wasRemoved = false;
-    //Unable to remove aContain, as it must always have a isType
-    if (!this.equals(aContain.getIsType()))
+    //Unable to remove aCategoryItem, as it must always have a category
+    if (!this.equals(aCategoryItem.getCategory()))
     {
-      contains.remove(aContain);
+      categoryItem.remove(aCategoryItem);
       wasRemoved = true;
     }
     return wasRemoved;
   }
 
-  public boolean addContainAt(DishName aContain, int index)
+  public boolean addCategoryItemAt(DishName aCategoryItem, int index)
   {  
     boolean wasAdded = false;
-    if(addContain(aContain))
+    if(addCategoryItem(aCategoryItem))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfContains()) { index = numberOfContains() - 1; }
-      contains.remove(aContain);
-      contains.add(index, aContain);
+      if(index > numberOfCategoryItem()) { index = numberOfCategoryItem() - 1; }
+      categoryItem.remove(aCategoryItem);
+      categoryItem.add(index, aCategoryItem);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveContainAt(DishName aContain, int index)
+  public boolean addOrMoveCategoryItemAt(DishName aCategoryItem, int index)
   {
     boolean wasAdded = false;
-    if(contains.contains(aContain))
+    if(categoryItem.contains(aCategoryItem))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfContains()) { index = numberOfContains() - 1; }
-      contains.remove(aContain);
-      contains.add(index, aContain);
+      if(index > numberOfCategoryItem()) { index = numberOfCategoryItem() - 1; }
+      categoryItem.remove(aCategoryItem);
+      categoryItem.add(index, aCategoryItem);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addContainAt(aContain, index);
+      wasAdded = addCategoryItemAt(aCategoryItem, index);
     }
     return wasAdded;
   }
 
   public void delete()
   {
-    for(int i=contains.size(); i > 0; i--)
+    for(int i=categoryItem.size(); i > 0; i--)
     {
-      DishName aContain = contains.get(i - 1);
-      aContain.delete();
+      DishName aCategoryItem = categoryItem.get(i - 1);
+      aCategoryItem.delete();
     }
   }
 

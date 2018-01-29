@@ -18,54 +18,54 @@ public class Table
   private boolean isAvailable;
 
   //Table Associations
-  private List<Seat> seating;
-  private Reservation reservedFor;
-  private TableLocation locatedAt;
-  private Waiter waitedBy;
+  private List<Seat> seat;
+  private Reservation reservation;
+  private TableLocation location;
+  private Waiter waiter;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Table(int aTableNumber, int aNumSeats, boolean aIsAvailable, Reservation aReservedFor, TableLocation aLocatedAt, Waiter aWaitedBy)
+  public Table(int aTableNumber, int aNumSeats, boolean aIsAvailable, Reservation aReservation, TableLocation aLocation, Waiter aWaiter)
   {
     tableNumber = aTableNumber;
     numSeats = aNumSeats;
     isAvailable = aIsAvailable;
-    seating = new ArrayList<Seat>();
-    boolean didAddReservedFor = setReservedFor(aReservedFor);
-    if (!didAddReservedFor)
+    seat = new ArrayList<Seat>();
+    boolean didAddReservation = setReservation(aReservation);
+    if (!didAddReservation)
     {
-      throw new RuntimeException("Unable to create reserve due to reservedFor");
+      throw new RuntimeException("Unable to create table due to reservation");
     }
-    if (aLocatedAt == null || aLocatedAt.getOccupiedBy() != null)
+    if (aLocation == null || aLocation.getTable() != null)
     {
-      throw new RuntimeException("Unable to create Table due to aLocatedAt");
+      throw new RuntimeException("Unable to create Table due to aLocation");
     }
-    locatedAt = aLocatedAt;
-    boolean didAddWaitedBy = setWaitedBy(aWaitedBy);
-    if (!didAddWaitedBy)
+    location = aLocation;
+    boolean didAddWaiter = setWaiter(aWaiter);
+    if (!didAddWaiter)
     {
-      throw new RuntimeException("Unable to create waitsOn due to waitedBy");
+      throw new RuntimeException("Unable to create assignedTable due to waiter");
     }
   }
 
-  public Table(int aTableNumber, int aNumSeats, boolean aIsAvailable, Reservation aReservedFor, String aLocationNameForLocatedAt, Waiter aWaitedBy)
+  public Table(int aTableNumber, int aNumSeats, boolean aIsAvailable, Reservation aReservation, String aLocationNameForLocation, Waiter aWaiter)
   {
     tableNumber = aTableNumber;
     numSeats = aNumSeats;
     isAvailable = aIsAvailable;
-    seating = new ArrayList<Seat>();
-    boolean didAddReservedFor = setReservedFor(aReservedFor);
-    if (!didAddReservedFor)
+    seat = new ArrayList<Seat>();
+    boolean didAddReservation = setReservation(aReservation);
+    if (!didAddReservation)
     {
-      throw new RuntimeException("Unable to create reserve due to reservedFor");
+      throw new RuntimeException("Unable to create table due to reservation");
     }
-    locatedAt = new TableLocation(aLocationNameForLocatedAt, this);
-    boolean didAddWaitedBy = setWaitedBy(aWaitedBy);
-    if (!didAddWaitedBy)
+    location = new TableLocation(aLocationNameForLocation, this);
+    boolean didAddWaiter = setWaiter(aWaiter);
+    if (!didAddWaiter)
     {
-      throw new RuntimeException("Unable to create waitsOn due to waitedBy");
+      throw new RuntimeException("Unable to create assignedTable due to waiter");
     }
   }
 
@@ -112,196 +112,196 @@ public class Table
     return isAvailable;
   }
 
-  public Seat getSeating(int index)
+  public Seat getSeat(int index)
   {
-    Seat aSeating = seating.get(index);
-    return aSeating;
+    Seat aSeat = seat.get(index);
+    return aSeat;
   }
 
-  public List<Seat> getSeating()
+  public List<Seat> getSeat()
   {
-    List<Seat> newSeating = Collections.unmodifiableList(seating);
-    return newSeating;
+    List<Seat> newSeat = Collections.unmodifiableList(seat);
+    return newSeat;
   }
 
-  public int numberOfSeating()
+  public int numberOfSeat()
   {
-    int number = seating.size();
+    int number = seat.size();
     return number;
   }
 
-  public boolean hasSeating()
+  public boolean hasSeat()
   {
-    boolean has = seating.size() > 0;
+    boolean has = seat.size() > 0;
     return has;
   }
 
-  public int indexOfSeating(Seat aSeating)
+  public int indexOfSeat(Seat aSeat)
   {
-    int index = seating.indexOf(aSeating);
+    int index = seat.indexOf(aSeat);
     return index;
   }
 
-  public Reservation getReservedFor()
+  public Reservation getReservation()
   {
-    return reservedFor;
+    return reservation;
   }
 
-  public TableLocation getLocatedAt()
+  public TableLocation getLocation()
   {
-    return locatedAt;
+    return location;
   }
 
-  public Waiter getWaitedBy()
+  public Waiter getWaiter()
   {
-    return waitedBy;
+    return waiter;
   }
 
-  public static int minimumNumberOfSeating()
+  public static int minimumNumberOfSeat()
   {
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Seat addSeating(boolean aIsOccupied, Customer aSeating)
+  public Seat addSeat(boolean aIsOccupied, Customer aOccupant)
   {
-    return new Seat(aIsOccupied, aSeating, this);
+    return new Seat(aIsOccupied, aOccupant, this);
   }
 
-  public boolean addSeating(Seat aSeating)
+  public boolean addSeat(Seat aSeat)
   {
     boolean wasAdded = false;
-    if (seating.contains(aSeating)) { return false; }
-    Table existingAssignedTo = aSeating.getAssignedTo();
-    boolean isNewAssignedTo = existingAssignedTo != null && !this.equals(existingAssignedTo);
-    if (isNewAssignedTo)
+    if (seat.contains(aSeat)) { return false; }
+    Table existingTable = aSeat.getTable();
+    boolean isNewTable = existingTable != null && !this.equals(existingTable);
+    if (isNewTable)
     {
-      aSeating.setAssignedTo(this);
+      aSeat.setTable(this);
     }
     else
     {
-      seating.add(aSeating);
+      seat.add(aSeat);
     }
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeSeating(Seat aSeating)
+  public boolean removeSeat(Seat aSeat)
   {
     boolean wasRemoved = false;
-    //Unable to remove aSeating, as it must always have a assignedTo
-    if (!this.equals(aSeating.getAssignedTo()))
+    //Unable to remove aSeat, as it must always have a table
+    if (!this.equals(aSeat.getTable()))
     {
-      seating.remove(aSeating);
+      seat.remove(aSeat);
       wasRemoved = true;
     }
     return wasRemoved;
   }
 
-  public boolean addSeatingAt(Seat aSeating, int index)
+  public boolean addSeatAt(Seat aSeat, int index)
   {  
     boolean wasAdded = false;
-    if(addSeating(aSeating))
+    if(addSeat(aSeat))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfSeating()) { index = numberOfSeating() - 1; }
-      seating.remove(aSeating);
-      seating.add(index, aSeating);
+      if(index > numberOfSeat()) { index = numberOfSeat() - 1; }
+      seat.remove(aSeat);
+      seat.add(index, aSeat);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveSeatingAt(Seat aSeating, int index)
+  public boolean addOrMoveSeatAt(Seat aSeat, int index)
   {
     boolean wasAdded = false;
-    if(seating.contains(aSeating))
+    if(seat.contains(aSeat))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfSeating()) { index = numberOfSeating() - 1; }
-      seating.remove(aSeating);
-      seating.add(index, aSeating);
+      if(index > numberOfSeat()) { index = numberOfSeat() - 1; }
+      seat.remove(aSeat);
+      seat.add(index, aSeat);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addSeatingAt(aSeating, index);
+      wasAdded = addSeatAt(aSeat, index);
     }
     return wasAdded;
   }
 
-  public boolean setReservedFor(Reservation aReservedFor)
+  public boolean setReservation(Reservation aReservation)
   {
     boolean wasSet = false;
-    //Must provide reservedFor to reserve
-    if (aReservedFor == null)
+    //Must provide reservation to table
+    if (aReservation == null)
     {
       return wasSet;
     }
 
-    if (reservedFor != null && reservedFor.numberOfReserves() <= Reservation.minimumNumberOfReserves())
+    if (reservation != null && reservation.numberOfTable() <= Reservation.minimumNumberOfTable())
     {
       return wasSet;
     }
 
-    Reservation existingReservedFor = reservedFor;
-    reservedFor = aReservedFor;
-    if (existingReservedFor != null && !existingReservedFor.equals(aReservedFor))
+    Reservation existingReservation = reservation;
+    reservation = aReservation;
+    if (existingReservation != null && !existingReservation.equals(aReservation))
     {
-      boolean didRemove = existingReservedFor.removeReserve(this);
+      boolean didRemove = existingReservation.removeTable(this);
       if (!didRemove)
       {
-        reservedFor = existingReservedFor;
+        reservation = existingReservation;
         return wasSet;
       }
     }
-    reservedFor.addReserve(this);
+    reservation.addTable(this);
     wasSet = true;
     return wasSet;
   }
 
-  public boolean setWaitedBy(Waiter aWaitedBy)
+  public boolean setWaiter(Waiter aWaiter)
   {
     boolean wasSet = false;
-    if (aWaitedBy == null)
+    if (aWaiter == null)
     {
       return wasSet;
     }
 
-    Waiter existingWaitedBy = waitedBy;
-    waitedBy = aWaitedBy;
-    if (existingWaitedBy != null && !existingWaitedBy.equals(aWaitedBy))
+    Waiter existingWaiter = waiter;
+    waiter = aWaiter;
+    if (existingWaiter != null && !existingWaiter.equals(aWaiter))
     {
-      existingWaitedBy.removeWaitsOn(this);
+      existingWaiter.removeAssignedTable(this);
     }
-    waitedBy.addWaitsOn(this);
+    waiter.addAssignedTable(this);
     wasSet = true;
     return wasSet;
   }
 
   public void delete()
   {
-    for(int i=seating.size(); i > 0; i--)
+    for(int i=seat.size(); i > 0; i--)
     {
-      Seat aSeating = seating.get(i - 1);
-      aSeating.delete();
+      Seat aSeat = seat.get(i - 1);
+      aSeat.delete();
     }
-    Reservation placeholderReservedFor = reservedFor;
-    this.reservedFor = null;
-    if(placeholderReservedFor != null)
+    Reservation placeholderReservation = reservation;
+    this.reservation = null;
+    if(placeholderReservation != null)
     {
-      placeholderReservedFor.removeReserve(this);
+      placeholderReservation.removeTable(this);
     }
-    TableLocation existingLocatedAt = locatedAt;
-    locatedAt = null;
-    if (existingLocatedAt != null)
+    TableLocation existingLocation = location;
+    location = null;
+    if (existingLocation != null)
     {
-      existingLocatedAt.delete();
+      existingLocation.delete();
     }
-    Waiter placeholderWaitedBy = waitedBy;
-    this.waitedBy = null;
-    if(placeholderWaitedBy != null)
+    Waiter placeholderWaiter = waiter;
+    this.waiter = null;
+    if(placeholderWaiter != null)
     {
-      placeholderWaitedBy.removeWaitsOn(this);
+      placeholderWaiter.removeAssignedTable(this);
     }
   }
 
@@ -312,8 +312,8 @@ public class Table
             "tableNumber" + ":" + getTableNumber()+ "," +
             "numSeats" + ":" + getNumSeats()+ "," +
             "isAvailable" + ":" + getIsAvailable()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "reservedFor = "+(getReservedFor()!=null?Integer.toHexString(System.identityHashCode(getReservedFor())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "locatedAt = "+(getLocatedAt()!=null?Integer.toHexString(System.identityHashCode(getLocatedAt())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "waitedBy = "+(getWaitedBy()!=null?Integer.toHexString(System.identityHashCode(getWaitedBy())):"null");
+            "  " + "reservation = "+(getReservation()!=null?Integer.toHexString(System.identityHashCode(getReservation())):"null") + System.getProperties().getProperty("line.separator") +
+            "  " + "location = "+(getLocation()!=null?Integer.toHexString(System.identityHashCode(getLocation())):"null") + System.getProperties().getProperty("line.separator") +
+            "  " + "waiter = "+(getWaiter()!=null?Integer.toHexString(System.identityHashCode(getWaiter())):"null");
   }
 }

@@ -2,6 +2,8 @@
 /*This code was generated using the UMPLE 1.27.0.3728.d139ed893 modeling language!*/
 
 package ca.mcgill.ecse223.resto.model;
+import java.sql.Date;
+import java.sql.Time;
 import java.util.*;
 
 // line 34 "../../../../../RestoApp1a.ump"
@@ -13,48 +15,48 @@ public class Reservation
   //------------------------
 
   //Reservation Attributes
-  private String date;
-  private String time;
+  private Date date;
+  private Time time;
   private int numPersons;
   private int reservationNumber;
 
   //Reservation Associations
-  private Customer bookedBy;
-  private List<Table> reserves;
+  private Customer booker;
+  private List<Table> table;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Reservation(String aDate, String aTime, int aNumPersons, int aReservationNumber, Customer aBookedBy)
+  public Reservation(Date aDate, Time aTime, int aNumPersons, int aReservationNumber, Customer aBooker)
   {
     date = aDate;
     time = aTime;
     numPersons = aNumPersons;
     reservationNumber = aReservationNumber;
-    if (aBookedBy == null || aBookedBy.getBooked() != null)
+    if (aBooker == null || aBooker.getReservation() != null)
     {
-      throw new RuntimeException("Unable to create Reservation due to aBookedBy");
+      throw new RuntimeException("Unable to create Reservation due to aBooker");
     }
-    bookedBy = aBookedBy;
-    reserves = new ArrayList<Table>();
+    booker = aBooker;
+    table = new ArrayList<Table>();
   }
 
-  public Reservation(String aDate, String aTime, int aNumPersons, int aReservationNumber, String aNameForBookedBy, String aPhoneNumberForBookedBy, String aEmailAddressForBookedBy, boolean aHasPaidForBookedBy, boolean aHasReservationForBookedBy, Seat aSittingInForBookedBy)
+  public Reservation(Date aDate, Time aTime, int aNumPersons, int aReservationNumber, String aNameForBooker, String aPhoneNumberForBooker, String aEmailAddressForBooker, boolean aHasPaidForBooker, boolean aHasReservationForBooker, Seat aSeatForBooker)
   {
     date = aDate;
     time = aTime;
     numPersons = aNumPersons;
     reservationNumber = aReservationNumber;
-    bookedBy = new Customer(aNameForBookedBy, aPhoneNumberForBookedBy, aEmailAddressForBookedBy, aHasPaidForBookedBy, aHasReservationForBookedBy, aSittingInForBookedBy, this);
-    reserves = new ArrayList<Table>();
+    booker = new Customer(aNameForBooker, aPhoneNumberForBooker, aEmailAddressForBooker, aHasPaidForBooker, aHasReservationForBooker, aSeatForBooker, this);
+    table = new ArrayList<Table>();
   }
 
   //------------------------
   // INTERFACE
   //------------------------
 
-  public boolean setDate(String aDate)
+  public boolean setDate(Date aDate)
   {
     boolean wasSet = false;
     date = aDate;
@@ -62,7 +64,7 @@ public class Reservation
     return wasSet;
   }
 
-  public boolean setTime(String aTime)
+  public boolean setTime(Time aTime)
   {
     boolean wasSet = false;
     time = aTime;
@@ -86,12 +88,12 @@ public class Reservation
     return wasSet;
   }
 
-  public String getDate()
+  public Date getDate()
   {
     return date;
   }
 
-  public String getTime()
+  public Time getTime()
   {
     return time;
   }
@@ -106,145 +108,145 @@ public class Reservation
     return reservationNumber;
   }
 
-  public Customer getBookedBy()
+  public Customer getBooker()
   {
-    return bookedBy;
+    return booker;
   }
 
-  public Table getReserve(int index)
+  public Table getTable(int index)
   {
-    Table aReserve = reserves.get(index);
-    return aReserve;
+    Table aTable = table.get(index);
+    return aTable;
   }
 
-  public List<Table> getReserves()
+  public List<Table> getTable()
   {
-    List<Table> newReserves = Collections.unmodifiableList(reserves);
-    return newReserves;
+    List<Table> newTable = Collections.unmodifiableList(table);
+    return newTable;
   }
 
-  public int numberOfReserves()
+  public int numberOfTable()
   {
-    int number = reserves.size();
+    int number = table.size();
     return number;
   }
 
-  public boolean hasReserves()
+  public boolean hasTable()
   {
-    boolean has = reserves.size() > 0;
+    boolean has = table.size() > 0;
     return has;
   }
 
-  public int indexOfReserve(Table aReserve)
+  public int indexOfTable(Table aTable)
   {
-    int index = reserves.indexOf(aReserve);
+    int index = table.indexOf(aTable);
     return index;
   }
 
-  public boolean isNumberOfReservesValid()
+  public boolean isNumberOfTableValid()
   {
-    boolean isValid = numberOfReserves() >= minimumNumberOfReserves();
+    boolean isValid = numberOfTable() >= minimumNumberOfTable();
     return isValid;
   }
 
-  public static int minimumNumberOfReserves()
+  public static int minimumNumberOfTable()
   {
     return 1;
   }
 
-  public Table addReserve(int aTableNumber, int aNumSeats, boolean aIsAvailable, TableLocation aLocatedAt, Waiter aWaitedBy)
+  public Table addTable(int aTableNumber, int aNumSeats, boolean aIsAvailable, TableLocation aLocation, Waiter aWaiter)
   {
-    Table aNewReserve = new Table(aTableNumber, aNumSeats, aIsAvailable, this, aLocatedAt, aWaitedBy);
-    return aNewReserve;
+    Table aNewTable = new Table(aTableNumber, aNumSeats, aIsAvailable, this, aLocation, aWaiter);
+    return aNewTable;
   }
 
-  public boolean addReserve(Table aReserve)
+  public boolean addTable(Table aTable)
   {
     boolean wasAdded = false;
-    if (reserves.contains(aReserve)) { return false; }
-    Reservation existingReservedFor = aReserve.getReservedFor();
-    boolean isNewReservedFor = existingReservedFor != null && !this.equals(existingReservedFor);
+    if (table.contains(aTable)) { return false; }
+    Reservation existingReservation = aTable.getReservation();
+    boolean isNewReservation = existingReservation != null && !this.equals(existingReservation);
 
-    if (isNewReservedFor && existingReservedFor.numberOfReserves() <= minimumNumberOfReserves())
+    if (isNewReservation && existingReservation.numberOfTable() <= minimumNumberOfTable())
     {
       return wasAdded;
     }
-    if (isNewReservedFor)
+    if (isNewReservation)
     {
-      aReserve.setReservedFor(this);
+      aTable.setReservation(this);
     }
     else
     {
-      reserves.add(aReserve);
+      table.add(aTable);
     }
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeReserve(Table aReserve)
+  public boolean removeTable(Table aTable)
   {
     boolean wasRemoved = false;
-    //Unable to remove aReserve, as it must always have a reservedFor
-    if (this.equals(aReserve.getReservedFor()))
+    //Unable to remove aTable, as it must always have a reservation
+    if (this.equals(aTable.getReservation()))
     {
       return wasRemoved;
     }
 
-    //reservedFor already at minimum (1)
-    if (numberOfReserves() <= minimumNumberOfReserves())
+    //reservation already at minimum (1)
+    if (numberOfTable() <= minimumNumberOfTable())
     {
       return wasRemoved;
     }
 
-    reserves.remove(aReserve);
+    table.remove(aTable);
     wasRemoved = true;
     return wasRemoved;
   }
 
-  public boolean addReserveAt(Table aReserve, int index)
+  public boolean addTableAt(Table aTable, int index)
   {  
     boolean wasAdded = false;
-    if(addReserve(aReserve))
+    if(addTable(aTable))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfReserves()) { index = numberOfReserves() - 1; }
-      reserves.remove(aReserve);
-      reserves.add(index, aReserve);
+      if(index > numberOfTable()) { index = numberOfTable() - 1; }
+      table.remove(aTable);
+      table.add(index, aTable);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveReserveAt(Table aReserve, int index)
+  public boolean addOrMoveTableAt(Table aTable, int index)
   {
     boolean wasAdded = false;
-    if(reserves.contains(aReserve))
+    if(table.contains(aTable))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfReserves()) { index = numberOfReserves() - 1; }
-      reserves.remove(aReserve);
-      reserves.add(index, aReserve);
+      if(index > numberOfTable()) { index = numberOfTable() - 1; }
+      table.remove(aTable);
+      table.add(index, aTable);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addReserveAt(aReserve, index);
+      wasAdded = addTableAt(aTable, index);
     }
     return wasAdded;
   }
 
   public void delete()
   {
-    Customer existingBookedBy = bookedBy;
-    bookedBy = null;
-    if (existingBookedBy != null)
+    Customer existingBooker = booker;
+    booker = null;
+    if (existingBooker != null)
     {
-      existingBookedBy.delete();
+      existingBooker.delete();
     }
-    for(int i=reserves.size(); i > 0; i--)
+    for(int i=table.size(); i > 0; i--)
     {
-      Table aReserve = reserves.get(i - 1);
-      aReserve.delete();
+      Table aTable = table.get(i - 1);
+      aTable.delete();
     }
   }
 
@@ -252,10 +254,10 @@ public class Reservation
   public String toString()
   {
     return super.toString() + "["+
-            "date" + ":" + getDate()+ "," +
-            "time" + ":" + getTime()+ "," +
             "numPersons" + ":" + getNumPersons()+ "," +
             "reservationNumber" + ":" + getReservationNumber()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "bookedBy = "+(getBookedBy()!=null?Integer.toHexString(System.identityHashCode(getBookedBy())):"null");
+            "  " + "date" + "=" + (getDate() != null ? !getDate().equals(this)  ? getDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+            "  " + "time" + "=" + (getTime() != null ? !getTime().equals(this)  ? getTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+            "  " + "booker = "+(getBooker()!=null?Integer.toHexString(System.identityHashCode(getBooker())):"null");
   }
 }

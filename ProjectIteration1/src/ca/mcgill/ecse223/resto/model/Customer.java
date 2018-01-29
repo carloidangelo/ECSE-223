@@ -3,6 +3,8 @@
 
 package ca.mcgill.ecse223.resto.model;
 import java.util.*;
+import java.sql.Date;
+import java.sql.Time;
 
 // line 3 "../../../../../RestoApp1a.ump"
 public class Customer extends Person
@@ -17,43 +19,43 @@ public class Customer extends Person
   private boolean hasReservation;
 
   //Customer Associations
-  private Seat sittingIn;
-  private Reservation booked;
-  private List<Order> placed;
-  private List<BillingGroup> partOf;
+  private Seat seat;
+  private Reservation reservation;
+  private List<Order> order;
+  private List<BillingGroup> billingGroup;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Customer(String aName, String aPhoneNumber, String aEmailAddress, boolean aHasPaid, boolean aHasReservation, Seat aSittingIn, Reservation aBooked)
+  public Customer(String aName, String aPhoneNumber, String aEmailAddress, boolean aHasPaid, boolean aHasReservation, Seat aSeat, Reservation aReservation)
   {
     super(aName, aPhoneNumber, aEmailAddress);
     hasPaid = aHasPaid;
     hasReservation = aHasReservation;
-    if (aSittingIn == null || aSittingIn.getSeating() != null)
+    if (aSeat == null || aSeat.getOccupant() != null)
     {
-      throw new RuntimeException("Unable to create Customer due to aSittingIn");
+      throw new RuntimeException("Unable to create Customer due to aSeat");
     }
-    sittingIn = aSittingIn;
-    if (aBooked == null || aBooked.getBookedBy() != null)
+    seat = aSeat;
+    if (aReservation == null || aReservation.getBooker() != null)
     {
-      throw new RuntimeException("Unable to create Customer due to aBooked");
+      throw new RuntimeException("Unable to create Customer due to aReservation");
     }
-    booked = aBooked;
-    placed = new ArrayList<Order>();
-    partOf = new ArrayList<BillingGroup>();
+    reservation = aReservation;
+    order = new ArrayList<Order>();
+    billingGroup = new ArrayList<BillingGroup>();
   }
 
-  public Customer(String aName, String aPhoneNumber, String aEmailAddress, boolean aHasPaid, boolean aHasReservation, boolean aIsOccupiedForSittingIn, Table aAssignedToForSittingIn, String aDateForBooked, String aTimeForBooked, int aNumPersonsForBooked, int aReservationNumberForBooked)
+  public Customer(String aName, String aPhoneNumber, String aEmailAddress, boolean aHasPaid, boolean aHasReservation, boolean aIsOccupiedForSeat, Table aTableForSeat, Date aDateForReservation, Time aTimeForReservation, int aNumPersonsForReservation, int aReservationNumberForReservation)
   {
     super(aName, aPhoneNumber, aEmailAddress);
     hasPaid = aHasPaid;
     hasReservation = aHasReservation;
-    sittingIn = new Seat(aIsOccupiedForSittingIn, this, aAssignedToForSittingIn);
-    booked = new Reservation(aDateForBooked, aTimeForBooked, aNumPersonsForBooked, aReservationNumberForBooked, this);
-    placed = new ArrayList<Order>();
-    partOf = new ArrayList<BillingGroup>();
+    seat = new Seat(aIsOccupiedForSeat, this, aTableForSeat);
+    reservation = new Reservation(aDateForReservation, aTimeForReservation, aNumPersonsForReservation, aReservationNumberForReservation, this);
+    order = new ArrayList<Order>();
+    billingGroup = new ArrayList<BillingGroup>();
   }
 
   //------------------------
@@ -86,263 +88,263 @@ public class Customer extends Person
     return hasReservation;
   }
 
-  public Seat getSittingIn()
+  public Seat getSeat()
   {
-    return sittingIn;
+    return seat;
   }
 
-  public Reservation getBooked()
+  public Reservation getReservation()
   {
-    return booked;
+    return reservation;
   }
 
-  public Order getPlaced(int index)
+  public Order getOrder(int index)
   {
-    Order aPlaced = placed.get(index);
-    return aPlaced;
+    Order aOrder = order.get(index);
+    return aOrder;
   }
 
-  public List<Order> getPlaced()
+  public List<Order> getOrder()
   {
-    List<Order> newPlaced = Collections.unmodifiableList(placed);
-    return newPlaced;
+    List<Order> newOrder = Collections.unmodifiableList(order);
+    return newOrder;
   }
 
-  public int numberOfPlaced()
+  public int numberOfOrder()
   {
-    int number = placed.size();
+    int number = order.size();
     return number;
   }
 
-  public boolean hasPlaced()
+  public boolean hasOrder()
   {
-    boolean has = placed.size() > 0;
+    boolean has = order.size() > 0;
     return has;
   }
 
-  public int indexOfPlaced(Order aPlaced)
+  public int indexOfOrder(Order aOrder)
   {
-    int index = placed.indexOf(aPlaced);
+    int index = order.indexOf(aOrder);
     return index;
   }
 
-  public BillingGroup getPartOf(int index)
+  public BillingGroup getBillingGroup(int index)
   {
-    BillingGroup aPartOf = partOf.get(index);
-    return aPartOf;
+    BillingGroup aBillingGroup = billingGroup.get(index);
+    return aBillingGroup;
   }
 
-  public List<BillingGroup> getPartOf()
+  public List<BillingGroup> getBillingGroup()
   {
-    List<BillingGroup> newPartOf = Collections.unmodifiableList(partOf);
-    return newPartOf;
+    List<BillingGroup> newBillingGroup = Collections.unmodifiableList(billingGroup);
+    return newBillingGroup;
   }
 
-  public int numberOfPartOf()
+  public int numberOfBillingGroup()
   {
-    int number = partOf.size();
+    int number = billingGroup.size();
     return number;
   }
 
-  public boolean hasPartOf()
+  public boolean hasBillingGroup()
   {
-    boolean has = partOf.size() > 0;
+    boolean has = billingGroup.size() > 0;
     return has;
   }
 
-  public int indexOfPartOf(BillingGroup aPartOf)
+  public int indexOfBillingGroup(BillingGroup aBillingGroup)
   {
-    int index = partOf.indexOf(aPartOf);
+    int index = billingGroup.indexOf(aBillingGroup);
     return index;
   }
 
-  public static int minimumNumberOfPlaced()
+  public static int minimumNumberOfOrder()
   {
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Order addPlaced()
+  public Order addOrder()
   {
     return new Order(this);
   }
 
-  public boolean addPlaced(Order aPlaced)
+  public boolean addOrder(Order aOrder)
   {
     boolean wasAdded = false;
-    if (placed.contains(aPlaced)) { return false; }
-    Customer existingPlacedBy = aPlaced.getPlacedBy();
-    boolean isNewPlacedBy = existingPlacedBy != null && !this.equals(existingPlacedBy);
-    if (isNewPlacedBy)
+    if (order.contains(aOrder)) { return false; }
+    Customer existingOrderPlacer = aOrder.getOrderPlacer();
+    boolean isNewOrderPlacer = existingOrderPlacer != null && !this.equals(existingOrderPlacer);
+    if (isNewOrderPlacer)
     {
-      aPlaced.setPlacedBy(this);
+      aOrder.setOrderPlacer(this);
     }
     else
     {
-      placed.add(aPlaced);
+      order.add(aOrder);
     }
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removePlaced(Order aPlaced)
+  public boolean removeOrder(Order aOrder)
   {
     boolean wasRemoved = false;
-    //Unable to remove aPlaced, as it must always have a placedBy
-    if (!this.equals(aPlaced.getPlacedBy()))
+    //Unable to remove aOrder, as it must always have a orderPlacer
+    if (!this.equals(aOrder.getOrderPlacer()))
     {
-      placed.remove(aPlaced);
+      order.remove(aOrder);
       wasRemoved = true;
     }
     return wasRemoved;
   }
 
-  public boolean addPlacedAt(Order aPlaced, int index)
+  public boolean addOrderAt(Order aOrder, int index)
   {  
     boolean wasAdded = false;
-    if(addPlaced(aPlaced))
+    if(addOrder(aOrder))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfPlaced()) { index = numberOfPlaced() - 1; }
-      placed.remove(aPlaced);
-      placed.add(index, aPlaced);
+      if(index > numberOfOrder()) { index = numberOfOrder() - 1; }
+      order.remove(aOrder);
+      order.add(index, aOrder);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMovePlacedAt(Order aPlaced, int index)
+  public boolean addOrMoveOrderAt(Order aOrder, int index)
   {
     boolean wasAdded = false;
-    if(placed.contains(aPlaced))
+    if(order.contains(aOrder))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfPlaced()) { index = numberOfPlaced() - 1; }
-      placed.remove(aPlaced);
-      placed.add(index, aPlaced);
+      if(index > numberOfOrder()) { index = numberOfOrder() - 1; }
+      order.remove(aOrder);
+      order.add(index, aOrder);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addPlacedAt(aPlaced, index);
+      wasAdded = addOrderAt(aOrder, index);
     }
     return wasAdded;
   }
 
-  public boolean isNumberOfPartOfValid()
+  public boolean isNumberOfBillingGroupValid()
   {
-    boolean isValid = numberOfPartOf() >= minimumNumberOfPartOf();
+    boolean isValid = numberOfBillingGroup() >= minimumNumberOfBillingGroup();
     return isValid;
   }
 
-  public static int minimumNumberOfPartOf()
+  public static int minimumNumberOfBillingGroup()
   {
     return 1;
   }
 
-  public BillingGroup addPartOf(Bill aPays)
+  public BillingGroup addBillingGroup(Bill aBill)
   {
-    BillingGroup aNewPartOf = new BillingGroup(this, aPays);
-    return aNewPartOf;
+    BillingGroup aNewBillingGroup = new BillingGroup(this, aBill);
+    return aNewBillingGroup;
   }
 
-  public boolean addPartOf(BillingGroup aPartOf)
+  public boolean addBillingGroup(BillingGroup aBillingGroup)
   {
     boolean wasAdded = false;
-    if (partOf.contains(aPartOf)) { return false; }
-    Customer existingContains = aPartOf.getContains();
-    boolean isNewContains = existingContains != null && !this.equals(existingContains);
+    if (billingGroup.contains(aBillingGroup)) { return false; }
+    Customer existingMember = aBillingGroup.getMember();
+    boolean isNewMember = existingMember != null && !this.equals(existingMember);
 
-    if (isNewContains && existingContains.numberOfPartOf() <= minimumNumberOfPartOf())
+    if (isNewMember && existingMember.numberOfBillingGroup() <= minimumNumberOfBillingGroup())
     {
       return wasAdded;
     }
-    if (isNewContains)
+    if (isNewMember)
     {
-      aPartOf.setContains(this);
+      aBillingGroup.setMember(this);
     }
     else
     {
-      partOf.add(aPartOf);
+      billingGroup.add(aBillingGroup);
     }
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removePartOf(BillingGroup aPartOf)
+  public boolean removeBillingGroup(BillingGroup aBillingGroup)
   {
     boolean wasRemoved = false;
-    //Unable to remove aPartOf, as it must always have a contains
-    if (this.equals(aPartOf.getContains()))
+    //Unable to remove aBillingGroup, as it must always have a member
+    if (this.equals(aBillingGroup.getMember()))
     {
       return wasRemoved;
     }
 
-    //contains already at minimum (1)
-    if (numberOfPartOf() <= minimumNumberOfPartOf())
+    //member already at minimum (1)
+    if (numberOfBillingGroup() <= minimumNumberOfBillingGroup())
     {
       return wasRemoved;
     }
 
-    partOf.remove(aPartOf);
+    billingGroup.remove(aBillingGroup);
     wasRemoved = true;
     return wasRemoved;
   }
 
-  public boolean addPartOfAt(BillingGroup aPartOf, int index)
+  public boolean addBillingGroupAt(BillingGroup aBillingGroup, int index)
   {  
     boolean wasAdded = false;
-    if(addPartOf(aPartOf))
+    if(addBillingGroup(aBillingGroup))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfPartOf()) { index = numberOfPartOf() - 1; }
-      partOf.remove(aPartOf);
-      partOf.add(index, aPartOf);
+      if(index > numberOfBillingGroup()) { index = numberOfBillingGroup() - 1; }
+      billingGroup.remove(aBillingGroup);
+      billingGroup.add(index, aBillingGroup);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMovePartOfAt(BillingGroup aPartOf, int index)
+  public boolean addOrMoveBillingGroupAt(BillingGroup aBillingGroup, int index)
   {
     boolean wasAdded = false;
-    if(partOf.contains(aPartOf))
+    if(billingGroup.contains(aBillingGroup))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfPartOf()) { index = numberOfPartOf() - 1; }
-      partOf.remove(aPartOf);
-      partOf.add(index, aPartOf);
+      if(index > numberOfBillingGroup()) { index = numberOfBillingGroup() - 1; }
+      billingGroup.remove(aBillingGroup);
+      billingGroup.add(index, aBillingGroup);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addPartOfAt(aPartOf, index);
+      wasAdded = addBillingGroupAt(aBillingGroup, index);
     }
     return wasAdded;
   }
 
   public void delete()
   {
-    Seat existingSittingIn = sittingIn;
-    sittingIn = null;
-    if (existingSittingIn != null)
+    Seat existingSeat = seat;
+    seat = null;
+    if (existingSeat != null)
     {
-      existingSittingIn.delete();
+      existingSeat.delete();
     }
-    Reservation existingBooked = booked;
-    booked = null;
-    if (existingBooked != null)
+    Reservation existingReservation = reservation;
+    reservation = null;
+    if (existingReservation != null)
     {
-      existingBooked.delete();
+      existingReservation.delete();
     }
-    for(int i=placed.size(); i > 0; i--)
+    for(int i=order.size(); i > 0; i--)
     {
-      Order aPlaced = placed.get(i - 1);
-      aPlaced.delete();
+      Order aOrder = order.get(i - 1);
+      aOrder.delete();
     }
-    for(int i=partOf.size(); i > 0; i--)
+    for(int i=billingGroup.size(); i > 0; i--)
     {
-      BillingGroup aPartOf = partOf.get(i - 1);
-      aPartOf.delete();
+      BillingGroup aBillingGroup = billingGroup.get(i - 1);
+      aBillingGroup.delete();
     }
     super.delete();
   }
@@ -353,7 +355,7 @@ public class Customer extends Person
     return super.toString() + "["+
             "hasPaid" + ":" + getHasPaid()+ "," +
             "hasReservation" + ":" + getHasReservation()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "sittingIn = "+(getSittingIn()!=null?Integer.toHexString(System.identityHashCode(getSittingIn())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "booked = "+(getBooked()!=null?Integer.toHexString(System.identityHashCode(getBooked())):"null");
+            "  " + "seat = "+(getSeat()!=null?Integer.toHexString(System.identityHashCode(getSeat())):"null") + System.getProperties().getProperty("line.separator") +
+            "  " + "reservation = "+(getReservation()!=null?Integer.toHexString(System.identityHashCode(getReservation())):"null");
   }
 }

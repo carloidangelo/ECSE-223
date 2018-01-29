@@ -12,94 +12,94 @@ public class BillingGroup
   //------------------------
 
   //BillingGroup Associations
-  private Customer contains;
-  private Bill pays;
+  private Customer member;
+  private Bill bill;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public BillingGroup(Customer aContains, Bill aPays)
+  public BillingGroup(Customer aMember, Bill aBill)
   {
-    boolean didAddContains = setContains(aContains);
-    if (!didAddContains)
+    boolean didAddMember = setMember(aMember);
+    if (!didAddMember)
     {
-      throw new RuntimeException("Unable to create partOf due to contains");
+      throw new RuntimeException("Unable to create billingGroup due to member");
     }
-    if (aPays == null || aPays.getPaidBy() != null)
+    if (aBill == null || aBill.getPayer() != null)
     {
-      throw new RuntimeException("Unable to create BillingGroup due to aPays");
+      throw new RuntimeException("Unable to create BillingGroup due to aBill");
     }
-    pays = aPays;
+    bill = aBill;
   }
 
-  public BillingGroup(Customer aContains)
+  public BillingGroup(Customer aMember)
   {
-    boolean didAddContains = setContains(aContains);
-    if (!didAddContains)
+    boolean didAddMember = setMember(aMember);
+    if (!didAddMember)
     {
-      throw new RuntimeException("Unable to create partOf due to contains");
+      throw new RuntimeException("Unable to create billingGroup due to member");
     }
-    pays = new Bill(this);
+    bill = new Bill(this);
   }
 
   //------------------------
   // INTERFACE
   //------------------------
 
-  public Customer getContains()
+  public Customer getMember()
   {
-    return contains;
+    return member;
   }
 
-  public Bill getPays()
+  public Bill getBill()
   {
-    return pays;
+    return bill;
   }
 
-  public boolean setContains(Customer aContains)
+  public boolean setMember(Customer aMember)
   {
     boolean wasSet = false;
-    //Must provide contains to partOf
-    if (aContains == null)
+    //Must provide member to billingGroup
+    if (aMember == null)
     {
       return wasSet;
     }
 
-    if (contains != null && contains.numberOfPartOf() <= Customer.minimumNumberOfPartOf())
+    if (member != null && member.numberOfBillingGroup() <= Customer.minimumNumberOfBillingGroup())
     {
       return wasSet;
     }
 
-    Customer existingContains = contains;
-    contains = aContains;
-    if (existingContains != null && !existingContains.equals(aContains))
+    Customer existingMember = member;
+    member = aMember;
+    if (existingMember != null && !existingMember.equals(aMember))
     {
-      boolean didRemove = existingContains.removePartOf(this);
+      boolean didRemove = existingMember.removeBillingGroup(this);
       if (!didRemove)
       {
-        contains = existingContains;
+        member = existingMember;
         return wasSet;
       }
     }
-    contains.addPartOf(this);
+    member.addBillingGroup(this);
     wasSet = true;
     return wasSet;
   }
 
   public void delete()
   {
-    Customer placeholderContains = contains;
-    this.contains = null;
-    if(placeholderContains != null)
+    Customer placeholderMember = member;
+    this.member = null;
+    if(placeholderMember != null)
     {
-      placeholderContains.removePartOf(this);
+      placeholderMember.removeBillingGroup(this);
     }
-    Bill existingPays = pays;
-    pays = null;
-    if (existingPays != null)
+    Bill existingBill = bill;
+    bill = null;
+    if (existingBill != null)
     {
-      existingPays.delete();
+      existingBill.delete();
     }
   }
 

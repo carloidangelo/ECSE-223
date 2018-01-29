@@ -13,7 +13,7 @@ public class Waiter extends Person
   //------------------------
 
   //Waiter Associations
-  private List<Table> waitsOn;
+  private List<Table> assignedTable;
 
   //------------------------
   // CONSTRUCTOR
@@ -22,121 +22,121 @@ public class Waiter extends Person
   public Waiter(String aName, String aPhoneNumber, String aEmailAddress)
   {
     super(aName, aPhoneNumber, aEmailAddress);
-    waitsOn = new ArrayList<Table>();
+    assignedTable = new ArrayList<Table>();
   }
 
   //------------------------
   // INTERFACE
   //------------------------
 
-  public Table getWaitsOn(int index)
+  public Table getAssignedTable(int index)
   {
-    Table aWaitsOn = waitsOn.get(index);
-    return aWaitsOn;
+    Table aAssignedTable = assignedTable.get(index);
+    return aAssignedTable;
   }
 
-  public List<Table> getWaitsOn()
+  public List<Table> getAssignedTable()
   {
-    List<Table> newWaitsOn = Collections.unmodifiableList(waitsOn);
-    return newWaitsOn;
+    List<Table> newAssignedTable = Collections.unmodifiableList(assignedTable);
+    return newAssignedTable;
   }
 
-  public int numberOfWaitsOn()
+  public int numberOfAssignedTable()
   {
-    int number = waitsOn.size();
+    int number = assignedTable.size();
     return number;
   }
 
-  public boolean hasWaitsOn()
+  public boolean hasAssignedTable()
   {
-    boolean has = waitsOn.size() > 0;
+    boolean has = assignedTable.size() > 0;
     return has;
   }
 
-  public int indexOfWaitsOn(Table aWaitsOn)
+  public int indexOfAssignedTable(Table aAssignedTable)
   {
-    int index = waitsOn.indexOf(aWaitsOn);
+    int index = assignedTable.indexOf(aAssignedTable);
     return index;
   }
 
-  public static int minimumNumberOfWaitsOn()
+  public static int minimumNumberOfAssignedTable()
   {
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Table addWaitsOn(int aTableNumber, int aNumSeats, boolean aIsAvailable, Reservation aReservedFor, TableLocation aLocatedAt)
+  public Table addAssignedTable(int aTableNumber, int aNumSeats, boolean aIsAvailable, Reservation aReservation, TableLocation aLocation)
   {
-    return new Table(aTableNumber, aNumSeats, aIsAvailable, aReservedFor, aLocatedAt, this);
+    return new Table(aTableNumber, aNumSeats, aIsAvailable, aReservation, aLocation, this);
   }
 
-  public boolean addWaitsOn(Table aWaitsOn)
+  public boolean addAssignedTable(Table aAssignedTable)
   {
     boolean wasAdded = false;
-    if (waitsOn.contains(aWaitsOn)) { return false; }
-    Waiter existingWaitedBy = aWaitsOn.getWaitedBy();
-    boolean isNewWaitedBy = existingWaitedBy != null && !this.equals(existingWaitedBy);
-    if (isNewWaitedBy)
+    if (assignedTable.contains(aAssignedTable)) { return false; }
+    Waiter existingWaiter = aAssignedTable.getWaiter();
+    boolean isNewWaiter = existingWaiter != null && !this.equals(existingWaiter);
+    if (isNewWaiter)
     {
-      aWaitsOn.setWaitedBy(this);
+      aAssignedTable.setWaiter(this);
     }
     else
     {
-      waitsOn.add(aWaitsOn);
+      assignedTable.add(aAssignedTable);
     }
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeWaitsOn(Table aWaitsOn)
+  public boolean removeAssignedTable(Table aAssignedTable)
   {
     boolean wasRemoved = false;
-    //Unable to remove aWaitsOn, as it must always have a waitedBy
-    if (!this.equals(aWaitsOn.getWaitedBy()))
+    //Unable to remove aAssignedTable, as it must always have a waiter
+    if (!this.equals(aAssignedTable.getWaiter()))
     {
-      waitsOn.remove(aWaitsOn);
+      assignedTable.remove(aAssignedTable);
       wasRemoved = true;
     }
     return wasRemoved;
   }
 
-  public boolean addWaitsOnAt(Table aWaitsOn, int index)
+  public boolean addAssignedTableAt(Table aAssignedTable, int index)
   {  
     boolean wasAdded = false;
-    if(addWaitsOn(aWaitsOn))
+    if(addAssignedTable(aAssignedTable))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfWaitsOn()) { index = numberOfWaitsOn() - 1; }
-      waitsOn.remove(aWaitsOn);
-      waitsOn.add(index, aWaitsOn);
+      if(index > numberOfAssignedTable()) { index = numberOfAssignedTable() - 1; }
+      assignedTable.remove(aAssignedTable);
+      assignedTable.add(index, aAssignedTable);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveWaitsOnAt(Table aWaitsOn, int index)
+  public boolean addOrMoveAssignedTableAt(Table aAssignedTable, int index)
   {
     boolean wasAdded = false;
-    if(waitsOn.contains(aWaitsOn))
+    if(assignedTable.contains(aAssignedTable))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfWaitsOn()) { index = numberOfWaitsOn() - 1; }
-      waitsOn.remove(aWaitsOn);
-      waitsOn.add(index, aWaitsOn);
+      if(index > numberOfAssignedTable()) { index = numberOfAssignedTable() - 1; }
+      assignedTable.remove(aAssignedTable);
+      assignedTable.add(index, aAssignedTable);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addWaitsOnAt(aWaitsOn, index);
+      wasAdded = addAssignedTableAt(aAssignedTable, index);
     }
     return wasAdded;
   }
 
   public void delete()
   {
-    for(int i=waitsOn.size(); i > 0; i--)
+    for(int i=assignedTable.size(); i > 0; i--)
     {
-      Table aWaitsOn = waitsOn.get(i - 1);
-      aWaitsOn.delete();
+      Table aAssignedTable = assignedTable.get(i - 1);
+      aAssignedTable.delete();
     }
     super.delete();
   }

@@ -15,26 +15,26 @@ public class TableLocation
   private String locationName;
 
   //TableLocation Associations
-  private Table occupiedBy;
+  private Table table;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public TableLocation(String aLocationName, Table aOccupiedBy)
+  public TableLocation(String aLocationName, Table aTable)
   {
     locationName = aLocationName;
-    if (aOccupiedBy == null || aOccupiedBy.getLocatedAt() != null)
+    if (aTable == null || aTable.getLocation() != null)
     {
-      throw new RuntimeException("Unable to create TableLocation due to aOccupiedBy");
+      throw new RuntimeException("Unable to create TableLocation due to aTable");
     }
-    occupiedBy = aOccupiedBy;
+    table = aTable;
   }
 
-  public TableLocation(String aLocationName, int aTableNumberForOccupiedBy, int aNumSeatsForOccupiedBy, boolean aIsAvailableForOccupiedBy, Reservation aReservedForForOccupiedBy, Waiter aWaitedByForOccupiedBy)
+  public TableLocation(String aLocationName, int aTableNumberForTable, int aNumSeatsForTable, boolean aIsAvailableForTable, Reservation aReservationForTable, Waiter aWaiterForTable)
   {
     locationName = aLocationName;
-    occupiedBy = new Table(aTableNumberForOccupiedBy, aNumSeatsForOccupiedBy, aIsAvailableForOccupiedBy, aReservedForForOccupiedBy, this, aWaitedByForOccupiedBy);
+    table = new Table(aTableNumberForTable, aNumSeatsForTable, aIsAvailableForTable, aReservationForTable, this, aWaiterForTable);
   }
 
   //------------------------
@@ -54,18 +54,18 @@ public class TableLocation
     return locationName;
   }
 
-  public Table getOccupiedBy()
+  public Table getTable()
   {
-    return occupiedBy;
+    return table;
   }
 
   public void delete()
   {
-    Table existingOccupiedBy = occupiedBy;
-    occupiedBy = null;
-    if (existingOccupiedBy != null)
+    Table existingTable = table;
+    table = null;
+    if (existingTable != null)
     {
-      existingOccupiedBy.delete();
+      existingTable.delete();
     }
   }
 
@@ -74,6 +74,6 @@ public class TableLocation
   {
     return super.toString() + "["+
             "locationName" + ":" + getLocationName()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "occupiedBy = "+(getOccupiedBy()!=null?Integer.toHexString(System.identityHashCode(getOccupiedBy())):"null");
+            "  " + "table = "+(getTable()!=null?Integer.toHexString(System.identityHashCode(getTable())):"null");
   }
 }

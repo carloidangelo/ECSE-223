@@ -17,21 +17,21 @@ public class OrderedDish
   private boolean isShared;
 
   //OrderedDish Associations
-  private List<Order> partOf;
-  private DishName isDishOf;
+  private List<Order> order;
+  private DishName menuItem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public OrderedDish(int aNumItems, boolean aIsShared, DishName aIsDishOf)
+  public OrderedDish(int aNumItems, boolean aIsShared, DishName aMenuItem)
   {
     numItems = aNumItems;
     isShared = aIsShared;
-    partOf = new ArrayList<Order>();
-    if (!setIsDishOf(aIsDishOf))
+    order = new ArrayList<Order>();
+    if (!setMenuItem(aMenuItem))
     {
-      throw new RuntimeException("Unable to create OrderedDish due to aIsDishOf");
+      throw new RuntimeException("Unable to create OrderedDish due to aMenuItem");
     }
   }
 
@@ -65,181 +65,181 @@ public class OrderedDish
     return isShared;
   }
 
-  public Order getPartOf(int index)
+  public Order getOrder(int index)
   {
-    Order aPartOf = partOf.get(index);
-    return aPartOf;
+    Order aOrder = order.get(index);
+    return aOrder;
   }
 
-  public List<Order> getPartOf()
+  public List<Order> getOrder()
   {
-    List<Order> newPartOf = Collections.unmodifiableList(partOf);
-    return newPartOf;
+    List<Order> newOrder = Collections.unmodifiableList(order);
+    return newOrder;
   }
 
-  public int numberOfPartOf()
+  public int numberOfOrder()
   {
-    int number = partOf.size();
+    int number = order.size();
     return number;
   }
 
-  public boolean hasPartOf()
+  public boolean hasOrder()
   {
-    boolean has = partOf.size() > 0;
+    boolean has = order.size() > 0;
     return has;
   }
 
-  public int indexOfPartOf(Order aPartOf)
+  public int indexOfOrder(Order aOrder)
   {
-    int index = partOf.indexOf(aPartOf);
+    int index = order.indexOf(aOrder);
     return index;
   }
 
-  public DishName getIsDishOf()
+  public DishName getMenuItem()
   {
-    return isDishOf;
+    return menuItem;
   }
 
-  public boolean isNumberOfPartOfValid()
+  public boolean isNumberOfOrderValid()
   {
-    boolean isValid = numberOfPartOf() >= minimumNumberOfPartOf();
+    boolean isValid = numberOfOrder() >= minimumNumberOfOrder();
     return isValid;
   }
 
-  public static int minimumNumberOfPartOf()
+  public static int minimumNumberOfOrder()
   {
     return 1;
   }
 
-  public boolean addPartOf(Order aPartOf)
+  public boolean addOrder(Order aOrder)
   {
     boolean wasAdded = false;
-    if (partOf.contains(aPartOf)) { return false; }
-    partOf.add(aPartOf);
-    if (aPartOf.indexOfContain(this) != -1)
+    if (order.contains(aOrder)) { return false; }
+    order.add(aOrder);
+    if (aOrder.indexOfOrderItem(this) != -1)
     {
       wasAdded = true;
     }
     else
     {
-      wasAdded = aPartOf.addContain(this);
+      wasAdded = aOrder.addOrderItem(this);
       if (!wasAdded)
       {
-        partOf.remove(aPartOf);
+        order.remove(aOrder);
       }
     }
     return wasAdded;
   }
 
-  public boolean removePartOf(Order aPartOf)
+  public boolean removeOrder(Order aOrder)
   {
     boolean wasRemoved = false;
-    if (!partOf.contains(aPartOf))
+    if (!order.contains(aOrder))
     {
       return wasRemoved;
     }
 
-    if (numberOfPartOf() <= minimumNumberOfPartOf())
+    if (numberOfOrder() <= minimumNumberOfOrder())
     {
       return wasRemoved;
     }
 
-    int oldIndex = partOf.indexOf(aPartOf);
-    partOf.remove(oldIndex);
-    if (aPartOf.indexOfContain(this) == -1)
+    int oldIndex = order.indexOf(aOrder);
+    order.remove(oldIndex);
+    if (aOrder.indexOfOrderItem(this) == -1)
     {
       wasRemoved = true;
     }
     else
     {
-      wasRemoved = aPartOf.removeContain(this);
+      wasRemoved = aOrder.removeOrderItem(this);
       if (!wasRemoved)
       {
-        partOf.add(oldIndex,aPartOf);
+        order.add(oldIndex,aOrder);
       }
     }
     return wasRemoved;
   }
 
-  public boolean setPartOf(Order... newPartOf)
+  public boolean setOrder(Order... newOrder)
   {
     boolean wasSet = false;
-    ArrayList<Order> verifiedPartOf = new ArrayList<Order>();
-    for (Order aPartOf : newPartOf)
+    ArrayList<Order> verifiedOrder = new ArrayList<Order>();
+    for (Order aOrder : newOrder)
     {
-      if (verifiedPartOf.contains(aPartOf))
+      if (verifiedOrder.contains(aOrder))
       {
         continue;
       }
-      verifiedPartOf.add(aPartOf);
+      verifiedOrder.add(aOrder);
     }
 
-    if (verifiedPartOf.size() != newPartOf.length || verifiedPartOf.size() < minimumNumberOfPartOf())
+    if (verifiedOrder.size() != newOrder.length || verifiedOrder.size() < minimumNumberOfOrder())
     {
       return wasSet;
     }
 
-    ArrayList<Order> oldPartOf = new ArrayList<Order>(partOf);
-    partOf.clear();
-    for (Order aNewPartOf : verifiedPartOf)
+    ArrayList<Order> oldOrder = new ArrayList<Order>(order);
+    order.clear();
+    for (Order aNewOrder : verifiedOrder)
     {
-      partOf.add(aNewPartOf);
-      if (oldPartOf.contains(aNewPartOf))
+      order.add(aNewOrder);
+      if (oldOrder.contains(aNewOrder))
       {
-        oldPartOf.remove(aNewPartOf);
+        oldOrder.remove(aNewOrder);
       }
       else
       {
-        aNewPartOf.addContain(this);
+        aNewOrder.addOrderItem(this);
       }
     }
 
-    for (Order anOldPartOf : oldPartOf)
+    for (Order anOldOrder : oldOrder)
     {
-      anOldPartOf.removeContain(this);
+      anOldOrder.removeOrderItem(this);
     }
     wasSet = true;
     return wasSet;
   }
 
-  public boolean addPartOfAt(Order aPartOf, int index)
+  public boolean addOrderAt(Order aOrder, int index)
   {  
     boolean wasAdded = false;
-    if(addPartOf(aPartOf))
+    if(addOrder(aOrder))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfPartOf()) { index = numberOfPartOf() - 1; }
-      partOf.remove(aPartOf);
-      partOf.add(index, aPartOf);
+      if(index > numberOfOrder()) { index = numberOfOrder() - 1; }
+      order.remove(aOrder);
+      order.add(index, aOrder);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMovePartOfAt(Order aPartOf, int index)
+  public boolean addOrMoveOrderAt(Order aOrder, int index)
   {
     boolean wasAdded = false;
-    if(partOf.contains(aPartOf))
+    if(order.contains(aOrder))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfPartOf()) { index = numberOfPartOf() - 1; }
-      partOf.remove(aPartOf);
-      partOf.add(index, aPartOf);
+      if(index > numberOfOrder()) { index = numberOfOrder() - 1; }
+      order.remove(aOrder);
+      order.add(index, aOrder);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addPartOfAt(aPartOf, index);
+      wasAdded = addOrderAt(aOrder, index);
     }
     return wasAdded;
   }
 
-  public boolean setIsDishOf(DishName aNewIsDishOf)
+  public boolean setMenuItem(DishName aNewMenuItem)
   {
     boolean wasSet = false;
-    if (aNewIsDishOf != null)
+    if (aNewMenuItem != null)
     {
-      isDishOf = aNewIsDishOf;
+      menuItem = aNewMenuItem;
       wasSet = true;
     }
     return wasSet;
@@ -247,20 +247,20 @@ public class OrderedDish
 
   public void delete()
   {
-    ArrayList<Order> copyOfPartOf = new ArrayList<Order>(partOf);
-    partOf.clear();
-    for(Order aPartOf : copyOfPartOf)
+    ArrayList<Order> copyOfOrder = new ArrayList<Order>(order);
+    order.clear();
+    for(Order aOrder : copyOfOrder)
     {
-      if (aPartOf.numberOfContains() <= Order.minimumNumberOfContains())
+      if (aOrder.numberOfOrderItem() <= Order.minimumNumberOfOrderItem())
       {
-        aPartOf.delete();
+        aOrder.delete();
       }
       else
       {
-        aPartOf.removeContain(this);
+        aOrder.removeOrderItem(this);
       }
     }
-    isDishOf = null;
+    menuItem = null;
   }
 
 
@@ -269,6 +269,6 @@ public class OrderedDish
     return super.toString() + "["+
             "numItems" + ":" + getNumItems()+ "," +
             "isShared" + ":" + getIsShared()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "isDishOf = "+(getIsDishOf()!=null?Integer.toHexString(System.identityHashCode(getIsDishOf())):"null");
+            "  " + "menuItem = "+(getMenuItem()!=null?Integer.toHexString(System.identityHashCode(getMenuItem())):"null");
   }
 }

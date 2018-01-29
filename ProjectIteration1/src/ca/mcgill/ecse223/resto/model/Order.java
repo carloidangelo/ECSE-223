@@ -13,234 +13,234 @@ public class Order
   //------------------------
 
   //Order Associations
-  private Customer placedBy;
-  private List<OrderedDish> contains;
+  private Customer orderPlacer;
+  private List<OrderedDish> orderItem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Order(Customer aPlacedBy)
+  public Order(Customer aOrderPlacer)
   {
-    boolean didAddPlacedBy = setPlacedBy(aPlacedBy);
-    if (!didAddPlacedBy)
+    boolean didAddOrderPlacer = setOrderPlacer(aOrderPlacer);
+    if (!didAddOrderPlacer)
     {
-      throw new RuntimeException("Unable to create placed due to placedBy");
+      throw new RuntimeException("Unable to create order due to orderPlacer");
     }
-    contains = new ArrayList<OrderedDish>();
+    orderItem = new ArrayList<OrderedDish>();
   }
 
   //------------------------
   // INTERFACE
   //------------------------
 
-  public Customer getPlacedBy()
+  public Customer getOrderPlacer()
   {
-    return placedBy;
+    return orderPlacer;
   }
 
-  public OrderedDish getContain(int index)
+  public OrderedDish getOrderItem(int index)
   {
-    OrderedDish aContain = contains.get(index);
-    return aContain;
+    OrderedDish aOrderItem = orderItem.get(index);
+    return aOrderItem;
   }
 
-  public List<OrderedDish> getContains()
+  public List<OrderedDish> getOrderItem()
   {
-    List<OrderedDish> newContains = Collections.unmodifiableList(contains);
-    return newContains;
+    List<OrderedDish> newOrderItem = Collections.unmodifiableList(orderItem);
+    return newOrderItem;
   }
 
-  public int numberOfContains()
+  public int numberOfOrderItem()
   {
-    int number = contains.size();
+    int number = orderItem.size();
     return number;
   }
 
-  public boolean hasContains()
+  public boolean hasOrderItem()
   {
-    boolean has = contains.size() > 0;
+    boolean has = orderItem.size() > 0;
     return has;
   }
 
-  public int indexOfContain(OrderedDish aContain)
+  public int indexOfOrderItem(OrderedDish aOrderItem)
   {
-    int index = contains.indexOf(aContain);
+    int index = orderItem.indexOf(aOrderItem);
     return index;
   }
 
-  public boolean setPlacedBy(Customer aPlacedBy)
+  public boolean setOrderPlacer(Customer aOrderPlacer)
   {
     boolean wasSet = false;
-    if (aPlacedBy == null)
+    if (aOrderPlacer == null)
     {
       return wasSet;
     }
 
-    Customer existingPlacedBy = placedBy;
-    placedBy = aPlacedBy;
-    if (existingPlacedBy != null && !existingPlacedBy.equals(aPlacedBy))
+    Customer existingOrderPlacer = orderPlacer;
+    orderPlacer = aOrderPlacer;
+    if (existingOrderPlacer != null && !existingOrderPlacer.equals(aOrderPlacer))
     {
-      existingPlacedBy.removePlaced(this);
+      existingOrderPlacer.removeOrder(this);
     }
-    placedBy.addPlaced(this);
+    orderPlacer.addOrder(this);
     wasSet = true;
     return wasSet;
   }
 
-  public boolean isNumberOfContainsValid()
+  public boolean isNumberOfOrderItemValid()
   {
-    boolean isValid = numberOfContains() >= minimumNumberOfContains();
+    boolean isValid = numberOfOrderItem() >= minimumNumberOfOrderItem();
     return isValid;
   }
 
-  public static int minimumNumberOfContains()
+  public static int minimumNumberOfOrderItem()
   {
     return 1;
   }
 
-  public boolean addContain(OrderedDish aContain)
+  public boolean addOrderItem(OrderedDish aOrderItem)
   {
     boolean wasAdded = false;
-    if (contains.contains(aContain)) { return false; }
-    contains.add(aContain);
-    if (aContain.indexOfPartOf(this) != -1)
+    if (orderItem.contains(aOrderItem)) { return false; }
+    orderItem.add(aOrderItem);
+    if (aOrderItem.indexOfOrder(this) != -1)
     {
       wasAdded = true;
     }
     else
     {
-      wasAdded = aContain.addPartOf(this);
+      wasAdded = aOrderItem.addOrder(this);
       if (!wasAdded)
       {
-        contains.remove(aContain);
+        orderItem.remove(aOrderItem);
       }
     }
     return wasAdded;
   }
 
-  public boolean removeContain(OrderedDish aContain)
+  public boolean removeOrderItem(OrderedDish aOrderItem)
   {
     boolean wasRemoved = false;
-    if (!contains.contains(aContain))
+    if (!orderItem.contains(aOrderItem))
     {
       return wasRemoved;
     }
 
-    if (numberOfContains() <= minimumNumberOfContains())
+    if (numberOfOrderItem() <= minimumNumberOfOrderItem())
     {
       return wasRemoved;
     }
 
-    int oldIndex = contains.indexOf(aContain);
-    contains.remove(oldIndex);
-    if (aContain.indexOfPartOf(this) == -1)
+    int oldIndex = orderItem.indexOf(aOrderItem);
+    orderItem.remove(oldIndex);
+    if (aOrderItem.indexOfOrder(this) == -1)
     {
       wasRemoved = true;
     }
     else
     {
-      wasRemoved = aContain.removePartOf(this);
+      wasRemoved = aOrderItem.removeOrder(this);
       if (!wasRemoved)
       {
-        contains.add(oldIndex,aContain);
+        orderItem.add(oldIndex,aOrderItem);
       }
     }
     return wasRemoved;
   }
 
-  public boolean setContains(OrderedDish... newContains)
+  public boolean setOrderItem(OrderedDish... newOrderItem)
   {
     boolean wasSet = false;
-    ArrayList<OrderedDish> verifiedContains = new ArrayList<OrderedDish>();
-    for (OrderedDish aContain : newContains)
+    ArrayList<OrderedDish> verifiedOrderItem = new ArrayList<OrderedDish>();
+    for (OrderedDish aOrderItem : newOrderItem)
     {
-      if (verifiedContains.contains(aContain))
+      if (verifiedOrderItem.contains(aOrderItem))
       {
         continue;
       }
-      verifiedContains.add(aContain);
+      verifiedOrderItem.add(aOrderItem);
     }
 
-    if (verifiedContains.size() != newContains.length || verifiedContains.size() < minimumNumberOfContains())
+    if (verifiedOrderItem.size() != newOrderItem.length || verifiedOrderItem.size() < minimumNumberOfOrderItem())
     {
       return wasSet;
     }
 
-    ArrayList<OrderedDish> oldContains = new ArrayList<OrderedDish>(contains);
-    contains.clear();
-    for (OrderedDish aNewContain : verifiedContains)
+    ArrayList<OrderedDish> oldOrderItem = new ArrayList<OrderedDish>(orderItem);
+    orderItem.clear();
+    for (OrderedDish aNewOrderItem : verifiedOrderItem)
     {
-      contains.add(aNewContain);
-      if (oldContains.contains(aNewContain))
+      orderItem.add(aNewOrderItem);
+      if (oldOrderItem.contains(aNewOrderItem))
       {
-        oldContains.remove(aNewContain);
+        oldOrderItem.remove(aNewOrderItem);
       }
       else
       {
-        aNewContain.addPartOf(this);
+        aNewOrderItem.addOrder(this);
       }
     }
 
-    for (OrderedDish anOldContain : oldContains)
+    for (OrderedDish anOldOrderItem : oldOrderItem)
     {
-      anOldContain.removePartOf(this);
+      anOldOrderItem.removeOrder(this);
     }
     wasSet = true;
     return wasSet;
   }
 
-  public boolean addContainAt(OrderedDish aContain, int index)
+  public boolean addOrderItemAt(OrderedDish aOrderItem, int index)
   {  
     boolean wasAdded = false;
-    if(addContain(aContain))
+    if(addOrderItem(aOrderItem))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfContains()) { index = numberOfContains() - 1; }
-      contains.remove(aContain);
-      contains.add(index, aContain);
+      if(index > numberOfOrderItem()) { index = numberOfOrderItem() - 1; }
+      orderItem.remove(aOrderItem);
+      orderItem.add(index, aOrderItem);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveContainAt(OrderedDish aContain, int index)
+  public boolean addOrMoveOrderItemAt(OrderedDish aOrderItem, int index)
   {
     boolean wasAdded = false;
-    if(contains.contains(aContain))
+    if(orderItem.contains(aOrderItem))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfContains()) { index = numberOfContains() - 1; }
-      contains.remove(aContain);
-      contains.add(index, aContain);
+      if(index > numberOfOrderItem()) { index = numberOfOrderItem() - 1; }
+      orderItem.remove(aOrderItem);
+      orderItem.add(index, aOrderItem);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addContainAt(aContain, index);
+      wasAdded = addOrderItemAt(aOrderItem, index);
     }
     return wasAdded;
   }
 
   public void delete()
   {
-    Customer placeholderPlacedBy = placedBy;
-    this.placedBy = null;
-    if(placeholderPlacedBy != null)
+    Customer placeholderOrderPlacer = orderPlacer;
+    this.orderPlacer = null;
+    if(placeholderOrderPlacer != null)
     {
-      placeholderPlacedBy.removePlaced(this);
+      placeholderOrderPlacer.removeOrder(this);
     }
-    ArrayList<OrderedDish> copyOfContains = new ArrayList<OrderedDish>(contains);
-    contains.clear();
-    for(OrderedDish aContain : copyOfContains)
+    ArrayList<OrderedDish> copyOfOrderItem = new ArrayList<OrderedDish>(orderItem);
+    orderItem.clear();
+    for(OrderedDish aOrderItem : copyOfOrderItem)
     {
-      if (aContain.numberOfPartOf() <= OrderedDish.minimumNumberOfPartOf())
+      if (aOrderItem.numberOfOrder() <= OrderedDish.minimumNumberOfOrder())
       {
-        aContain.delete();
+        aOrderItem.delete();
       }
       else
       {
-        aContain.removePartOf(this);
+        aOrderItem.removeOrder(this);
       }
     }
   }

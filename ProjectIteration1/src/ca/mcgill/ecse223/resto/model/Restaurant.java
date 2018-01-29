@@ -16,7 +16,7 @@ public class Restaurant
   private String restaurantName;
 
   //Restaurant Associations
-  private List<Table> tabling;
+  private List<Table> table;
 
   //------------------------
   // CONSTRUCTOR
@@ -25,7 +25,7 @@ public class Restaurant
   public Restaurant(String aRestaurantName)
   {
     restaurantName = aRestaurantName;
-    tabling = new ArrayList<Table>();
+    table = new ArrayList<Table>();
   }
 
   //------------------------
@@ -45,96 +45,96 @@ public class Restaurant
     return restaurantName;
   }
 
-  public Table getTabling(int index)
+  public Table getTable(int index)
   {
-    Table aTabling = tabling.get(index);
-    return aTabling;
+    Table aTable = table.get(index);
+    return aTable;
   }
 
-  public List<Table> getTabling()
+  public List<Table> getTable()
   {
-    List<Table> newTabling = Collections.unmodifiableList(tabling);
-    return newTabling;
+    List<Table> newTable = Collections.unmodifiableList(table);
+    return newTable;
   }
 
-  public int numberOfTabling()
+  public int numberOfTable()
   {
-    int number = tabling.size();
+    int number = table.size();
     return number;
   }
 
-  public boolean hasTabling()
+  public boolean hasTable()
   {
-    boolean has = tabling.size() > 0;
+    boolean has = table.size() > 0;
     return has;
   }
 
-  public int indexOfTabling(Table aTabling)
+  public int indexOfTable(Table aTable)
   {
-    int index = tabling.indexOf(aTabling);
+    int index = table.indexOf(aTable);
     return index;
   }
 
-  public static int minimumNumberOfTabling()
+  public static int minimumNumberOfTable()
   {
     return 0;
   }
 
-  public boolean addTabling(Table aTabling)
+  public boolean addTable(Table aTable)
   {
     boolean wasAdded = false;
-    if (tabling.contains(aTabling)) { return false; }
-    tabling.add(aTabling);
+    if (table.contains(aTable)) { return false; }
+    table.add(aTable);
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeTabling(Table aTabling)
+  public boolean removeTable(Table aTable)
   {
     boolean wasRemoved = false;
-    if (tabling.contains(aTabling))
+    if (table.contains(aTable))
     {
-      tabling.remove(aTabling);
+      table.remove(aTable);
       wasRemoved = true;
     }
     return wasRemoved;
   }
 
-  public boolean addTablingAt(Table aTabling, int index)
+  public boolean addTableAt(Table aTable, int index)
   {  
     boolean wasAdded = false;
-    if(addTabling(aTabling))
+    if(addTable(aTable))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfTabling()) { index = numberOfTabling() - 1; }
-      tabling.remove(aTabling);
-      tabling.add(index, aTabling);
+      if(index > numberOfTable()) { index = numberOfTable() - 1; }
+      table.remove(aTable);
+      table.add(index, aTable);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveTablingAt(Table aTabling, int index)
+  public boolean addOrMoveTableAt(Table aTable, int index)
   {
     boolean wasAdded = false;
-    if(tabling.contains(aTabling))
+    if(table.contains(aTable))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfTabling()) { index = numberOfTabling() - 1; }
-      tabling.remove(aTabling);
-      tabling.add(index, aTabling);
+      if(index > numberOfTable()) { index = numberOfTable() - 1; }
+      table.remove(aTable);
+      table.add(index, aTable);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addTablingAt(aTabling, index);
+      wasAdded = addTableAt(aTable, index);
     }
     return wasAdded;
   }
 
   public void delete()
   {
-    tabling.clear();
+    table.clear();
   }
 
 

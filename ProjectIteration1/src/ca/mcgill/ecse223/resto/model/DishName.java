@@ -13,23 +13,23 @@ public class DishName
 
   //DishName Attributes
   private String name;
-  private String price;
+  private float price;
 
   //DishName Associations
-  private DishCategory isType;
+  private DishCategory category;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public DishName(String aName, String aPrice, DishCategory aIsType)
+  public DishName(String aName, float aPrice, DishCategory aCategory)
   {
     name = aName;
     price = aPrice;
-    boolean didAddIsType = setIsType(aIsType);
-    if (!didAddIsType)
+    boolean didAddCategory = setCategory(aCategory);
+    if (!didAddCategory)
     {
-      throw new RuntimeException("Unable to create contain due to isType");
+      throw new RuntimeException("Unable to create categoryItem due to category");
     }
   }
 
@@ -45,7 +45,7 @@ public class DishName
     return wasSet;
   }
 
-  public boolean setPrice(String aPrice)
+  public boolean setPrice(float aPrice)
   {
     boolean wasSet = false;
     price = aPrice;
@@ -58,42 +58,42 @@ public class DishName
     return name;
   }
 
-  public String getPrice()
+  public float getPrice()
   {
     return price;
   }
 
-  public DishCategory getIsType()
+  public DishCategory getCategory()
   {
-    return isType;
+    return category;
   }
 
-  public boolean setIsType(DishCategory aIsType)
+  public boolean setCategory(DishCategory aCategory)
   {
     boolean wasSet = false;
-    if (aIsType == null)
+    if (aCategory == null)
     {
       return wasSet;
     }
 
-    DishCategory existingIsType = isType;
-    isType = aIsType;
-    if (existingIsType != null && !existingIsType.equals(aIsType))
+    DishCategory existingCategory = category;
+    category = aCategory;
+    if (existingCategory != null && !existingCategory.equals(aCategory))
     {
-      existingIsType.removeContain(this);
+      existingCategory.removeCategoryItem(this);
     }
-    isType.addContain(this);
+    category.addCategoryItem(this);
     wasSet = true;
     return wasSet;
   }
 
   public void delete()
   {
-    DishCategory placeholderIsType = isType;
-    this.isType = null;
-    if(placeholderIsType != null)
+    DishCategory placeholderCategory = category;
+    this.category = null;
+    if(placeholderCategory != null)
     {
-      placeholderIsType.removeContain(this);
+      placeholderCategory.removeCategoryItem(this);
     }
   }
 
@@ -103,6 +103,6 @@ public class DishName
     return super.toString() + "["+
             "name" + ":" + getName()+ "," +
             "price" + ":" + getPrice()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "isType = "+(getIsType()!=null?Integer.toHexString(System.identityHashCode(getIsType())):"null");
+            "  " + "category = "+(getCategory()!=null?Integer.toHexString(System.identityHashCode(getCategory())):"null");
   }
 }

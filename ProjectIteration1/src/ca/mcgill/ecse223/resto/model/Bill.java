@@ -12,42 +12,42 @@ public class Bill
   //------------------------
 
   //Bill Associations
-  private BillingGroup paidBy;
+  private BillingGroup payer;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Bill(BillingGroup aPaidBy)
+  public Bill(BillingGroup aPayer)
   {
-    if (aPaidBy == null || aPaidBy.getPays() != null)
+    if (aPayer == null || aPayer.getBill() != null)
     {
-      throw new RuntimeException("Unable to create Bill due to aPaidBy");
+      throw new RuntimeException("Unable to create Bill due to aPayer");
     }
-    paidBy = aPaidBy;
+    payer = aPayer;
   }
 
-  public Bill(Customer aContainsForPaidBy)
+  public Bill(Customer aMemberForPayer)
   {
-    paidBy = new BillingGroup(aContainsForPaidBy, this);
+    payer = new BillingGroup(aMemberForPayer, this);
   }
 
   //------------------------
   // INTERFACE
   //------------------------
 
-  public BillingGroup getPaidBy()
+  public BillingGroup getPayer()
   {
-    return paidBy;
+    return payer;
   }
 
   public void delete()
   {
-    BillingGroup existingPaidBy = paidBy;
-    paidBy = null;
-    if (existingPaidBy != null)
+    BillingGroup existingPayer = payer;
+    payer = null;
+    if (existingPayer != null)
     {
-      existingPaidBy.delete();
+      existingPayer.delete();
     }
   }
 
