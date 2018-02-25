@@ -9,6 +9,11 @@ public class BillingGroup
 
   //------------------------
   // MEMBER VARIABLES
+  
+  
+  
+  
+  
   //------------------------
 
   //BillingGroup Associations
