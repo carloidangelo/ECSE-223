@@ -659,6 +659,18 @@ public class Table implements Serializable
 	  	}
   }
 
+  // line 36 "../../../../../RestoApp v2.ump"
+   public boolean doesOverlap(int x, int y, int width, int length){
+    if ( ((x+width)<this.getX()) || (x>(this.getX()+this.getWidth())) || ((y+length)<this.getY()) || (y>(this.getY()+this.getLength())) )
+		{
+			return false;
+		}
+		else 
+		{
+			return true;
+		}
+  }
+
 
   public String toString()
   {
