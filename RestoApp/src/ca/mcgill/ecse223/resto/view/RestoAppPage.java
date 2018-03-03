@@ -6,12 +6,10 @@ import java.util.List;
 
 import javax.swing.*;
 
-import ca.mcgill.ecse223.resto.application.RestoAppApplication;
 import ca.mcgill.ecse223.resto.controller.InvalidInputException;
 import ca.mcgill.ecse223.resto.controller.RestoAppController;
 import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.MenuItem.ItemCategory;
-import ca.mcgill.ecse223.resto.model.Table;
 
 public class RestoAppPage extends JFrame {
 	
@@ -34,6 +32,22 @@ public class RestoAppPage extends JFrame {
 	private JButton alcoholicBeverage; 
 	private JButton nonAlcoholicBeverage;
 	
+	private JLabel tableNumber;
+	private JLabel xCoord;
+	private JLabel yCoord;
+	private JLabel tableWidth;
+	private JLabel tableLength;
+	private JLabel numOfSeats;
+	
+	private JTextField tableNumberField;
+	private JTextField xCoordField;
+	private JTextField yCoordField;
+	private JTextField tableWidthField;
+	private JTextField tableLengthField;
+	private JTextField numOfSeatsField;
+	
+	private JButton addTableButton;
+	
 	private JPanel appetizerMenu;
 	private JPanel mainMenu;
 	private JPanel dessertMenu;
@@ -42,7 +56,6 @@ public class RestoAppPage extends JFrame {
 	
 	private RestoLayout restoLayout;
 	private JScrollPane restoLayoutContainer;
-	private List<Table> tables;
 	
 	//update table seat number
 	private JButton addSeat;
@@ -50,12 +63,13 @@ public class RestoAppPage extends JFrame {
 	
 	//update table number
 	private JLabel tableNumberLabel;
-	private JTextField tableNumber;
+	private JTextField newTableNumber;
 	private JButton setTableNumber;
 	
 	public RestoAppPage() {
 		initComponents();
 		returnToMainMenu();
+		refreshData();
 	}
 	
 	private void initComponents() {
@@ -94,8 +108,24 @@ public class RestoAppPage extends JFrame {
 		
 		//update table number
 		tableNumberLabel = new JLabel("Table Number:");
-		tableNumber = new JTextField();
+		newTableNumber = new JTextField();
 		setTableNumber = new JButton("Set Table Number");
+
+		tableNumber = new JLabel("Table Number");
+		xCoord = new JLabel("X");
+		yCoord = new JLabel("Y");
+		tableWidth = new JLabel("Width");
+		tableLength = new JLabel("Length");
+		numOfSeats = new JLabel("Number of Seats");
+		
+		tableNumberField = new JTextField("");
+		xCoordField = new JTextField("");
+		yCoordField = new JTextField("");
+		tableWidthField = new JTextField("");
+		tableLengthField = new JTextField("");
+		numOfSeatsField = new JTextField("");
+		
+		addTableButton = new JButton("Add");
 		
 		restoLayout = new RestoLayout();
 		restoLayoutContainer = new JScrollPane(restoLayout);
@@ -103,13 +133,6 @@ public class RestoAppPage extends JFrame {
 		restoLayoutContainer.setPreferredSize(new Dimension(1250, 500));
 		restoLayoutContainer.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		restoLayoutContainer.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		
-		tables = new ArrayList<Table>();
-		Table test1 = new Table(3, 200, 200, 60, 150, RestoAppApplication.getRestoApp());
-		Table test2 = new Table(35, 150, 150, 75, 75, RestoAppApplication.getRestoApp());
-		tables.add(test1);
-		tables.add(test2);
-		restoLayout.setTables(tables);
 		
 		appetizerMenu  = new JPanel();
 		mainMenu  = new JPanel();
@@ -125,7 +148,7 @@ public class RestoAppPage extends JFrame {
 				dessert.setVisible(true);
 				alcoholicBeverage.setVisible(true);
 				nonAlcoholicBeverage.setVisible(true);
-				pack();
+				refreshData();
 			}
 		});
 		
@@ -136,7 +159,7 @@ public class RestoAppPage extends JFrame {
 				removeTable.setVisible(true);
 				updateTable.setVisible(true);
 				changeLocation.setVisible(true);
-				pack();
+				refreshData();
 			}
 		});
 		
@@ -154,7 +177,7 @@ public class RestoAppPage extends JFrame {
 					appetizerMenu.add(button = new JButton(menuitem.getName()),constraint);
 					button.setFont(new Font("Calibri", Font.PLAIN, 20));	
 				}
-				pack();
+				refreshData();
 			}
 		});
 		
@@ -172,7 +195,7 @@ public class RestoAppPage extends JFrame {
 					mainMenu.add(button = new JButton(menuitem.getName()),constraint);
 					button.setFont(new Font("Calibri", Font.PLAIN, 20));	
 				}
-				pack();
+				refreshData();
 			}
 		});
 		
@@ -190,7 +213,7 @@ public class RestoAppPage extends JFrame {
 					dessertMenu.add(button = new JButton(menuitem.getName()),constraint);
 					button.setFont(new Font("Calibri", Font.PLAIN, 20));	
 				}
-				pack();
+				refreshData();
 			}
 		});
 		
@@ -208,7 +231,7 @@ public class RestoAppPage extends JFrame {
 					alcoholicBeverageMenu.add(button = new JButton(menuitem.getName()),constraint);
 					button.setFont(new Font("Calibri", Font.PLAIN, 20));	
 				}
-				pack();
+				refreshData();
 			}
 		});
 		
@@ -226,7 +249,55 @@ public class RestoAppPage extends JFrame {
 					nonAlcoholicBeverageMenu.add(button = new JButton(menuitem.getName()),constraint);
 					button.setFont(new Font("Calibri", Font.PLAIN, 20));	
 				}
-				pack();
+				refreshData();
+			}
+		});
+		
+		addTable.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				tableNumber.setVisible(true);
+				xCoord.setVisible(true);
+				yCoord.setVisible(true);
+				tableWidth.setVisible(true);
+				tableLength.setVisible(true);
+				numOfSeats.setVisible(true);
+				
+				tableNumberField.setVisible(true);
+				xCoordField.setVisible(true);
+				yCoordField.setVisible(true);
+				tableWidthField.setVisible(true);
+				tableLengthField.setVisible(true);
+				numOfSeatsField.setVisible(true);
+				
+				addTableButton.setVisible(true);
+				
+				refreshData();
+			}
+		});
+		
+		addTableButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				errorMessage.setText(error);
+				String tableNumber = tableNumberField.getText();
+				String xCoord = xCoordField.getText();
+				String yCoord = yCoordField.getText();
+				String tableWidth = tableWidthField.getText();
+				String tableLength = tableLengthField.getText();
+				String numOfSeats = numOfSeatsField.getText();
+				if (error.length() == 0) {
+					try {
+						RestoAppController.createTable(tableNumber, xCoord, yCoord,
+															tableWidth, tableLength, numOfSeats);
+						
+					} catch (InvalidInputException e) {
+					// TODO Auto-generated catch block
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+				}
+				refreshData();
+				refreshData();
 			}
 		});
 		
@@ -265,14 +336,34 @@ public class RestoAppPage extends JFrame {
 						.addComponent(mainMenu)
 						.addComponent(dessertMenu)
 						.addComponent(alcoholicBeverageMenu)
-						.addComponent(nonAlcoholicBeverageMenu))
+						.addComponent(nonAlcoholicBeverageMenu)
+						.addGroup(layout.createParallelGroup()
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(tableNumber,200,200,400)
+										.addComponent(xCoord)
+										.addComponent(yCoord)
+										.addComponent(tableWidth)
+										.addComponent(tableLength)
+										.addComponent(numOfSeats))
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(tableNumberField)
+										.addComponent(xCoordField)
+										.addComponent(yCoordField)
+										.addComponent(tableWidthField)
+										.addComponent(tableLengthField)
+										.addComponent(numOfSeatsField))
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(addTableButton))))
 				.addComponent(restoLayoutContainer)
 		);
 		
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {menu, appetizer, main, dessert, alcoholicBeverage,
 																				nonAlcoholicBeverage, addTable, removeTable, updateTable, 
 																				changeLocation});
-
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {tableNumber, xCoord, yCoord, tableWidth, tableLength, numOfSeats,
+																				tableNumberField, xCoordField, yCoordField, tableWidthField, 
+																				tableLengthField, numOfSeatsField, addTableButton});
+		
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
 				.addComponent(errorMessage)
@@ -295,7 +386,23 @@ public class RestoAppPage extends JFrame {
 						.addComponent(mainMenu)
 						.addComponent(dessertMenu)
 						.addComponent(alcoholicBeverageMenu)
-						.addComponent(nonAlcoholicBeverageMenu))
+						.addComponent(nonAlcoholicBeverageMenu)
+						.addGroup(layout.createSequentialGroup()
+								.addGroup(layout.createParallelGroup()
+										.addComponent(tableNumber)
+										.addComponent(xCoord)
+										.addComponent(yCoord)
+										.addComponent(tableWidth)
+										.addComponent(tableLength)
+										.addComponent(numOfSeats))
+								.addGroup(layout.createParallelGroup()
+										.addComponent(tableNumberField)
+										.addComponent(xCoordField)
+										.addComponent(yCoordField)
+										.addComponent(tableWidthField)
+										.addComponent(tableLengthField)
+										.addComponent(numOfSeatsField))
+								.addComponent(addTableButton)))
 				.addComponent(restoLayoutContainer)
 		);
 		
@@ -306,6 +413,22 @@ public class RestoAppPage extends JFrame {
 		error = "";
 		errorMessage.setText(error);
 
+		tableNumber.setVisible(false);
+		xCoord.setVisible(false);
+		yCoord.setVisible(false);
+		tableWidth.setVisible(false);
+		tableLength.setVisible(false);
+		numOfSeats.setVisible(false);
+		
+		tableNumberField.setVisible(false);
+		xCoordField.setVisible(false);
+		yCoordField.setVisible(false);
+		tableWidthField.setVisible(false);
+		tableLengthField.setVisible(false);
+		numOfSeatsField.setVisible(false);
+		
+		addTableButton.setVisible(false);
+		
 		appetizerMenu.removeAll();
 		mainMenu.removeAll();
 		dessertMenu.removeAll();
@@ -361,7 +484,20 @@ public class RestoAppPage extends JFrame {
 		nonAlcoholicBeverageMenu.setVisible(false);
 	}
 	
-	
+	private void refreshData() {
+		
+		tableNumberField.setText("");
+		xCoordField.setText("");
+		yCoordField.setText("");
+		tableWidthField.setText("");
+		tableLengthField.setText("");
+		numOfSeatsField.setText("");
+		
+		restoLayout.setTables(RestoAppController.getCurrentTables());
+		
+		pack();
+
+	}
 
 }
 

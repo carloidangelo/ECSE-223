@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,13 +19,10 @@ import javax.swing.JPanel;
 import ca.mcgill.ecse223.resto.controller.RestoAppController;
 import ca.mcgill.ecse223.resto.model.Table;
 
-
 public class RestoLayout extends JPanel {
 	
 	private static final long serialVersionUID = 5765666411683246454L;
-	
 	private List<Rectangle2D> rectangles = new ArrayList<Rectangle2D>();
-	
 	private HashMap<Rectangle2D, Table> visualTables;
 	private static final int SPACING = 100;
 	private List<Table> tables;
@@ -39,8 +37,8 @@ public class RestoLayout extends JPanel {
 		
 		selectedTable = null;
 		visualTables = new HashMap<Rectangle2D, Table>();
-		if (RestoAppController.getTables() != null) {
-			this.tables = RestoAppController.getTables();
+		if (RestoAppController.getCurrentTables().size() > 0) {
+			this.tables = RestoAppController.getCurrentTables();
 		} else
 			this.tables = null;
 		addMouseListener(new MouseAdapter() {
@@ -63,6 +61,26 @@ public class RestoLayout extends JPanel {
 		this.tables = tables;
 		selectedTable = null;
 		visualTables = new HashMap<Rectangle2D, Table>();
+		if (this.tables.size() != 0) {
+			ArrayList<Integer> positionXList = new ArrayList<Integer>();
+			ArrayList<Integer> positionYList = new ArrayList<Integer>();
+			for (Table table : this.tables) {
+				positionXList.add(table.getX());
+				positionYList.add(table.getY());
+			}
+			int xValue = Collections.max(positionXList);
+			int yValue = Collections.max(positionYList);
+			for (Table table : this.tables) {
+				if (table.getX() == xValue) {
+					setPreferredSize(new Dimension(xValue + table.getWidth() + SPACING, getPreferredSize().height));
+				}
+				if (table.getY() == yValue) {
+					setPreferredSize(new Dimension(getPreferredSize().width, yValue + table.getLength() + SPACING));
+				}
+				
+			}
+		}
+		revalidate();
 		repaint();
 	}
 	
@@ -74,14 +92,7 @@ public class RestoLayout extends JPanel {
 		BasicStroke thinStroke = new BasicStroke(2);
 		g2d.setStroke(thinStroke);
 		g2d.setColor(Color.WHITE);
-		int xValue = 0, yValue = 0;
 		for (Table table : tables) {
-			if ((table.getX() > xValue) || (table.getY() > yValue)) {
-				setPreferredSize(new Dimension(table.getX() + table.getWidth() + SPACING,
-													table.getY() + table.getLength() + SPACING));
-			}
-			xValue = table.getX();
-			yValue = table.getY();
 			Rectangle2D rectangle = new Rectangle2D.Float(table.getX(), table.getY(), table.getWidth(), table.getLength());
 			rectangles.add(rectangle);
 			visualTables.put(rectangle, table);

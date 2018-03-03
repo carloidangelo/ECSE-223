@@ -31,6 +31,17 @@ class Table {
    Integer length;
    1 <@>- 1..* Seat seats;
    0..1 -> * Seat currentSeats; // subsets seats
+   public boolean doesOverlap(int x, int y, int width, int length)
+  {
+		if ( ((x+width)<this.getX()) || (x>(this.getX()+this.getWidth())) || ((y+length)<this.getY()) || (y>(this.getY()+this.getLength())) )
+		{
+			return false;
+		}
+		else 
+		{
+			return true;
+		}
+  }
 }
 
 class Seat {
