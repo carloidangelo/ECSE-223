@@ -44,6 +44,15 @@ public class RestoAppPage extends JFrame {
 	private JScrollPane restoLayoutContainer;
 	private List<Table> tables;
 	
+	//update table seat number
+	private JButton addSeat;
+	private JButton removeSeat;
+	
+	//update table number
+	private JLabel tableNumberLabel;
+	private JTextField tableNumber;
+	private JButton setTableNumber;
+	
 	public RestoAppPage() {
 		initComponents();
 		returnToMainMenu();
@@ -78,6 +87,15 @@ public class RestoAppPage extends JFrame {
 		dessert = new JButton("Dessert");
 		alcoholicBeverage = new JButton("Alcoholic Beverage"); 
 		nonAlcoholicBeverage = new JButton("Non-alcoholic Beverage");
+		
+		//update seat number
+		addSeat = new JButton("Add Seat");
+		removeSeat = new JButton("Remove Seat");
+		
+		//update table number
+		tableNumberLabel = new JLabel("Table Number:");
+		tableNumber = new JTextField();
+		setTableNumber = new JButton("Set Table Number");
 		
 		restoLayout = new RestoLayout();
 		restoLayoutContainer = new JScrollPane(restoLayout);
@@ -211,6 +229,13 @@ public class RestoAppPage extends JFrame {
 				pack();
 			}
 		});
+		
+		updateTable.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				
+			}
+		});
+		
 		
 		JSeparator horizontalLine = new JSeparator();
 		
