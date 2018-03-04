@@ -61,6 +61,7 @@ public class RestoAppPage extends JFrame {
 	
 	private RestoLayout restoLayout;
 	private JScrollPane restoLayoutContainer;
+	
 	//move table UI
 	private JComboBox <String> tableList;
 	
@@ -72,7 +73,9 @@ public class RestoAppPage extends JFrame {
 	
 	//select table (update table)
 	private JLabel selectTableUpdateTableLabel;
-	private JComboBox selectTableUpdateTable;
+	private JComboBox <String> selectTableUpdateTable;
+	private Integer selectedTable1 = -1;
+	private HashMap<Integer, Table> tables1;
 	
 	//update table seat number
 	private JLabel changeNumSeatsLabel;
@@ -130,8 +133,7 @@ public class RestoAppPage extends JFrame {
 		selectTableUpdateTable.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
-				selectedTable = cb.getSelectedIndex();
-				refreshData();
+				selectedTable1 = cb.getSelectedIndex();
 			}
 		});
 		selectTableUpdateTable.setMaximumSize(new Dimension(300, 25));
@@ -313,6 +315,8 @@ public class RestoAppPage extends JFrame {
 				removeUpdateTableSubmenu();
 				removeMoveTableSubmenu();
 				
+				error = "";
+				
 				tableNumber.setVisible(true);
 				xCoord.setVisible(true);
 				yCoord.setVisible(true);
@@ -336,7 +340,6 @@ public class RestoAppPage extends JFrame {
 		addTableButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				error = "";
-				errorMessage.setText(error);
 				String tableNumber = tableNumberField.getText();
 				String xCoord = xCoordField.getText();
 				String yCoord = yCoordField.getText();
@@ -364,7 +367,6 @@ public class RestoAppPage extends JFrame {
 				removeMoveTableSubmenu();
 				
 				error = "";
-				errorMessage.setText(error);
 				
 				selectTableUpdateTable.setVisible(true);
 				tableNumberLabel.setVisible(true);
@@ -379,10 +381,70 @@ public class RestoAppPage extends JFrame {
 				refreshData();
 			}
 		});
+		
+		setTableNumber.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				if (error.length() == 0) {
+					try {
+						RestoAppController.setTableNumber(tables1.get(selectedTable1), Integer.parseInt(newTableNumber.getText()));
+						
+					} catch (InvalidInputException e) {
+					// TODO Auto-generated catch block
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+				}
+				
+				refreshData();
+			}
+		});
+		
+		addSeat.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				if (error.length() == 0) {
+					try {
+						RestoAppController.addSeat(tables1.get(selectedTable1));
+						
+					} catch (InvalidInputException e) {
+					// TODO Auto-generated catch block
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+				}
+				
+				refreshData();
+			}
+		});
+		
+		removeSeat.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				if (error.length() == 0) {
+					try {
+						RestoAppController.removeSeat(tables1.get(selectedTable1));
+						
+					} catch (InvalidInputException e) {
+					// TODO Auto-generated catch block
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+				}
+				
+				refreshData();
+			}
+		});
+		
 		changeLocation.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeAddTableSubmenu();
 				removeUpdateTableSubmenu();
+				
+				error = "";
 				
 				moveTable.setVisible(true);
 				xCoord.setVisible(true);
@@ -683,6 +745,8 @@ public class RestoAppPage extends JFrame {
 	
 	private void refreshData() {
 		
+		errorMessage.setText(error);
+		
 		tableNumberField.setText("");
 		xCoordField.setText("");
 		yCoordField.setText("");
@@ -691,16 +755,31 @@ public class RestoAppPage extends JFrame {
 		numOfSeatsField.setText("");
 		newTableNumber.setText("");
 		
+		//move table combo box refresh
 		tables = new HashMap<Integer, Table>();
 		tableList.removeAllItems();
 		Integer index = 0;
-		for (Table table : RestoAppController.getTables()) {
+		for (Table table : RestoAppController.getCurrentTables()) {
 			tables.put(index, table);
 			tableList.addItem("#" + table.getNumber());
 			index++;
 		};
 		selectedTable = -1;
 		tableList.setSelectedIndex(selectedTable);
+		
+		//update table combo box refresh
+		tables1 = new HashMap<Integer, Table>();
+		selectTableUpdateTable.removeAllItems();
+		Integer index1 = 0;
+		for (Table table1 : RestoAppController.getCurrentTables()) {
+			tables1.put(index1, table1);
+			selectTableUpdateTable.addItem("#" + table1.getNumber());
+			index1++;
+		};
+		selectedTable1 = -1;
+		selectTableUpdateTable.setSelectedIndex(selectedTable1);
+		
+		
 		restoLayout.setTables(RestoAppController.getCurrentTables());
 		
 		pack();

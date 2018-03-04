@@ -63,7 +63,6 @@ public class RestoLayout extends JPanel {
 	
 	public void setTables(List<Table> tables) {
 		this.tables = tables;
-		selectedTable = null;
 		visualTables = new HashMap<Rectangle2D, Table>();
 		if (this.tables.size() != 0) {
 			ArrayList<Integer> positionXList = new ArrayList<Integer>();
@@ -107,13 +106,13 @@ public class RestoLayout extends JPanel {
 				g2d.setColor(Color.BLACK);
 				g2d.draw(rectangle);
 				g2d.setFont(currentFont);
-				int seatNumberLength = (int) Math.log10(table.getSeats().size()) + 1;
+				int seatNumberLength = (int) Math.log10(table.getCurrentSeats().size()) + 1;
 				if (table.getWidth() < (40 + (seatNumberLength - 1) * currentFont.getSize() * 3 / 4) && table.getX() < (20 + (seatNumberLength - 1) * currentFont.getSize() * 3 / 4)) {
-					g2d.drawString(new Integer(table.getSeats().size()).toString() + " seats", 
+					g2d.drawString(new Integer(table.getCurrentSeats().size()).toString() + " seats", 
 										(int) rectangle.getCenterX() + currentFont.getSize() * 7 / 5 + seatNumberLength * currentFont.getSize() / 3, 
 										(int) rectangle.getCenterY() + currentFont.getSize() / 3);
 				}else {
-					g2d.drawString(new Integer(table.getSeats().size()).toString() + " seats", 
+					g2d.drawString(new Integer(table.getCurrentSeats().size()).toString() + " seats", 
 										(int) rectangle.getCenterX() - currentFont.getSize() * 7 / 5 - seatNumberLength * currentFont.getSize() / 3, 
 										(int) rectangle.getCenterY() + currentFont.getSize() * 5 / 2);
 				}

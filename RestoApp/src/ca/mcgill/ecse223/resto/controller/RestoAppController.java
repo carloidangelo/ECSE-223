@@ -15,9 +15,7 @@ public class RestoAppController {
 
 	public RestoAppController() {
 	}
-	public static List<Table> getTables() {
-		return RestoAppApplication.getRestoApp().getTables();
-	}
+
 	public static void moveTable(Table table, int x, int y) throws InvalidInputException{
 		String error ="";
 		if (table == null) {	
@@ -76,11 +74,6 @@ public class RestoAppController {
 	
 	public static List<Table> getCurrentTables() {
 		return RestoAppApplication.getRestoApp().getCurrentTables();
-	}
-	
-	public static int getTableNumber(Table table)
-	{
-		return table.getNumber();
 	}
 	
 	public static void createTable(String numberString, String xString, String yString, String widthString, String lengthString, String numOfSeatsString) throws InvalidInputException {
@@ -145,7 +138,7 @@ public class RestoAppController {
 			for (int i=0; i<numOfSeats; i++)
 			{
 				Seat seat = table.addSeat();
-				table.addSeat(seat);
+				table.addCurrentSeat(seat);
 			}
 			RestoAppApplication.save();
 		}
@@ -164,33 +157,31 @@ public class RestoAppController {
 	
 	//removes a seat from specified table
 	public static void removeSeat(Table table) throws InvalidInputException {
-		String error = "A table must be specified to remove a seat.";
 		if(table == null)
-			throw new InvalidInputException(error);
+			throw new InvalidInputException("A table must be specified to remove a seat.");
 		if(table.hasReservations())
 			throw new InvalidInputException("A seat cannot be removed from a table that is currently reserved.");
 		RestoApp resto = RestoAppApplication.getRestoApp();
 		List<Order> currentOrders = resto.getCurrentOrders();
+		Boolean tableHasCurrentOrder = false;
 		for (Order order : currentOrders)
 		{
 			List<Table> orderTables = order.getTables();
-			Boolean tableHasCurrentOrder = orderTables.contains(table);
-			if(!tableHasCurrentOrder)
+			tableHasCurrentOrder = orderTables.contains(table);
+			if(tableHasCurrentOrder)
 			{
-				try
-				{
-					Seat seat = table.getCurrentSeat(0);
-					table.removeCurrentSeat(seat);
-					break;
-				}
-				catch(RuntimeException e)
-				{
-					throw new InvalidInputException("A table must always have at least one seat.");
-				}
-			}
-			else
 				throw new InvalidInputException("A seat cannot be removed from a table that currently has an order.");
+			}
 		}
+
+		try {
+			Seat seat = table.getCurrentSeat(0);
+			table.removeCurrentSeat(seat);
+		}
+		catch(RuntimeException e) {
+			throw new InvalidInputException("A table must always have at least one seat.");
+		}
+		
 		RestoAppApplication.save();
 	}
 	
