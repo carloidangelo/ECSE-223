@@ -33,9 +33,11 @@ public class RestoAppController {
 		RestoApp restoApp = RestoAppApplication.getRestoApp();
 		for(Table currentTable:restoApp.getCurrentTables()) {
 			overlaps = currentTable.doesOverlap(x,y,width,length);
-			if (overlaps){
-				error = "Table cannot be placed due to overlapping";
-				throw new InvalidInputException(error.trim());
+			if (overlaps == true){
+				if (!currentTable.equals(table)) {
+					error = "Table cannot be placed due to overlapping";
+					throw new InvalidInputException(error.trim());
+				}
 			}
 		}
 		try {
