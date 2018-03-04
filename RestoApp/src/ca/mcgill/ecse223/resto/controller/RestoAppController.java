@@ -46,6 +46,11 @@ public class RestoAppController {
 		return RestoAppApplication.getRestoApp().getCurrentTables();
 	}
 	
+	public static int getTableNumber(Table table)
+	{
+		return table.getNumber();
+	}
+	
 	public static void createTable(String numberString, String xString, String yString, String widthString, String lengthString, String numOfSeatsString) throws InvalidInputException {
 		String error = "";
 		if (numberString.equals("") || xString.equals("") 

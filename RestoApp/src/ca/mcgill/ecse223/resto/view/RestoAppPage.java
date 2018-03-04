@@ -10,6 +10,7 @@ import ca.mcgill.ecse223.resto.controller.InvalidInputException;
 import ca.mcgill.ecse223.resto.controller.RestoAppController;
 import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.MenuItem.ItemCategory;
+import ca.mcgill.ecse223.resto.model.Table;
 
 public class RestoAppPage extends JFrame {
 	
@@ -57,11 +58,18 @@ public class RestoAppPage extends JFrame {
 	private RestoLayout restoLayout;
 	private JScrollPane restoLayoutContainer;
 	
+	//select table (update table)
+	private JLabel selectTableUpdateTableLabel;
+	private JComboBox selectTableUpdateTable;
+	private Integer selectedTable = -1;
+	
 	//update table seat number
+	private JLabel changeNumSeatsLabel;
 	private JButton addSeat;
 	private JButton removeSeat;
 	
 	//update table number
+	private JLabel updateTableNumberLabel;
 	private JLabel tableNumberLabel;
 	private JTextField newTableNumber;
 	private JButton setTableNumber;
@@ -102,14 +110,37 @@ public class RestoAppPage extends JFrame {
 		alcoholicBeverage = new JButton("Alcoholic Beverage"); 
 		nonAlcoholicBeverage = new JButton("Non-alcoholic Beverage");
 		
+		Font header = new Font("Dialog", Font.BOLD, 14);
+		
+		//select table (update table)
+		selectTableUpdateTableLabel = new JLabel("Select Table");
+		selectTableUpdateTableLabel.setFont(header);
+		selectTableUpdateTable = new JComboBox<String>(new String[0]);
+		selectTableUpdateTable.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				selectedTable = cb.getSelectedIndex();
+				refreshData();
+			}
+		});
+		selectTableUpdateTable.setMaximumSize(new Dimension(300, 25));
+		
 		//update seat number
 		addSeat = new JButton("Add Seat");
+		addSeat.setMaximumSize(new Dimension(136, 20));
 		removeSeat = new JButton("Remove Seat");
+		removeSeat.setMaximumSize(new Dimension(136, 20));
+		changeNumSeatsLabel = new JLabel("Change number of seats");
+		changeNumSeatsLabel.setFont(header);
 		
 		//update table number
-		tableNumberLabel = new JLabel("Table Number:");
+		tableNumberLabel = new JLabel("New Table Number:");
 		newTableNumber = new JTextField();
+		newTableNumber.setMaximumSize(new Dimension(136, 25));
 		setTableNumber = new JButton("Set Table Number");
+		setTableNumber.setMaximumSize(new Dimension(136, 20));
+		updateTableNumberLabel = new JLabel("Change table number");
+		updateTableNumberLabel.setFont(header);
 
 		tableNumber = new JLabel("Table Number");
 		xCoord = new JLabel("X");
@@ -255,6 +286,8 @@ public class RestoAppPage extends JFrame {
 		
 		addTable.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				removeUpdateTableSubmenu();
+				
 				tableNumber.setVisible(true);
 				xCoord.setVisible(true);
 				yCoord.setVisible(true);
@@ -297,18 +330,38 @@ public class RestoAppPage extends JFrame {
 					}
 				}
 				refreshData();
-				refreshData();
 			}
 		});
 		
 		updateTable.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				removeAddTableSubmenu();
+				Table selectedTable = restoLayout.getSelectedTable();
 				
+				error = "";
+				errorMessage.setText(error);
+				
+				selectTableUpdateTable.setVisible(true);
+				tableNumberLabel.setVisible(true);
+				newTableNumber.setVisible(true);
+				setTableNumber.setVisible(true);
+				addSeat.setVisible(true);
+				removeSeat.setVisible(true);
+				selectTableUpdateTableLabel.setVisible(true);
+				updateTableNumberLabel.setVisible(true);
+				changeNumSeatsLabel.setVisible(true);
+				
+				refreshData();
 			}
 		});
 		
 		
 		JSeparator horizontalLine = new JSeparator();
+		Dimension verticalLineSize = new Dimension(0,100);
+		JSeparator verticalLine0 = new JSeparator(SwingConstants.VERTICAL);
+		verticalLine0.setMaximumSize(verticalLineSize);
+		JSeparator verticalLine1 = new JSeparator(SwingConstants.VERTICAL);
+		verticalLine1.setMaximumSize(verticalLineSize);
 		
 		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
@@ -354,6 +407,24 @@ public class RestoAppPage extends JFrame {
 										.addComponent(numOfSeatsField))
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(addTableButton))))
+				//update table layout
+				.addGroup(layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup()
+								.addComponent(selectTableUpdateTableLabel)
+								.addComponent(selectTableUpdateTable))
+						.addComponent(verticalLine0)
+						.addGroup(layout.createParallelGroup()
+								.addComponent(updateTableNumberLabel)
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(tableNumberLabel)
+										.addGroup(layout.createParallelGroup()
+												.addComponent(newTableNumber)
+												.addComponent(setTableNumber))))
+						.addComponent(verticalLine1)
+						.addGroup(layout.createParallelGroup()
+								.addComponent(changeNumSeatsLabel)
+								.addComponent(addSeat)
+								.addComponent(removeSeat)))	
 				.addComponent(restoLayoutContainer)
 		);
 		
@@ -403,56 +474,62 @@ public class RestoAppPage extends JFrame {
 										.addComponent(tableLengthField)
 										.addComponent(numOfSeatsField))
 								.addComponent(addTableButton)))
+				//update table layout
+				.addGroup(layout.createParallelGroup()
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(selectTableUpdateTableLabel)
+								.addComponent(selectTableUpdateTable))
+						.addComponent(verticalLine0)
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(updateTableNumberLabel)
+								.addGroup(layout.createParallelGroup()
+										.addComponent(tableNumberLabel)
+										.addGroup(layout.createSequentialGroup()
+												.addComponent(newTableNumber)
+												.addComponent(setTableNumber))))
+						.addComponent(verticalLine1)
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(changeNumSeatsLabel)
+								.addComponent(addSeat)
+								.addComponent(removeSeat)))
 				.addComponent(restoLayoutContainer)
 		);
 		
 	}
+	
+	/*private String[] getSelectTableArray(){
+		List<Table> tableList = RestoAppController.getCurrentTables();
+		String[] tableArray = new String[tableList.size()+1];
+		tableArray[0] = "Select table...";
+		for(int i = 1; i < tableArray.length; i++)
+		{
+			tableArray[i] = "Table " + RestoAppController.getTableNumber(tableList.get(i-1));
+		}
+		return tableArray;
+	}
+	
+	private int parseSelectedTable(String tableString) {
+		if(tableString == null || tableString.equals("Select Table..."))
+			return 0;
+		else if(tableString.length() >= 7 && tableString.substring(0, 5).contentEquals("Table"))
+		{
+			return Integer.parseInt(tableString.substring(6));
+		}
+		return 0;
+	}*/
 	
 	private void returnToMainMenu() {
 		
 		error = "";
 		errorMessage.setText(error);
 
-		tableNumber.setVisible(false);
-		xCoord.setVisible(false);
-		yCoord.setVisible(false);
-		tableWidth.setVisible(false);
-		tableLength.setVisible(false);
-		numOfSeats.setVisible(false);
+		removeAddTableSubmenu();
+		removeMenus();
+		removeChangeLayoutSubmenu();
+		removeUpdateTableSubmenu();
+		removeMenusSubmenu();
 		
-		tableNumberField.setVisible(false);
-		xCoordField.setVisible(false);
-		yCoordField.setVisible(false);
-		tableWidthField.setVisible(false);
-		tableLengthField.setVisible(false);
-		numOfSeatsField.setVisible(false);
-		
-		addTableButton.setVisible(false);
-		
-		appetizerMenu.removeAll();
-		mainMenu.removeAll();
-		dessertMenu.removeAll();
-		alcoholicBeverageMenu.removeAll();
-		nonAlcoholicBeverageMenu.removeAll();
-		
-		appetizerMenu.setVisible(false);
-		mainMenu.setVisible(false);
-		dessertMenu.setVisible(false);
-		alcoholicBeverageMenu.setVisible(false);
-		nonAlcoholicBeverageMenu.setVisible(false);
-		
-		addTable.setVisible(false);
-		removeTable.setVisible(false);
-		updateTable.setVisible(false);
-		changeLocation.setVisible(false);
-	
 		pack();
-		
-		appetizer.setVisible(false);
-		main.setVisible(false);
-		dessert.setVisible(false);
-		alcoholicBeverage.setVisible(false);
-		nonAlcoholicBeverage.setVisible(false);
 	}
 	
 	private List <MenuItem> giveList(ItemCategory aItemCategory) { 
@@ -484,6 +561,51 @@ public class RestoAppPage extends JFrame {
 		nonAlcoholicBeverageMenu.setVisible(false);
 	}
 	
+	private void removeMenusSubmenu() {
+		appetizer.setVisible(false);
+		main.setVisible(false);
+		dessert.setVisible(false);
+		alcoholicBeverage.setVisible(false);
+		nonAlcoholicBeverage.setVisible(false);
+	}
+	
+	private void removeChangeLayoutSubmenu() {
+		addTable.setVisible(false);
+		removeTable.setVisible(false);
+		updateTable.setVisible(false);
+		changeLocation.setVisible(false);
+	}
+	
+	private void removeAddTableSubmenu() {
+		tableNumber.setVisible(false);
+		xCoord.setVisible(false);
+		yCoord.setVisible(false);
+		tableWidth.setVisible(false);
+		tableLength.setVisible(false);
+		numOfSeats.setVisible(false);
+		
+		tableNumberField.setVisible(false);
+		xCoordField.setVisible(false);
+		yCoordField.setVisible(false);
+		tableWidthField.setVisible(false);
+		tableLengthField.setVisible(false);
+		numOfSeatsField.setVisible(false);
+		
+		addTableButton.setVisible(false);
+	}
+	
+	private void removeUpdateTableSubmenu() {
+		selectTableUpdateTable.setVisible(false);
+		tableNumberLabel.setVisible(false);
+		newTableNumber.setVisible(false);
+		setTableNumber.setVisible(false);
+		addSeat.setVisible(false);
+		removeSeat.setVisible(false);
+		selectTableUpdateTableLabel.setVisible(false);
+		updateTableNumberLabel.setVisible(false);
+		changeNumSeatsLabel.setVisible(false);
+	}
+	
 	private void refreshData() {
 		
 		tableNumberField.setText("");
@@ -492,6 +614,9 @@ public class RestoAppPage extends JFrame {
 		tableWidthField.setText("");
 		tableLengthField.setText("");
 		numOfSeatsField.setText("");
+		newTableNumber.setText("");
+		
+		selectTableUpdateTable.setSelectedIndex(selectedTable);
 		
 		restoLayout.setTables(RestoAppController.getCurrentTables());
 		

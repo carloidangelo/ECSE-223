@@ -33,6 +33,10 @@ public class RestoLayout extends JPanel {
 		init();
 	}
 	
+	public Table getSelectedTable() {
+		return this.selectedTable;
+	}
+	
 	private void init() {
 		
 		selectedTable = null;
