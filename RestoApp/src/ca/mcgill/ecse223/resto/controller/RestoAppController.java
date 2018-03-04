@@ -15,7 +15,39 @@ public class RestoAppController {
 
 	public RestoAppController() {
 	}
-	
+	public static List<Table> getTables() {
+		return RestoAppApplication.getRestoApp().getTables();
+	}
+	public static void moveTable(Table table, int x, int y) throws InvalidInputException{
+		String error ="";
+		if (table == null) {	
+			error = "The table doesn't exist";		
+		}
+		if(x<0||y<0) {
+			error = "Location entered must be positive";
+		}
+		if (error.length() > 0) {
+			throw new InvalidInputException(error.trim());
+		}
+		int width = table.getWidth();
+		int length = table.getLength();
+		boolean overlaps = true;
+		RestoApp restoApp = RestoAppApplication.getRestoApp();
+		for(Table currentTable:restoApp.getCurrentTables()) {
+			overlaps = currentTable.doesOverlap(x,y,width,length);
+			if (overlaps){
+				error = "Table cannot be placed due to overlapping";
+				throw new InvalidInputException(error.trim());
+			}
+		}
+		try {
+			table.setX(x);
+			table.setY(y);
+			RestoAppApplication.save();
+		}catch(RuntimeException e) {
+			throw new InvalidInputException(e.getMessage());
+		}
+	}
 	public static List<MenuItem> getMenuItems(ItemCategory itemCategory) throws InvalidInputException {
 		if(itemCategory == null) {
 		      throw new InvalidInputException("Item category not in system");
@@ -90,12 +122,6 @@ public class RestoAppController {
 		if (numOfSeats<=0)
 		{
 			error = error + "Number of seats must be positive. ";
-		}
-		if (Integer.toString(number).equals("") || Integer.toString(x).equals("") 
-			|| Integer.toString(y).equals("") || Integer.toString(width).equals("") 
-			|| Integer.toString(length).equals("") || Integer.toString(numOfSeats).equals("")) 
-		{
-			error = error + "Every field has to be filled.";
 		}
 		
 		List<Table> currentTables = restoapp.getCurrentTables();
