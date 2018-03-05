@@ -518,7 +518,7 @@ public class RestoAppPage extends JFrame {
 						.addComponent(nonAlcoholicBeverageMenu)
 						.addGroup(layout.createParallelGroup()
 								.addGroup(layout.createSequentialGroup()
-										.addComponent(tableNumber,200,200,400)
+										.addComponent(tableNumber,100,150,400)
 										.addComponent(xCoord)
 										.addComponent(yCoord)
 										.addComponent(tableWidth)
