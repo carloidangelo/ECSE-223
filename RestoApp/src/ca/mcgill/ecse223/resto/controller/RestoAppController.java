@@ -181,7 +181,7 @@ public class RestoAppController {
 			table.removeCurrentSeat(seat);
 		}
 		catch(RuntimeException e) {
-			throw new InvalidInputException("A table must always have at least one seat.");
+			throw new InvalidInputException("No more seats can be removed from this table.");
 		}
 		
 		RestoAppApplication.save();

@@ -27,14 +27,21 @@ public class RestoLayout extends JPanel {
 	private static final int SPACING = 100;
 	private List<Table> tables;
 	private Table selectedTable;
+	private RestoAppPage restoAppPage;
 	
-	public RestoLayout() {
+	public RestoLayout(RestoAppPage restoPage) {
 		super();
+		this.restoAppPage = restoPage;
 		init();
 	}
-	
+
 	public Table getSelectedTable() {
 		return this.selectedTable;
+	}
+	
+	public void setSelectedTable(Table table) {
+		this.selectedTable = table;
+		repaint();
 	}
 	
 	private void init() {
@@ -53,6 +60,7 @@ public class RestoLayout extends JPanel {
 				for (Rectangle2D rectangle : rectangles) {
 					if (rectangle.contains(x, y)) {
 						selectedTable = visualTables.get(rectangle);
+						restoAppPage.tableClicked();
 						break;
 					}
 				}

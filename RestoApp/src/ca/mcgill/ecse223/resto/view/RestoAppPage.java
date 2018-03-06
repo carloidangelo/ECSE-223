@@ -69,13 +69,17 @@ public class RestoAppPage extends JFrame {
 	
 	private JButton moveTableButton;
 	private Integer selectedTable = -1;
+	
+	//Select table combo box hashmaps
 	private HashMap<Integer, Table> tables;
+	private HashMap<Table, Integer> tablesReverse;
 	
 	//select table (update table)
 	private JLabel selectTableUpdateTableLabel;
 	private JComboBox <String> selectTableUpdateTable;
 	private Integer selectedTable1 = -1;
-	private HashMap<Integer, Table> tables1;
+	private java.awt.event.ActionListener selectTableUpdateTableListener;
+	
 	
 	//update table seat number
 	private JLabel changeNumSeatsLabel;
@@ -130,12 +134,7 @@ public class RestoAppPage extends JFrame {
 		selectTableUpdateTableLabel = new JLabel("Select Table");
 		selectTableUpdateTableLabel.setFont(header);
 		selectTableUpdateTable = new JComboBox<String>(new String[0]);
-		selectTableUpdateTable.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
-				selectedTable1 = cb.getSelectedIndex();
-			}
-		});
+		//action listener for combo box removed when combo box rebuilding, added back after (see refreshData())
 		selectTableUpdateTable.setMaximumSize(new Dimension(300, 25));
 		
 		//update seat number
@@ -171,7 +170,7 @@ public class RestoAppPage extends JFrame {
 		
 		addTableButton = new JButton("Add");
 		
-		restoLayout = new RestoLayout();
+		restoLayout = new RestoLayout(this);
 		restoLayoutContainer = new JScrollPane(restoLayout);
 	
 		restoLayoutContainer.setPreferredSize(new Dimension(1250, 500));
@@ -187,8 +186,8 @@ public class RestoAppPage extends JFrame {
 		//elements for move table
 		tableList = new JComboBox<String>(new String[0]);
 		tableList.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-		        JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+			public void actionPerformed(java.awt.event.ActionEvent evt) {				
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
 		        selectedTable = cb.getSelectedIndex();
 			}
 		});
@@ -388,8 +387,12 @@ public class RestoAppPage extends JFrame {
 				
 				if (error.length() == 0) {
 					try {
-						RestoAppController.setTableNumber(tables1.get(selectedTable1), Integer.parseInt(newTableNumber.getText()));
+						RestoAppController.setTableNumber(tables.get(selectedTable1), Integer.parseInt(newTableNumber.getText()));
 						
+					} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+						error = "Please provide non-empty numerical input for the table number.";
+						errorMessage.setText(error);
 					} catch (InvalidInputException e) {
 					// TODO Auto-generated catch block
 						error = e.getMessage();
@@ -407,7 +410,7 @@ public class RestoAppPage extends JFrame {
 				
 				if (error.length() == 0) {
 					try {
-						RestoAppController.addSeat(tables1.get(selectedTable1));
+						RestoAppController.addSeat(tables.get(selectedTable1));
 						
 					} catch (InvalidInputException e) {
 					// TODO Auto-generated catch block
@@ -426,7 +429,7 @@ public class RestoAppPage extends JFrame {
 				
 				if (error.length() == 0) {
 					try {
-						RestoAppController.removeSeat(tables1.get(selectedTable1));
+						RestoAppController.removeSeat(tables.get(selectedTable1));
 						
 					} catch (InvalidInputException e) {
 					// TODO Auto-generated catch block
@@ -464,14 +467,20 @@ public class RestoAppPage extends JFrame {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				error = "";
 				errorMessage.setText(error);
-				int xCoord = Integer.parseInt(xCoordField.getText());
-				int yCoord = Integer.parseInt(yCoordField.getText());
-
+				
 				if (error.length() == 0) {
 					try {
+						int xCoord = Integer.parseInt(xCoordField.getText());
+						int yCoord = Integer.parseInt(yCoordField.getText());
 						RestoAppController.moveTable(tables.get(selectedTable),xCoord, yCoord);
 						
-					} catch (InvalidInputException e) {
+					}
+					catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+						error = "Please provide non-empty numerical input for table coordinates.";
+						errorMessage.setText(error);
+					}
+					catch (InvalidInputException e) {
 					// TODO Auto-generated catch block
 						error = e.getMessage();
 						errorMessage.setText(error);
@@ -755,35 +764,57 @@ public class RestoAppPage extends JFrame {
 		numOfSeatsField.setText("");
 		newTableNumber.setText("");
 		
-		//move table combo box refresh
+		selectTableUpdateTable.removeActionListener(selectTableUpdateTableListener);
+		
+		//move table & update table combo box refresh
 		tables = new HashMap<Integer, Table>();
+		tablesReverse = new HashMap<Table, Integer>();
 		tableList.removeAllItems();
+		selectTableUpdateTable.removeAllItems();
 		Integer index = 0;
 		for (Table table : RestoAppController.getCurrentTables()) {
 			tables.put(index, table);
+			tablesReverse.put(table, index);
 			tableList.addItem("#" + table.getNumber());
+			selectTableUpdateTable.addItem("#" + table.getNumber());
 			index++;
 		};
+		
+		//for move table, combo box resets
 		selectedTable = -1;
 		tableList.setSelectedIndex(selectedTable);
 		
-		//update table combo box refresh
-		tables1 = new HashMap<Integer, Table>();
-		selectTableUpdateTable.removeAllItems();
-		Integer index1 = 0;
-		for (Table table1 : RestoAppController.getCurrentTables()) {
-			tables1.put(index1, table1);
-			selectTableUpdateTable.addItem("#" + table1.getNumber());
-			index1++;
-		};
-		selectedTable1 = -1;
+		//for update table, combo box goes to table selected in restaurant layout, -1 if none selected
+		Table layoutSelectedTable = restoLayout.getSelectedTable();
+		if(layoutSelectedTable == null)
+			selectedTable1 = -1;
+		else
+			selectedTable1 = tablesReverse.get(layoutSelectedTable);
+		
 		selectTableUpdateTable.setSelectedIndex(selectedTable1);
 		
+		//selectTableUpdateTable re-added
+		selectTableUpdateTableListener = new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {				
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				selectedTable1 = cb.getSelectedIndex();
+				restoLayout.setSelectedTable(tables.get(selectedTable1));
+				System.out.println("Changed to index"+selectedTable1);
+			}
+		};
+		selectTableUpdateTable.addActionListener(selectTableUpdateTableListener);
 		
 		restoLayout.setTables(RestoAppController.getCurrentTables());
 		
 		pack();
 
+	}
+	
+	void tableClicked() {
+		selectedTable1 = tablesReverse.get(restoLayout.getSelectedTable());
+		selectTableUpdateTable.setSelectedIndex(selectedTable1);
+		selectedTable = tablesReverse.get(restoLayout.getSelectedTable());
+		tableList.setSelectedIndex(selectedTable);
 	}
 
 }
