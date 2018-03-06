@@ -87,66 +87,69 @@ public class RestoAppController {
 				error = error + "Every field has to be filled.";
 				throw new InvalidInputException(error.trim());
 			}
-		int number = Integer.parseInt(numberString); 
-		int x = Integer.parseInt(xString);
-		int y = Integer.parseInt(yString); 
-		int width = Integer.parseInt(widthString); 
-		int length = Integer.parseInt(lengthString);
-		int numOfSeats = Integer.parseInt(numOfSeatsString);
-		RestoApp restoapp = RestoAppApplication.getRestoApp();
-		if (number<=0)
-		{
-			error = "Table number must be positive. ";
-		}
-		if (x<0) 
-		{
-			error = error + "x coordinate can not be negative. ";
-		}
-		if (y<0)
-		{
-			error = error + "y coordinate can not be negative. ";
-		}
-		if (width<=0)
-		{
-			error = error + "Table width must be positive. ";
-		}
-		if (length<=0)
-		{
-			error = error + "Table length must be positive. ";
-		}
-		if (numOfSeats<=0)
-		{
-			error = error + "Number of seats must be positive. ";
-		}
-		
-		List<Table> currentTables = restoapp.getCurrentTables();
-		
-		for (int i=0; i<currentTables.size(); i++)
-		{
-			if (currentTables.get(i).doesOverlap(x, y, width, length) == true)
-			{
-				error = error + "Table overlaps with another table. ";
-				break;
-			}
-		}
-		
-		if (error.length() > 0) {
-			throw new InvalidInputException(error.trim());
-		}
-		
 		try {
+			int number = Integer.parseInt(numberString); 
+			int x = Integer.parseInt(xString);
+			int y = Integer.parseInt(yString); 
+			int width = Integer.parseInt(widthString); 
+			int length = Integer.parseInt(lengthString);
+			int numOfSeats = Integer.parseInt(numOfSeatsString);
+			RestoApp restoapp = RestoAppApplication.getRestoApp();
+			if (number<=0)
+			{
+				error = "Table number must be positive. ";
+			}
+			if (x<0) 
+			{
+				error = error + "x coordinate can not be negative. ";
+			}
+			if (y<0)
+			{
+				error = error + "y coordinate can not be negative. ";
+			}
+			if (width<=0)
+			{
+				error = error + "Table width must be positive. ";
+			}
+			if (length<=0)
+			{
+				error = error + "Table length must be positive. ";
+			}
+			if (numOfSeats<=0)
+			{
+				error = error + "Number of seats must be positive. ";
+			}
+			
+			List<Table> currentTables = restoapp.getCurrentTables();
+			
+			for (int i=0; i<currentTables.size(); i++)
+			{
+				if (currentTables.get(i).doesOverlap(x, y, width, length) == true)
+				{
+					error = error + "Table overlaps with another table. ";
+					break;
+				}
+			}
+			
+			if (error.length() > 0) {
+				throw new InvalidInputException(error.trim());
+			}
+			
 			Table table = new Table(number, x, y, width, length, restoapp);
 			restoapp.addCurrentTable(table);
 			for (int i=0; i<numOfSeats; i++)
 			{
 				Seat seat = table.addSeat();
 				table.addCurrentSeat(seat);
-			}
-			RestoAppApplication.save();
+		}
+		
+		}catch(NumberFormatException e) {
+			throw new InvalidInputException("Please provide non-empty numerical input in all fields.");
 		}
 		catch (RuntimeException e) {
 			throw new InvalidInputException(e.getMessage());
 		}
+		RestoAppApplication.save();
 	}
 	
 	//adds seat to specified table
@@ -196,6 +199,24 @@ public class RestoAppController {
 		Boolean wasSet = table.setNumber(number);
 		if(!wasSet)
 			throw new InvalidInputException("A table with this number already exists. Please choose a different number.");
+		RestoAppApplication.save();
+	}
+	
+	//removes a table
+	public static void removeTable(Table table) throws InvalidInputException{
+		if(table == null)
+			throw new InvalidInputException("A table must be specified to remove it.");
+		if(table.hasReservations())
+			throw new InvalidInputException("A table with reservations cannot be removed.");
+		RestoApp resto = RestoAppApplication.getRestoApp();
+		List<Order> currentOrders = resto.getCurrentOrders();
+		for(Order order : currentOrders) {
+			List<Table> tables = order.getTables();
+			Boolean inUse = tables.contains(table);
+			if(inUse)
+				throw new InvalidInputException("A table cannot be removed if it is currently in use.");
+		}
+		resto.removeCurrentTable(table);
 		RestoAppApplication.save();
 	}
 }

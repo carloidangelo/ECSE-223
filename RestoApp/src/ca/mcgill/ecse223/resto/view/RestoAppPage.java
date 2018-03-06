@@ -62,6 +62,12 @@ public class RestoAppPage extends JFrame {
 	private RestoLayout restoLayout;
 	private JScrollPane restoLayoutContainer;
 	
+	//remove table
+	private JComboBox <String> selectTableRemoveTable;
+	private JLabel selectTableRemoveTableLabel;
+	private JButton removeTableConfirm;
+	private Integer selectedTable2 = -1;
+	
 	//move table UI
 	private JComboBox <String> tableList;
 	
@@ -183,6 +189,17 @@ public class RestoAppPage extends JFrame {
 		alcoholicBeverageMenu = new JPanel();
 		nonAlcoholicBeverageMenu  = new JPanel();
 		
+		//elements for remove table
+		selectTableRemoveTable = new JComboBox<String>(new String[0]);
+		selectTableRemoveTable.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {				
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+		        selectedTable2 = cb.getSelectedIndex();
+			}
+		});
+		selectTableRemoveTableLabel = new JLabel("Select Table:");
+		removeTableConfirm = new JButton("Remove this table");
+		
 		//elements for move table
 		tableList = new JComboBox<String>(new String[0]);
 		tableList.addActionListener(new java.awt.event.ActionListener() {
@@ -191,7 +208,6 @@ public class RestoAppPage extends JFrame {
 		        selectedTable = cb.getSelectedIndex();
 			}
 		});
-		
 		moveTable = new JLabel("Select Table");
 		moveTableButton = new JButton("Confirm");
 		
@@ -313,6 +329,7 @@ public class RestoAppPage extends JFrame {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeUpdateTableSubmenu();
 				removeMoveTableSubmenu();
+				removeRemoveTableSubmenu();
 				
 				error = "";
 				
@@ -364,6 +381,7 @@ public class RestoAppPage extends JFrame {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeAddTableSubmenu();
 				removeMoveTableSubmenu();
+				removeRemoveTableSubmenu();
 				
 				error = "";
 				
@@ -442,10 +460,45 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
+		removeTable.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				removeAddTableSubmenu();
+				removeUpdateTableSubmenu();
+				removeMoveTableSubmenu();
+				
+				error = "";
+				
+				selectTableRemoveTable.setVisible(true);
+				selectTableRemoveTableLabel.setVisible(true);
+				removeTableConfirm.setVisible(true);
+				
+				refreshData();
+			}
+		});
+		
+		removeTableConfirm.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				if(restoLayout.getSelectedTable() == tables.get(selectedTable2))
+					restoLayout.setSelectedTable(null);
+				try {
+					RestoAppController.removeTable(tables.get(selectedTable2));
+				}
+				catch (InvalidInputException e){
+					error = e.getMessage();
+					errorMessage.setText(error);
+				}
+				
+				refreshData();
+			}
+		});
+		
 		changeLocation.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeAddTableSubmenu();
 				removeUpdateTableSubmenu();
+				removeRemoveTableSubmenu();
 				
 				error = "";
 				
@@ -466,7 +519,6 @@ public class RestoAppPage extends JFrame {
 		moveTableButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				error = "";
-				errorMessage.setText(error);
 				
 				if (error.length() == 0) {
 					try {
@@ -573,6 +625,11 @@ public class RestoAppPage extends JFrame {
 								.addComponent(changeNumSeatsLabel)
 								.addComponent(addSeat)
 								.addComponent(removeSeat)))
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(selectTableRemoveTableLabel)
+						.addGroup(layout.createParallelGroup()
+								.addComponent(selectTableRemoveTable)
+								.addComponent(removeTableConfirm)))
 				.addComponent(restoLayoutContainer)
 				);
 		
@@ -651,6 +708,11 @@ public class RestoAppPage extends JFrame {
 								.addComponent(changeNumSeatsLabel)
 								.addComponent(addSeat)
 								.addComponent(removeSeat)))
+				.addGroup(layout.createParallelGroup()
+						.addComponent(selectTableRemoveTableLabel)
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(selectTableRemoveTable)
+								.addComponent(removeTableConfirm)))
 
 				.addComponent(restoLayoutContainer)
 		);
@@ -668,6 +730,7 @@ public class RestoAppPage extends JFrame {
 		removeUpdateTableSubmenu();
 		removeMenusSubmenu();
 		removeMoveTableSubmenu();
+		removeRemoveTableSubmenu();
 		
 		pack();
 	}
@@ -752,6 +815,12 @@ public class RestoAppPage extends JFrame {
 		moveTableButton.setVisible(false);
 	}
 	
+	private void removeRemoveTableSubmenu() {
+		selectTableRemoveTable.setVisible(false);
+		selectTableRemoveTableLabel.setVisible(false);
+		removeTableConfirm.setVisible(false);
+	}
+	
 	private void refreshData() {
 		
 		errorMessage.setText(error);
@@ -764,6 +833,7 @@ public class RestoAppPage extends JFrame {
 		numOfSeatsField.setText("");
 		newTableNumber.setText("");
 		
+		//update table table selector removed to prevent unwanted actionPerformed calls
 		selectTableUpdateTable.removeActionListener(selectTableUpdateTableListener);
 		
 		//move table & update table combo box refresh
@@ -771,12 +841,14 @@ public class RestoAppPage extends JFrame {
 		tablesReverse = new HashMap<Table, Integer>();
 		tableList.removeAllItems();
 		selectTableUpdateTable.removeAllItems();
+		selectTableRemoveTable.removeAllItems();
 		Integer index = 0;
 		for (Table table : RestoAppController.getCurrentTables()) {
 			tables.put(index, table);
 			tablesReverse.put(table, index);
 			tableList.addItem("#" + table.getNumber());
 			selectTableUpdateTable.addItem("#" + table.getNumber());
+			selectTableRemoveTable.addItem("#" + table.getNumber());
 			index++;
 		};
 		
@@ -784,13 +856,16 @@ public class RestoAppPage extends JFrame {
 		selectedTable = -1;
 		tableList.setSelectedIndex(selectedTable);
 		
+		//for remove table, the combo box resets
+		selectedTable2 = -1;
+		selectTableRemoveTable.setSelectedIndex(selectedTable2);
+		
 		//for update table, combo box goes to table selected in restaurant layout, -1 if none selected
 		Table layoutSelectedTable = restoLayout.getSelectedTable();
 		if(layoutSelectedTable == null)
 			selectedTable1 = -1;
 		else
 			selectedTable1 = tablesReverse.get(layoutSelectedTable);
-		
 		selectTableUpdateTable.setSelectedIndex(selectedTable1);
 		
 		//selectTableUpdateTable re-added
@@ -815,6 +890,8 @@ public class RestoAppPage extends JFrame {
 		selectTableUpdateTable.setSelectedIndex(selectedTable1);
 		selectedTable = tablesReverse.get(restoLayout.getSelectedTable());
 		tableList.setSelectedIndex(selectedTable);
+		selectedTable2 = tablesReverse.get(restoLayout.getSelectedTable());
+		selectTableRemoveTable.setSelectedIndex(selectedTable2);
 	}
 
 }
