@@ -874,7 +874,6 @@ public class RestoAppPage extends JFrame {
 				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
 				selectedTable1 = cb.getSelectedIndex();
 				restoLayout.setSelectedTable(tables.get(selectedTable1));
-				System.out.println("Changed to index"+selectedTable1);
 			}
 		};
 		selectTableUpdateTable.addActionListener(selectTableUpdateTableListener);
