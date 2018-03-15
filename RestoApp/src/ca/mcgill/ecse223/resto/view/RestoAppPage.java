@@ -116,12 +116,8 @@ public class RestoAppPage extends JFrame {
 		errorMessage.setForeground(Color.RED);
 				
 		menu = new JButton("Menu");
-		menu.setBackground(Color.BLUE);
-		menu.setForeground(Color.WHITE);
 		
 		changeLayout = new JButton("Restaurant Layout");
-		changeLayout.setBackground(Color.GRAY);
-		changeLayout.setForeground(Color.WHITE);
 		
 		addTable = new JButton("Add Table");
 		removeTable = new JButton("Remove Table");
@@ -246,7 +242,7 @@ public class RestoAppPage extends JFrame {
 		        appetizerMenu.setLayout(gl);
 				for (MenuItem menuitem : giveList(RestoAppController.getItemCategories().get(0))){
 					JButton button;
-					appetizerMenu.add(button = new JButton(menuitem.getName()),constraint);
+					appetizerMenu.add(button = new JButton(menuitem.getName() + "   $" + String.valueOf(menuitem.getCurrentPricedMenuItem().getPrice())),constraint);
 					button.setFont(new Font("Calibri", Font.PLAIN, 20));	
 				}
 				refreshData();
@@ -264,7 +260,7 @@ public class RestoAppPage extends JFrame {
 		        mainMenu.setLayout(gl);
 				for (MenuItem menuitem : giveList(RestoAppController.getItemCategories().get(1))){
 					JButton button;
-					mainMenu.add(button = new JButton(menuitem.getName()),constraint);
+					mainMenu.add(button = new JButton(menuitem.getName() + "   $" + String.valueOf(menuitem.getCurrentPricedMenuItem().getPrice())),constraint);
 					button.setFont(new Font("Calibri", Font.PLAIN, 20));	
 				}
 				refreshData();
@@ -282,7 +278,7 @@ public class RestoAppPage extends JFrame {
 		        dessertMenu.setLayout(gl);
 				for (MenuItem menuitem : giveList(RestoAppController.getItemCategories().get(2))){
 					JButton button;
-					dessertMenu.add(button = new JButton(menuitem.getName()),constraint);
+					dessertMenu.add(button = new JButton(menuitem.getName() + "   $" + String.valueOf(menuitem.getCurrentPricedMenuItem().getPrice())),constraint);
 					button.setFont(new Font("Calibri", Font.PLAIN, 20));	
 				}
 				refreshData();
@@ -300,7 +296,7 @@ public class RestoAppPage extends JFrame {
 		        alcoholicBeverageMenu.setLayout(gl);
 				for (MenuItem menuitem : giveList(RestoAppController.getItemCategories().get(3))){
 					JButton button;
-					alcoholicBeverageMenu.add(button = new JButton(menuitem.getName()),constraint);
+					alcoholicBeverageMenu.add(button = new JButton(menuitem.getName() + "   $" + String.valueOf(menuitem.getCurrentPricedMenuItem().getPrice())),constraint);
 					button.setFont(new Font("Calibri", Font.PLAIN, 20));	
 				}
 				refreshData();
@@ -318,7 +314,7 @@ public class RestoAppPage extends JFrame {
 		        nonAlcoholicBeverageMenu.setLayout(gl);
 				for (MenuItem menuitem : giveList(RestoAppController.getItemCategories().get(4))){
 					JButton button;
-					nonAlcoholicBeverageMenu.add(button = new JButton(menuitem.getName()),constraint);
+					nonAlcoholicBeverageMenu.add(button = new JButton(menuitem.getName() + "   $" + String.valueOf(menuitem.getCurrentPricedMenuItem().getPrice())),constraint);
 					button.setFont(new Font("Calibri", Font.PLAIN, 20));	
 				}
 				refreshData();
