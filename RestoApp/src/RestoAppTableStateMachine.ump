@@ -1,0 +1,36 @@
+class Table
+{
+  Integer seatsInUse = 0;
+  Integer seatsBilled = 0;
+  
+  Status{
+  
+    Available{
+      entry/{
+        seatsInUse = 0;
+        seatsBilled = 0;
+      }
+      groupArrives -> OrderingMenuItems;
+    }
+    
+    InUse{
+      groupLeaves -> Available;
+      cancelOrder -> Available;
+      
+      OrderingMenuItems{
+        changeOrder(Integer seatsInUse)/{
+          this.seatsInUse = seatsInUse;
+        } -> Eating;
+      }
+      
+      Eating{
+        changeOrder(Integer seatsInUse)/{
+          this.seatsInUse = seatsInUse;
+        } -> Eating;
+        issueBill(Integer seatsBilled)/{
+          this.seatsBilled = seatsBilled;
+        } -> Eating;
+      }
+    }
+  }
+}

@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.*;
 
 // line 45 "../../../../../RestoAppPersistence.ump"
-// line 47 "../../../../../RestoApp v2.ump"
+// line 48 "../../../../../RestoApp v2.ump"
 public class Seat implements Serializable
 {
 
