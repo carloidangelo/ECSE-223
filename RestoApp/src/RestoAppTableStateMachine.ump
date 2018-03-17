@@ -14,7 +14,7 @@ class Table
     }
     
     InUse{
-      groupLeaves -> Available;
+      tableLeaves -> Available;
       cancelOrder -> Available;
       
       OrderingMenuItems{

@@ -220,7 +220,7 @@ public class Table implements Serializable
     return wasEventProcessed;
   }
 
-  public boolean groupLeaves()
+  public boolean tableLeaves()
   {
     boolean wasEventProcessed = false;
     
