@@ -220,25 +220,6 @@ public class Table implements Serializable
     return wasEventProcessed;
   }
 
-  public boolean tableLeaves()
-  {
-    boolean wasEventProcessed = false;
-    
-    Status aStatus = status;
-    switch (aStatus)
-    {
-      case InUse:
-        exitStatus();
-        setStatus(Status.Available);
-        wasEventProcessed = true;
-        break;
-      default:
-        // Other states do respond to this event
-    }
-
-    return wasEventProcessed;
-  }
-
   public boolean cancelOrder()
   {
     boolean wasEventProcessed = false;
@@ -267,7 +248,7 @@ public class Table implements Serializable
     {
       case OrderingMenuItems:
         exitStatusInUse();
-        // line 21 "../../../../../RestoAppTableStateMachine.ump"
+        // line 20 "../../../../../RestoAppTableStateMachine.ump"
         this.seatsInUse = seatsInUse;
         setStatusInUse(StatusInUse.Eating);
         wasEventProcessed = true;
@@ -277,6 +258,25 @@ public class Table implements Serializable
         // line 27 "../../../../../RestoAppTableStateMachine.ump"
         this.seatsInUse = seatsInUse;
         setStatusInUse(StatusInUse.Eating);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean tableLeaves()
+  {
+    boolean wasEventProcessed = false;
+    
+    StatusInUse aStatusInUse = statusInUse;
+    switch (aStatusInUse)
+    {
+      case Eating:
+        exitStatus();
+        setStatus(Status.Available);
         wasEventProcessed = true;
         break;
       default:

@@ -14,7 +14,6 @@ class Table
     }
     
     InUse{
-      tableLeaves -> Available;
       cancelOrder -> Available;
       
       OrderingMenuItems{
@@ -24,6 +23,7 @@ class Table
       }
       
       Eating{
+      	tableLeaves -> Available;
         changeOrder(Integer seatsInUse)/{
           this.seatsInUse = seatsInUse;
         } -> Eating;
