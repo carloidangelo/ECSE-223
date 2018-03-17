@@ -10,7 +10,7 @@ class Table
         seatsInUse = 0;
         seatsBilled = 0;
       }
-      groupArrives -> OrderingMenuItems;
+      makeInUse -> OrderingMenuItems;
     }
     
     InUse{

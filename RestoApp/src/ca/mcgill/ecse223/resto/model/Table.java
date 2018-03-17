@@ -202,7 +202,7 @@ public class Table implements Serializable
     return statusInUse;
   }
 
-  public boolean groupArrives()
+  public boolean makeInUse()
   {
     boolean wasEventProcessed = false;
     
