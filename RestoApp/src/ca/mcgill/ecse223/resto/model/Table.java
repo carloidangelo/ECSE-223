@@ -7,7 +7,7 @@ import java.util.*;
 
 // line 31 "../../../../../RestoAppPersistence.ump"
 // line 1 "../../../../../RestoAppTableStateMachine.ump"
-// line 27 "../../../../../RestoApp v2.ump"
+// line 28 "../../../../../RestoApp v3.ump"
 public class Table implements Serializable
 {
 
@@ -22,8 +22,6 @@ public class Table implements Serializable
   //------------------------
 
   //Table Attributes
-  private int seatsInUse;
-  private int seatsBilled;
   private int number;
   private int x;
   private int y;
@@ -31,10 +29,8 @@ public class Table implements Serializable
   private int length;
 
   //Table State Machines
-  public enum Status { Available, InUse }
-  public enum StatusInUse { Null, OrderingMenuItems, Eating }
+  public enum Status { Available, NothingOrdered, Ordered }
   private Status status;
-  private StatusInUse statusInUse;
 
   //Table Associations
   private List<Seat> seats;
@@ -49,8 +45,6 @@ public class Table implements Serializable
 
   public Table(int aNumber, int aX, int aY, int aWidth, int aLength, RestoApp aRestoApp)
   {
-    seatsInUse = 0;
-    seatsBilled = 0;
     x = aX;
     y = aY;
     width = aWidth;
@@ -68,29 +62,12 @@ public class Table implements Serializable
     }
     reservations = new ArrayList<Reservation>();
     orders = new ArrayList<Order>();
-    setStatusInUse(StatusInUse.Null);
     setStatus(Status.Available);
   }
 
   //------------------------
   // INTERFACE
   //------------------------
-
-  public boolean setSeatsInUse(int aSeatsInUse)
-  {
-    boolean wasSet = false;
-    seatsInUse = aSeatsInUse;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public boolean setSeatsBilled(int aSeatsBilled)
-  {
-    boolean wasSet = false;
-    seatsBilled = aSeatsBilled;
-    wasSet = true;
-    return wasSet;
-  }
 
   public boolean setNumber(int aNumber)
   {
@@ -140,16 +117,6 @@ public class Table implements Serializable
     return wasSet;
   }
 
-  public int getSeatsInUse()
-  {
-    return seatsInUse;
-  }
-
-  public int getSeatsBilled()
-  {
-    return seatsBilled;
-  }
-
   public int getNumber()
   {
     return number;
@@ -188,7 +155,6 @@ public class Table implements Serializable
   public String getStatusFullName()
   {
     String answer = status.toString();
-    if (statusInUse != StatusInUse.Null) { answer += "." + statusInUse.toString(); }
     return answer;
   }
 
@@ -197,12 +163,7 @@ public class Table implements Serializable
     return status;
   }
 
-  public StatusInUse getStatusInUse()
-  {
-    return statusInUse;
-  }
-
-  public boolean makeInUse()
+  public boolean startOrder()
   {
     boolean wasEventProcessed = false;
     
@@ -210,8 +171,156 @@ public class Table implements Serializable
     switch (aStatus)
     {
       case Available:
-        setStatusInUse(StatusInUse.OrderingMenuItems);
+        // line 4 "../../../../../RestoAppTableStateMachine.ump"
+        new Order(new java.sql.Date(Calendar.getInstance().getTime().getTime()), new java.sql.Time(Calendar.getInstance().getTime().getTime()), this.getRestoApp(), this);
+        setStatus(Status.NothingOrdered);
         wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean addToOrder(Order o)
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case Available:
+        // line 7 "../../../../../RestoAppTableStateMachine.ump"
+        o.addTable(this);
+        setStatus(Status.NothingOrdered);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean orderItem(int quantity,Order o,Seat s,PricedMenuItem i)
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case NothingOrdered:
+        if (quantityNotNegative(quantity))
+        {
+        // line 12 "../../../../../RestoAppTableStateMachine.ump"
+          // create a new order item with the provided quantity, order, seat, and priced menu item
+          setStatus(Status.Ordered);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      case Ordered:
+        if (quantityNotNegative(quantity))
+        {
+        // line 27 "../../../../../RestoAppTableStateMachine.ump"
+          // create a new order item with the provided quantity, order, seat, and priced menu item
+          setStatus(Status.Ordered);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean addToOrderItem(OrderItem i,Seat s)
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case NothingOrdered:
+        // line 15 "../../../../../RestoAppTableStateMachine.ump"
+        // add provided seat to provided order item unless seat has already been added, in which case nothing needs to be done
+        setStatus(Status.Ordered);
+        wasEventProcessed = true;
+        break;
+      case Ordered:
+        // line 30 "../../../../../RestoAppTableStateMachine.ump"
+        // add provided seat to provided order item unless seat has already been added, in which case nothing needs to be done
+        setStatus(Status.Ordered);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean endOrder(Order o)
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case NothingOrdered:
+        // line 18 "../../../../../RestoAppTableStateMachine.ump"
+        if (!o.removeTable(this)) {
+               if (o.numberOfTables() == 1) {
+                  o.delete();
+               }
+            }
+        setStatus(Status.Available);
+        wasEventProcessed = true;
+        break;
+      case Ordered:
+        if (allSeatsBilled())
+        {
+        // line 52 "../../../../../RestoAppTableStateMachine.ump"
+          
+          setStatus(Status.Available);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean cancelOrderItem(OrderItem i)
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case Ordered:
+        if (iIsLastItem(i))
+        {
+        // line 33 "../../../../../RestoAppTableStateMachine.ump"
+          // delete order item
+          setStatus(Status.NothingOrdered);
+          wasEventProcessed = true;
+          break;
+        }
+        if (!(iIsLastItem(i)))
+        {
+        // line 36 "../../../../../RestoAppTableStateMachine.ump"
+          // delete order item
+          setStatus(Status.Ordered);
+          wasEventProcessed = true;
+          break;
+        }
         break;
       default:
         // Other states do respond to this event
@@ -227,9 +336,10 @@ public class Table implements Serializable
     Status aStatus = status;
     switch (aStatus)
     {
-      case InUse:
-        exitStatus();
-        setStatus(Status.Available);
+      case Ordered:
+        // line 39 "../../../../../RestoAppTableStateMachine.ump"
+        // delete all order items of the table
+        setStatus(Status.NothingOrdered);
         wasEventProcessed = true;
         break;
       default:
@@ -239,25 +349,19 @@ public class Table implements Serializable
     return wasEventProcessed;
   }
 
-  public boolean changeOrder(Integer seatsInUse)
+  public boolean billForSeat(Order o,Seat s)
   {
     boolean wasEventProcessed = false;
     
-    StatusInUse aStatusInUse = statusInUse;
-    switch (aStatusInUse)
+    Status aStatus = status;
+    switch (aStatus)
     {
-      case OrderingMenuItems:
-        exitStatusInUse();
-        // line 20 "../../../../../RestoAppTableStateMachine.ump"
-        this.seatsInUse = seatsInUse;
-        setStatusInUse(StatusInUse.Eating);
-        wasEventProcessed = true;
-        break;
-      case Eating:
-        exitStatusInUse();
-        // line 27 "../../../../../RestoAppTableStateMachine.ump"
-        this.seatsInUse = seatsInUse;
-        setStatusInUse(StatusInUse.Eating);
+      case Ordered:
+        // line 42 "../../../../../RestoAppTableStateMachine.ump"
+        // create a new bill with the provided order and seat; if the provided seat is already assigned to
+            // another bill for the current order, then the seat is first removed from the other bill and if no seats
+            // are left for the bill, the bill is deleted
+        setStatus(Status.Ordered);
         wasEventProcessed = true;
         break;
       default:
@@ -267,16 +371,19 @@ public class Table implements Serializable
     return wasEventProcessed;
   }
 
-  public boolean tableLeaves()
+  public boolean addToBill(Bill b,Seat s)
   {
     boolean wasEventProcessed = false;
     
-    StatusInUse aStatusInUse = statusInUse;
-    switch (aStatusInUse)
+    Status aStatus = status;
+    switch (aStatus)
     {
-      case Eating:
-        exitStatus();
-        setStatus(Status.Available);
+      case Ordered:
+        // line 47 "../../../../../RestoAppTableStateMachine.ump"
+        // add provided seat to provided bill unless seat has already been added, in which case nothing needs
+            // to be done; if the provided seat is already assigned to another bill for the current order, then the
+            // seat is first removed from the other bill and if no seats are left for the bill, the bill is deleted
+        setStatus(Status.Ordered);
         wasEventProcessed = true;
         break;
       default:
@@ -284,74 +391,11 @@ public class Table implements Serializable
     }
 
     return wasEventProcessed;
-  }
-
-  public boolean issueBill(Integer seatsBilled)
-  {
-    boolean wasEventProcessed = false;
-    
-    StatusInUse aStatusInUse = statusInUse;
-    switch (aStatusInUse)
-    {
-      case Eating:
-        exitStatusInUse();
-        // line 30 "../../../../../RestoAppTableStateMachine.ump"
-        this.seatsBilled = seatsBilled;
-        setStatusInUse(StatusInUse.Eating);
-        wasEventProcessed = true;
-        break;
-      default:
-        // Other states do respond to this event
-    }
-
-    return wasEventProcessed;
-  }
-
-  private void exitStatus()
-  {
-    switch(status)
-    {
-      case InUse:
-        exitStatusInUse();
-        break;
-    }
   }
 
   private void setStatus(Status aStatus)
   {
     status = aStatus;
-
-    // entry actions and do activities
-    switch(status)
-    {
-      case Available:
-        // line 9 "../../../../../RestoAppTableStateMachine.ump"
-        seatsInUse = 0;
-        seatsBilled = 0;
-        break;
-      case InUse:
-        if (statusInUse == StatusInUse.Null) { setStatusInUse(StatusInUse.OrderingMenuItems); }
-        break;
-    }
-  }
-
-  private void exitStatusInUse()
-  {
-    switch(statusInUse)
-    {
-      case OrderingMenuItems:
-        setStatusInUse(StatusInUse.Null);
-        break;
-      case Eating:
-        setStatusInUse(StatusInUse.Null);
-        break;
-    }
-  }
-
-  private void setStatusInUse(StatusInUse aStatusInUse)
-  {
-    statusInUse = aStatusInUse;
-    if (status != Status.InUse && aStatusInUse != StatusInUse.Null) { setStatus(Status.InUse); }
   }
 
   public Seat getSeat(int index)
@@ -867,7 +911,37 @@ public class Table implements Serializable
 	  	}
   }
 
-  // line 37 "../../../../../RestoApp v2.ump"
+
+  /**
+   * check that the provided quantity is an integer greater than 0
+   */
+  // line 59 "../../../../../RestoAppTableStateMachine.ump"
+   private boolean quantityNotNegative(int quantity){
+    // TODO
+      return false;
+  }
+
+
+  /**
+   * check that the provided order item is the last item of the current order of the table
+   */
+  // line 65 "../../../../../RestoAppTableStateMachine.ump"
+   private boolean iIsLastItem(OrderItem i){
+    // TODO
+      return false;
+  }
+
+
+  /**
+   * check that all seats of the table have a bill that belongs to the current order of the table
+   */
+  // line 71 "../../../../../RestoAppTableStateMachine.ump"
+   private boolean allSeatsBilled(){
+    // TODO
+      return false;
+  }
+
+  // line 38 "../../../../../RestoApp v3.ump"
    public boolean doesOverlap(int x, int y, int width, int length){
     if ( ((x+width)<this.getX()) || (x>(this.getX()+this.getWidth())) || ((y+length)<this.getY()) || (y>(this.getY()+this.getLength())) )
 		{
@@ -883,8 +957,6 @@ public class Table implements Serializable
   public String toString()
   {
     return super.toString() + "["+
-            "seatsInUse" + ":" + getSeatsInUse()+ "," +
-            "seatsBilled" + ":" + getSeatsBilled()+ "," +
             "number" + ":" + getNumber()+ "," +
             "x" + ":" + getX()+ "," +
             "y" + ":" + getY()+ "," +
