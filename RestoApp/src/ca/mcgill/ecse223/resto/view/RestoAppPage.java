@@ -1282,6 +1282,16 @@ public class RestoAppPage extends JFrame {
 			sizeY += 10;
 		}
 		
+		CHGTABSTADateCalendar.getModel().setValue(null);
+		CHGTABSTASelectTableMenu.removeAll();
+		int sizeY2 = 10;
+		for (Table table : RestoAppController.getCurrentTables()){
+			JCheckBox tableCheckBox;
+			CHGTABSTASelectTableMenu.add(tableCheckBox = new JCheckBox("Table #" + String.valueOf(table.getNumber())));
+			CHGTABSTASelectTableMenu.setPreferredSize(new Dimension(500, sizeY));
+			sizeY2 += 10;
+		}
+		
 		restoLayout.setTables(RestoAppController.getCurrentTables());
 		
 		pack();
