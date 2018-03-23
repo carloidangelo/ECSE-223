@@ -725,7 +725,17 @@ public class RestoAppPage extends JFrame {
 
 				refreshData();
 			}
-		});		
+		});
+		
+		CHGTABSTAAssignTables.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				//TODO
+				
+				refreshData();
+			}
+		});
 		
 		//Restaurant Layout
 		restoLayout = new RestoLayout(this);
