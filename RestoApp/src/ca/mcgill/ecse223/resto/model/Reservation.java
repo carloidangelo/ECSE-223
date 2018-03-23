@@ -8,7 +8,7 @@ import java.sql.Time;
 import java.util.*;
 
 // line 15 "../../../../../RestoAppPersistence.ump"
-// line 17 "../../../../../RestoApp v3.ump"
+// line 34 "../../../../../RestoApp v3.ump"
 public class Reservation implements Serializable
 {
 
@@ -366,6 +366,19 @@ public class Reservation implements Serializable
 			}
 		}
 	  	nextReservationNumber++;
+  }
+
+  // line 44 "../../../../../RestoApp v3.ump"
+   public boolean doesOverlap(Date date, Time time){
+    int time1 = this.time.getHours();
+	   int time2 = time.getHours();
+	   int timediff = Math.abs(time2 - time1);
+	  if (date.before(this.date)) {
+		  return false;
+	  }else if(timediff < 2) {
+		  return false;
+	  }
+	return true;
   }
 
 

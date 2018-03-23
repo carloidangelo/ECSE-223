@@ -20,62 +20,60 @@ public class RestoAppPage extends JFrame {
 	
 	private static final long serialVersionUID = -4426310869335015542L;
 	
+	//Error
 	private String error = "";
 	private JLabel errorMessage;
 	
+	//Main Menu
 	private JButton menu;
 	private JButton changeLayout;
+	private JButton reservation;
 	
-	private JButton addTable;
-	private JButton removeTable;
-	private JButton updateTable;
-	private JButton changeLocation;
-	
+	//Menu SubMenu
 	private JButton appetizer;
 	private JButton main; 
 	private JButton dessert;
 	private JButton alcoholicBeverage; 
 	private JButton nonAlcoholicBeverage;
 	
-	private JLabel tableNumber;
-	private JLabel xCoord;
-	private JLabel yCoord;
-	private JLabel tableWidth;
-	private JLabel tableLength;
-	private JLabel numOfSeats;
+	//Change Layout SubMenu	
+	private JButton addTable;
+	private JButton removeTable;
+	private JButton updateTable;
+	private JButton changeLocation;
 	
-	private JTextField tableNumberField;
-	private JTextField xCoordField;
-	private JTextField yCoordField;
-	private JTextField tableWidthField;
-	private JTextField tableLengthField;
-	private JTextField numOfSeatsField;
+	//Reservation SubMenu
+	private JButton reserveTable;
 	
-	private JButton addTableButton;
-	
+	//Menu SubMenu SubMenu
 	private JPanel appetizerMenu;
 	private JPanel mainMenu;
 	private JPanel dessertMenu;
 	private JPanel alcoholicBeverageMenu; 
 	private JPanel nonAlcoholicBeverageMenu;
 	
-	private RestoLayout restoLayout;
-	private JScrollPane restoLayoutContainer;
+	//Add Table SubMenu
+	private JLabel tableNumber;
+	private JLabel xCoord;
+	private JLabel yCoord;
+	private JLabel tableWidth;
+	private JLabel tableLength;
+	private JLabel numOfSeats;
+	private JTextField tableNumberField;
+	private JTextField xCoordField;
+	private JTextField yCoordField;
+	private JTextField tableWidthField;
+	private JTextField tableLengthField;
+	private JTextField numOfSeatsField;
+	private JButton addTableButton;
 	
-	//remove table
+	//Remove Table SubMenu
 	private JComboBox <String> selectTableRemoveTable;
 	private JLabel selectTableRemoveTableLabel;
 	private JButton removeTableConfirm;
 	private Integer selectedTable2 = -1;
 	
-	//move table UI
-	private JComboBox <String> tableList;
-	
-	private JLabel moveTable;
-	
-	private JButton moveTableButton;
-	private Integer selectedTable = -1;
-	
+	/*Update Table SubMenu*/
 	//Select table combo box hashmaps
 	private HashMap<Integer, Table> tables;
 	private HashMap<Table, Integer> tablesReverse;
@@ -85,7 +83,6 @@ public class RestoAppPage extends JFrame {
 	private JComboBox <String> selectTableUpdateTable;
 	private Integer selectedTable1 = -1;
 	private java.awt.event.ActionListener selectTableUpdateTableListener;
-	
 	
 	//update table seat number
 	private JLabel changeNumSeatsLabel;
@@ -97,6 +94,18 @@ public class RestoAppPage extends JFrame {
 	private JLabel tableNumberLabel;
 	private JTextField newTableNumber;
 	private JButton setTableNumber;
+	
+	//Move Table SubMenu
+	private JComboBox <String> tableList;
+		
+	private JLabel moveTable;
+		
+	private JButton moveTableButton;
+	private Integer selectedTable = -1;
+	
+	//Restaurant Layout
+	private RestoLayout restoLayout;
+	private JScrollPane restoLayoutContainer;
 	
 	public RestoAppPage() {
 		initComponents();
@@ -112,24 +121,67 @@ public class RestoAppPage extends JFrame {
         setResizable(true);
 		setTitle("Restaurant Application");
 		
+		//Error
 		errorMessage = new JLabel();
 		errorMessage.setForeground(Color.RED);
-				
+		
+		//Main Menu		
 		menu = new JButton("Menu");
-		
 		changeLayout = new JButton("Restaurant Layout");
+		reservation = new JButton("Reservation");
 		
-		addTable = new JButton("Add Table");
-		removeTable = new JButton("Remove Table");
-		updateTable = new JButton("Update Table");
-		changeLocation = new JButton("Change Table Location");
-		
+		//Menu SubMenu
 		appetizer = new JButton("Appetizer");
 		main = new JButton("Main");
 		dessert = new JButton("Dessert");
 		alcoholicBeverage = new JButton("Alcoholic Beverage"); 
 		nonAlcoholicBeverage = new JButton("Non-alcoholic Beverage");
 		
+		//Change Layout SubMenu
+		addTable = new JButton("Add Table");
+		removeTable = new JButton("Remove Table");
+		updateTable = new JButton("Update Table");
+		changeLocation = new JButton("Change Table Location");
+		
+		//Reservation SubMenu
+		reserveTable = new JButton("Reserve Table");
+		
+		//Menu SubMenu SubMenu
+		appetizerMenu  = new JPanel();
+		mainMenu  = new JPanel();
+		dessertMenu  = new JPanel();
+		alcoholicBeverageMenu = new JPanel();
+		nonAlcoholicBeverageMenu  = new JPanel();
+		
+		//Add Table SubMenu
+		tableNumber = new JLabel("Table Number");
+		xCoord = new JLabel("X");
+		yCoord = new JLabel("Y");
+		tableWidth = new JLabel("Width");
+		tableLength = new JLabel("Length");
+		numOfSeats = new JLabel("Number of Seats");
+		
+		tableNumberField = new JTextField("");
+		xCoordField = new JTextField("");
+		yCoordField = new JTextField("");
+		tableWidthField = new JTextField("");
+		tableLengthField = new JTextField("");
+		numOfSeatsField = new JTextField("");
+		
+		addTableButton = new JButton("Add");
+		
+		//Remove Table SubMenu
+		selectTableRemoveTable = new JComboBox<String>(new String[0]);
+		selectTableRemoveTable.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {				
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				selectedTable2 = cb.getSelectedIndex();
+			}
+		});
+		selectTableRemoveTableLabel = new JLabel("Select Table:");
+		removeTableConfirm = new JButton("Remove this table");
+				
+		/*Update Table SubMenu*/
 		Font header = new Font("Dialog", Font.BOLD, 14);
 		
 		//select table (update table)
@@ -155,48 +207,8 @@ public class RestoAppPage extends JFrame {
 		setTableNumber.setMaximumSize(new Dimension(136, 20));
 		updateTableNumberLabel = new JLabel("Change table number");
 		updateTableNumberLabel.setFont(header);
-
-		tableNumber = new JLabel("Table Number");
-		xCoord = new JLabel("X");
-		yCoord = new JLabel("Y");
-		tableWidth = new JLabel("Width");
-		tableLength = new JLabel("Length");
-		numOfSeats = new JLabel("Number of Seats");
 		
-		tableNumberField = new JTextField("");
-		xCoordField = new JTextField("");
-		yCoordField = new JTextField("");
-		tableWidthField = new JTextField("");
-		tableLengthField = new JTextField("");
-		numOfSeatsField = new JTextField("");
-		
-		addTableButton = new JButton("Add");
-		
-		restoLayout = new RestoLayout(this);
-		restoLayoutContainer = new JScrollPane(restoLayout);
-	
-		restoLayoutContainer.setPreferredSize(new Dimension(1250, 500));
-		restoLayoutContainer.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		restoLayoutContainer.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		
-		appetizerMenu  = new JPanel();
-		mainMenu  = new JPanel();
-		dessertMenu  = new JPanel();
-		alcoholicBeverageMenu = new JPanel();
-		nonAlcoholicBeverageMenu  = new JPanel();
-		
-		//elements for remove table
-		selectTableRemoveTable = new JComboBox<String>(new String[0]);
-		selectTableRemoveTable.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {				
-				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
-		        selectedTable2 = cb.getSelectedIndex();
-			}
-		});
-		selectTableRemoveTableLabel = new JLabel("Select Table:");
-		removeTableConfirm = new JButton("Remove this table");
-		
-		//elements for move table
+		//Move Table SubMenu
 		tableList = new JComboBox<String>(new String[0]);
 		tableList.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {				
@@ -205,9 +217,9 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		moveTable = new JLabel("Select Table");
-		moveTableButton = new JButton("Confirm");
+		moveTableButton = new JButton("Confirm");	
 		
-
+		//Action Listeners
 		menu.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				returnToMainMenu();
@@ -227,6 +239,14 @@ public class RestoAppPage extends JFrame {
 				removeTable.setVisible(true);
 				updateTable.setVisible(true);
 				changeLocation.setVisible(true);
+				refreshData();
+			}
+		});
+		
+		reservation.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				returnToMainMenu();
+				reserveTable.setVisible(true);
 				refreshData();
 			}
 		});
@@ -536,9 +556,17 @@ public class RestoAppPage extends JFrame {
 				}
 				refreshData();
 			}
-		});
+		});		
 		
+		//Restaurant Layout
+		restoLayout = new RestoLayout(this);
+		restoLayoutContainer = new JScrollPane(restoLayout);
+	
+		restoLayoutContainer.setPreferredSize(new Dimension(1250, 500));
+		restoLayoutContainer.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		restoLayoutContainer.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		
+		//Layout
 		JSeparator horizontalLine = new JSeparator();
 		Dimension verticalLineSize = new Dimension(0,100);
 		JSeparator verticalLine0 = new JSeparator(SwingConstants.VERTICAL);
@@ -555,7 +583,8 @@ public class RestoAppPage extends JFrame {
 				.addComponent(errorMessage)
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(menu,200,200,400)
-						.addComponent(changeLayout))
+						.addComponent(changeLayout)
+						.addComponent(reservation))
 				.addComponent(horizontalLine)
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(appetizer)
@@ -566,7 +595,8 @@ public class RestoAppPage extends JFrame {
 						.addComponent(addTable)
 						.addComponent(removeTable)
 						.addComponent(updateTable)
-						.addComponent(changeLocation))
+						.addComponent(changeLocation)
+						.addComponent(reserveTable))
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(appetizerMenu)
 						.addComponent(mainMenu)
@@ -631,7 +661,9 @@ public class RestoAppPage extends JFrame {
 		
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {menu, appetizer, main, dessert, alcoholicBeverage,
 																				nonAlcoholicBeverage, addTable, removeTable, updateTable, 
-																				changeLocation});
+																				changeLocation, reserveTable});
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {changeLayout, reservation});
+																	
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {tableNumber, xCoord, yCoord, tableWidth, tableLength, numOfSeats,
 																				tableNumberField, xCoordField, yCoordField, tableWidthField, 
 																				tableLengthField, numOfSeatsField, addTableButton});
@@ -642,7 +674,8 @@ public class RestoAppPage extends JFrame {
 				.addComponent(errorMessage)
 				.addGroup(layout.createParallelGroup()
 						.addComponent(menu)
-						.addComponent(changeLayout))
+						.addComponent(changeLayout)
+						.addComponent(reservation))
 				.addComponent(horizontalLine)
 				.addGroup(layout.createParallelGroup()
 						.addComponent(appetizer)
@@ -653,7 +686,8 @@ public class RestoAppPage extends JFrame {
 						.addComponent(addTable)
 						.addComponent(removeTable)
 						.addComponent(updateTable)
-						.addComponent(changeLocation))
+						.addComponent(changeLocation)
+						.addComponent(reserveTable))
 				.addGroup(layout.createParallelGroup()
 						.addComponent(appetizerMenu)
 						.addComponent(mainMenu)
@@ -727,6 +761,7 @@ public class RestoAppPage extends JFrame {
 		removeMenusSubmenu();
 		removeMoveTableSubmenu();
 		removeRemoveTableSubmenu();
+		removeReservationSubmenu();
 		
 		pack();
 	}
@@ -815,6 +850,10 @@ public class RestoAppPage extends JFrame {
 		selectTableRemoveTable.setVisible(false);
 		selectTableRemoveTableLabel.setVisible(false);
 		removeTableConfirm.setVisible(false);
+	}
+	
+	private void removeReservationSubmenu() {
+		reserveTable.setVisible(false);
 	}
 	
 	private void refreshData() {
