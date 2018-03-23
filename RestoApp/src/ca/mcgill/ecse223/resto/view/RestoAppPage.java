@@ -368,6 +368,32 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
+		changeTableStatus.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				returnToMainMenu();
+				error = "";
+				
+				SelectGroupList.setVisible(true);
+				
+				CHGTABSTASelectTable.setVisible(true);
+				CHGTABSTADate.setVisible(true);
+				CHGTABSTATime.setVisible(true);
+				CHGTABSTASelectGroup.setVisible(true);
+								
+				CHGTABSTATimeField.setVisible(true);
+				CHGTABSTASelectGroupField.setVisible(true);
+				
+				CHGTABSTAAssignTables.setVisible(true);
+				CHGTABSTARemoveGroup.setVisible(true);
+				
+				CHGTABSTADateCalendar.setVisible(true);
+				CHGTABSTASelectTableMenu.setVisible(true);
+				CHGTABSTASelectTableMenuScroll.setVisible(true);
+
+				refreshData();
+			}
+		});
+		
 		appetizer.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeMenus();
@@ -699,36 +725,7 @@ public class RestoAppPage extends JFrame {
 
 				refreshData();
 			}
-		});
-		
-		changeTableStatus.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				removeMenusSubmenu();
-				removeChangeLayoutSubmenu();
-				removeReservationSubmenu();
-				error = "";
-				
-				SelectGroupList.setVisible(true);
-				
-				CHGTABSTASelectTable.setVisible(true);
-				CHGTABSTADate.setVisible(true);
-				CHGTABSTATime.setVisible(true);
-				CHGTABSTASelectGroup.setVisible(true);
-								
-				CHGTABSTATimeField.setVisible(true);
-				CHGTABSTASelectGroupField.setVisible(true);
-				
-				CHGTABSTAAssignTables.setVisible(true);
-				CHGTABSTARemoveGroup.setVisible(true);
-				
-				CHGTABSTADateCalendar.setVisible(true);
-				CHGTABSTASelectTableMenu.setVisible(true);
-				CHGTABSTASelectTableMenuScroll.setVisible(true);
-
-				refreshData();
-			}
-		});
-		
+		});		
 		
 		//Restaurant Layout
 		restoLayout = new RestoLayout(this);
