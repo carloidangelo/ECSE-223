@@ -286,7 +286,6 @@ public class RestoAppPage extends JFrame {
 		RESSelectTableMenu = new JPanel();
 		RESSelectTableMenuScroll = new JScrollPane(RESSelectTableMenu);
 		RESSelectTableMenuScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		RESSelectTableMenuScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		
 		//Action Listeners
 		menu.addActionListener(new java.awt.event.ActionListener() {
@@ -765,7 +764,7 @@ public class RestoAppPage extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addComponent(RESSelectTable,100,150,200)	
 						.addGroup(layout.createSequentialGroup()
-								.addComponent(RESSelectTableMenuScroll,200,200,300)
+								.addComponent(RESSelectTableMenuScroll,500,500,600)
 								.addGroup(layout.createParallelGroup()
 										.addGroup(layout.createSequentialGroup()
 												.addComponent(RESDate)
@@ -897,7 +896,7 @@ public class RestoAppPage extends JFrame {
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(RESSelectTable)	
 						.addGroup(layout.createParallelGroup()
-								.addComponent(RESSelectTableMenuScroll,100,100,200)
+								.addComponent(RESSelectTableMenuScroll,75,75,200)
 								.addGroup(layout.createSequentialGroup()
 										.addGroup(layout.createParallelGroup()
 												.addComponent(RESDate)
