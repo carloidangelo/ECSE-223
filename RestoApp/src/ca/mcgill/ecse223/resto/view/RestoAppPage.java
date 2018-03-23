@@ -33,6 +33,7 @@ public class RestoAppPage extends JFrame {
 	private JButton menu;
 	private JButton changeLayout;
 	private JButton reservation;
+	private JButton changeTableStatus;
 	
 	//Menu SubMenu
 	private JButton appetizer;
@@ -132,6 +133,9 @@ public class RestoAppPage extends JFrame {
 	private JDatePickerImpl RESDateCalender;
 	private JPanel RESSelectTableMenu;
 	private JScrollPane RESSelectTableMenuScroll;
+	
+	//Change table status submenu
+	
 
 	//Restaurant Layout
 	private RestoLayout restoLayout;
@@ -159,6 +163,7 @@ public class RestoAppPage extends JFrame {
 		menu = new JButton("Menu");
 		changeLayout = new JButton("Restaurant Layout");
 		reservation = new JButton("Reservation");
+		changeTableStatus = new JButton("Change Table Status"); 
 		
 		//Menu SubMenu
 		appetizer = new JButton("Appetizer");
@@ -676,7 +681,8 @@ public class RestoAppPage extends JFrame {
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(menu,200,200,400)
 						.addComponent(changeLayout)
-						.addComponent(reservation))
+						.addComponent(reservation)
+						.addComponent(changeTableStatus))
 				.addComponent(horizontalLine)
 				//Menu SubMenu
 				.addGroup(layout.createSequentialGroup()
@@ -783,7 +789,7 @@ public class RestoAppPage extends JFrame {
 				);
 		
 		//Menu
-		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {changeLayout, reservation});
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {changeLayout, reservation, changeTableStatus});
 		
 		//Menu SubMenu
 				layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {menu, appetizer, main, dessert, alcoholicBeverage,
@@ -809,7 +815,8 @@ public class RestoAppPage extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addComponent(menu)
 						.addComponent(changeLayout)
-						.addComponent(reservation))
+						.addComponent(reservation)
+						.addComponent(changeTableStatus))
 				.addComponent(horizontalLine)
 				//Menu SubMenu
 				.addGroup(layout.createParallelGroup()
