@@ -304,7 +304,6 @@ public class RestoAppController {
 	//reserve table
 	public static void reserveTable(Date date, Time time, int numberInParty, String contactName, String contactEmailAddress, 
 									String contactPhoneNumber, List<Table> tables) throws InvalidInputException{
-		date = cleanDate(date);
 		tables = new ArrayList<Table>(tables);
 		String error = "";
 		if (date == null)
@@ -376,19 +375,7 @@ public class RestoAppController {
 	}
 	
 	private static boolean isTimeInPast(Time time) {
-		java.util.Date tempToday = RestoAppApplication.getRestoApp().getCurrentTime();
+		java.util.Date tempToday = RestoAppApplication.getRestoApp().getCurrentDate();
 		return time.before(tempToday);
-	}
-	
-	private static Date cleanDate(Date date) {
-	    Calendar cal = Calendar.getInstance();
-	    cal.setTimeInMillis(date.getTime());
-	    cal.set(Calendar.HOUR_OF_DAY, 0);
-	    cal.set(Calendar.MINUTE, 0);
-	    cal.set(Calendar.SECOND, 0);
-	    cal.set(Calendar.MILLISECOND, 0);
-	    java.util.Date tempCleanedDate = cal.getTime();
-	    java.sql.Date cleanedDate = new java.sql.Date(tempCleanedDate.getTime());
-	    return cleanedDate;
 	}
 }
