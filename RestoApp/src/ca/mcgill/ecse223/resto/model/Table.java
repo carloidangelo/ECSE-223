@@ -935,11 +935,7 @@ public class Table implements Serializable
    */
   // line 69 "../../../../../RestoAppTableStateMachine.ump"
    private boolean allSeatsBilled(){
-    if(numberOfOrders() == 0)	//table has no orders
-		   return true;
-	   Order order = getOrder(numberOfOrders()-1);
-	   if(!getRestoApp().getCurrentOrders().contains(order))	//order not a current order
-		   return true;
+    Order order = getOrder(numberOfOrders()-1);
 	   
 	   //creates list of seats that are in use (and belong to relevant table)
 	   List<OrderItem> orderItems = order.getOrderItems();
