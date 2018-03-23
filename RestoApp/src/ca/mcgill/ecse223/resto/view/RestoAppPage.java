@@ -325,7 +325,7 @@ public class RestoAppPage extends JFrame {
 		CHGTABSTADateCalendar = new JDatePickerImpl(datePanel, new DateLabelFormatter());
 		
 		CHGTABSTASelectTableMenu = new JPanel();
-		CHGTABSTASelectTableMenuScroll = new JScrollPane(RESSelectTableMenu);
+		CHGTABSTASelectTableMenuScroll = new JScrollPane(CHGTABSTASelectTableMenu);
 		CHGTABSTASelectTableMenuScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		SelectGroupList = new JComboBox<String>(new String[0]);
@@ -1281,8 +1281,6 @@ public class RestoAppPage extends JFrame {
 			RESSelectTableMenu.setPreferredSize(new Dimension(500, sizeY));
 			sizeY += 10;
 		}
-		
-		
 		
 		restoLayout.setTables(RestoAppController.getCurrentTables());
 		
