@@ -22,6 +22,7 @@ import ca.mcgill.ecse223.resto.model.Table;
 public class RestoLayout extends JPanel {
 	
 	private static final long serialVersionUID = 5765666411683246454L;
+	
 	private List<Rectangle2D> rectangles = new ArrayList<Rectangle2D>();
 	private HashMap<Rectangle2D, Table> visualTables;
 	private static final int SPACING = 100;

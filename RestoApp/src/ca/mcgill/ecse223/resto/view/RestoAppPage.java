@@ -2,10 +2,16 @@ package ca.mcgill.ecse223.resto.view;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import javax.swing.*;
+
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.SqlDateModel;
 
 import ca.mcgill.ecse223.resto.controller.InvalidInputException;
 import ca.mcgill.ecse223.resto.controller.RestoAppController;
@@ -13,7 +19,6 @@ import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.MenuItem.ItemCategory;
 
 import ca.mcgill.ecse223.resto.model.RestoApp;
-
 import ca.mcgill.ecse223.resto.model.Table;
 
 public class RestoAppPage extends JFrame {
@@ -28,6 +33,7 @@ public class RestoAppPage extends JFrame {
 	private JButton menu;
 	private JButton changeLayout;
 	private JButton reservation;
+	private JButton changeTableStatus;
 	
 	//Menu SubMenu
 	private JButton appetizer;
@@ -99,10 +105,38 @@ public class RestoAppPage extends JFrame {
 	private JComboBox <String> tableList;
 		
 	private JLabel moveTable;
+	
+	private JLabel xCoord2;
+	private JLabel yCoord2;
+	private JTextField xCoordField2;
+	private JTextField yCoordField2;
 		
 	private JButton moveTableButton;
 	private Integer selectedTable = -1;
 	
+	//Reserve Table SubMenu
+	private JLabel RESSelectTable;
+	private JLabel RESDate;
+	private JLabel RESTime;
+	private JLabel RESNumberInParty;
+	private JLabel RESContactName;
+	private JLabel RESContactEmail;
+	private JLabel RESContactPhoneNumber;
+	
+	private JTextField RESTimeField;
+	private JTextField RESNumberInPartyField;
+	private JTextField RESContactNameField;
+	private JTextField RESContactEmailField;
+	private JTextField RESContactPhoneNumberField;
+	
+	private JButton RESMakeReservation;
+	private JDatePickerImpl RESDateCalender;
+	private JPanel RESSelectTableMenu;
+	private JScrollPane RESSelectTableMenuScroll;
+	
+	//Change table status submenu
+	
+
 	//Restaurant Layout
 	private RestoLayout restoLayout;
 	private JScrollPane restoLayoutContainer;
@@ -129,6 +163,7 @@ public class RestoAppPage extends JFrame {
 		menu = new JButton("Menu");
 		changeLayout = new JButton("Restaurant Layout");
 		reservation = new JButton("Reservation");
+		changeTableStatus = new JButton("Change Table Status"); 
 		
 		//Menu SubMenu
 		appetizer = new JButton("Appetizer");
@@ -217,7 +252,40 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		moveTable = new JLabel("Select Table");
-		moveTableButton = new JButton("Confirm");	
+		moveTableButton = new JButton("Confirm");
+		xCoord2 = new JLabel("X");
+		yCoord2 = new JLabel("Y");
+		xCoordField2 = new JTextField("");
+		yCoordField2 = new JTextField("");
+		
+		//Reserve Table SubMenu
+		RESSelectTable = new JLabel("Select Table(s)");
+		RESDate = new JLabel("Date");
+		RESTime = new JLabel("Time");
+		RESNumberInParty = new JLabel("Number in party");
+		RESContactName = new JLabel("Contact Name");
+		RESContactEmail = new JLabel("Contact Email");
+		RESContactPhoneNumber = new JLabel("Contact Phone");
+		
+		RESTimeField = new JTextField("");
+		RESNumberInPartyField = new JTextField("");
+		RESContactNameField = new JTextField("");
+		RESContactEmailField = new JTextField("");
+		RESContactPhoneNumberField = new JTextField("");
+		
+		RESMakeReservation = new JButton("Make Reservation");
+			
+		SqlDateModel model = new SqlDateModel();
+		Properties p = new Properties();
+		p.put("text.today", "Today");
+		p.put("text.month", "Month");
+		p.put("text.year", "Year");
+		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+		RESDateCalender = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+		
+		RESSelectTableMenu = new JPanel();
+		RESSelectTableMenuScroll = new JScrollPane(RESSelectTableMenu);
+		RESSelectTableMenuScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		//Action Listeners
 		menu.addActionListener(new java.awt.event.ActionListener() {
@@ -393,6 +461,40 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
+		removeTable.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				removeAddTableSubmenu();
+				removeUpdateTableSubmenu();
+				removeMoveTableSubmenu();
+				
+				error = "";
+				
+				selectTableRemoveTable.setVisible(true);
+				selectTableRemoveTableLabel.setVisible(true);
+				removeTableConfirm.setVisible(true);
+				
+				refreshData();
+			}
+		});
+		
+		removeTableConfirm.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				if(restoLayout.getSelectedTable() == tables.get(selectedTable2))
+					restoLayout.setSelectedTable(null);
+				try {
+					RestoAppController.removeTable(tables.get(selectedTable2));
+				}
+				catch (InvalidInputException e){
+					error = e.getMessage();
+					errorMessage.setText(error);
+				}
+				
+				refreshData();
+			}
+		});
+		
 		updateTable.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeAddTableSubmenu();
@@ -476,40 +578,6 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
-		removeTable.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				removeAddTableSubmenu();
-				removeUpdateTableSubmenu();
-				removeMoveTableSubmenu();
-				
-				error = "";
-				
-				selectTableRemoveTable.setVisible(true);
-				selectTableRemoveTableLabel.setVisible(true);
-				removeTableConfirm.setVisible(true);
-				
-				refreshData();
-			}
-		});
-		
-		removeTableConfirm.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				error = "";
-				
-				if(restoLayout.getSelectedTable() == tables.get(selectedTable2))
-					restoLayout.setSelectedTable(null);
-				try {
-					RestoAppController.removeTable(tables.get(selectedTable2));
-				}
-				catch (InvalidInputException e){
-					error = e.getMessage();
-					errorMessage.setText(error);
-				}
-				
-				refreshData();
-			}
-		});
-		
 		changeLocation.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeAddTableSubmenu();
@@ -519,12 +587,12 @@ public class RestoAppPage extends JFrame {
 				error = "";
 				
 				moveTable.setVisible(true);
-				xCoord.setVisible(true);
-				yCoord.setVisible(true);
+				xCoord2.setVisible(true);
+				yCoord2.setVisible(true);
 				
 				tableList.setVisible(true);
-				xCoordField.setVisible(true);
-				yCoordField.setVisible(true);
+				xCoordField2.setVisible(true);
+				yCoordField2.setVisible(true);
 				
 				moveTableButton.setVisible(true);
 				
@@ -538,8 +606,8 @@ public class RestoAppPage extends JFrame {
 				
 				if (error.length() == 0) {
 					try {
-						int xCoord = Integer.parseInt(xCoordField.getText());
-						int yCoord = Integer.parseInt(yCoordField.getText());
+						int xCoord = Integer.parseInt(xCoordField2.getText());
+						int yCoord = Integer.parseInt(yCoordField2.getText());
 						RestoAppController.moveTable(tables.get(selectedTable),xCoord, yCoord);
 						
 					}
@@ -556,7 +624,33 @@ public class RestoAppPage extends JFrame {
 				}
 				refreshData();
 			}
-		});		
+		});	
+		
+		reserveTable.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				RESSelectTable.setVisible(true);
+				RESDate.setVisible(true);
+				RESTime.setVisible(true);
+				RESNumberInParty.setVisible(true);
+				RESContactName.setVisible(true);
+				RESContactEmail.setVisible(true);
+				RESContactPhoneNumber.setVisible(true);
+				
+				RESTimeField.setVisible(true);
+				RESNumberInPartyField.setVisible(true);
+				RESContactNameField.setVisible(true);
+				RESContactEmailField.setVisible(true);
+				RESContactPhoneNumberField.setVisible(true);
+				
+				RESMakeReservation.setVisible(true);
+				RESDateCalender.setVisible(true);
+				RESSelectTableMenuScroll.setVisible(true);
+
+				refreshData();
+			}
+		});
 		
 		//Restaurant Layout
 		restoLayout = new RestoLayout(this);
@@ -580,60 +674,63 @@ public class RestoAppPage extends JFrame {
 		layout.setAutoCreateContainerGaps(true);
 		layout.setHorizontalGroup(
 				layout.createParallelGroup()
+				//Error
 				.addComponent(errorMessage)
+				//Main Menu
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(menu,200,200,400)
 						.addComponent(changeLayout)
-						.addComponent(reservation))
+						.addComponent(reservation)
+						.addComponent(changeTableStatus))
 				.addComponent(horizontalLine)
+				//Menu SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(appetizer)
 						.addComponent(main)
 						.addComponent(dessert)
 						.addComponent(alcoholicBeverage)
-						.addComponent(nonAlcoholicBeverage)
+						.addComponent(nonAlcoholicBeverage))
+				//Change Layout SubMenu
+				.addGroup(layout.createSequentialGroup()
 						.addComponent(addTable)
 						.addComponent(removeTable)
 						.addComponent(updateTable)
-						.addComponent(changeLocation)
+						.addComponent(changeLocation))
+				//Reservation SubMenu
+				.addGroup(layout.createSequentialGroup()
 						.addComponent(reserveTable))
+				//Menu SubMenu SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(appetizerMenu)
 						.addComponent(mainMenu)
 						.addComponent(dessertMenu)
 						.addComponent(alcoholicBeverageMenu)
-						.addComponent(nonAlcoholicBeverageMenu)
+						.addComponent(nonAlcoholicBeverageMenu))
+				//Add Table SubMenu
+				.addGroup(layout.createParallelGroup()
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(tableNumber,100,150,400)
+								.addComponent(xCoord)
+								.addComponent(yCoord)
+								.addComponent(tableWidth)
+								.addComponent(tableLength)
+								.addComponent(numOfSeats))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(tableNumberField)
+								.addComponent(xCoordField)
+								.addComponent(yCoordField)
+								.addComponent(tableWidthField)
+								.addComponent(tableLengthField)
+								.addComponent(numOfSeatsField))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(addTableButton)))
+				//Remove Table SubMenu
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(selectTableRemoveTableLabel)
 						.addGroup(layout.createParallelGroup()
-								.addGroup(layout.createSequentialGroup()
-										.addComponent(tableNumber,100,150,400)
-										.addComponent(xCoord)
-										.addComponent(yCoord)
-										.addComponent(tableWidth)
-										.addComponent(tableLength)
-										.addComponent(numOfSeats))
-								.addGroup(layout.createSequentialGroup()
-										.addComponent(tableNumberField)
-										.addComponent(xCoordField)
-										.addComponent(yCoordField)
-										.addComponent(tableWidthField)
-										.addComponent(tableLengthField)
-										.addComponent(numOfSeatsField))
-								.addGroup(layout.createSequentialGroup()
-										.addComponent(addTableButton)))
-						//move table layout
-						.addGroup(layout.createParallelGroup()
-								.addGroup(layout.createSequentialGroup()
-										.addComponent(moveTable,200,200,400)
-										.addComponent(xCoord)
-										.addComponent(yCoord))
-								.addGroup(layout.createSequentialGroup()
-										.addComponent(tableList)
-										.addComponent(xCoordField)
-										.addComponent(yCoordField))
-								.addGroup(layout.createSequentialGroup()
-										.addComponent(moveTableButton))))
-				
-				//update table layout
+								.addComponent(selectTableRemoveTable,400,400,500)
+								.addComponent(removeTableConfirm)))
+				//Update Table SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup()
 								.addComponent(selectTableUpdateTableLabel)
@@ -651,76 +748,122 @@ public class RestoAppPage extends JFrame {
 								.addComponent(changeNumSeatsLabel)
 								.addComponent(addSeat)
 								.addComponent(removeSeat)))
-				.addGroup(layout.createSequentialGroup()
-						.addComponent(selectTableRemoveTableLabel)
-						.addGroup(layout.createParallelGroup()
-								.addComponent(selectTableRemoveTable)
-								.addComponent(removeTableConfirm)))
+				//Move Table SubMenu
+				.addGroup(layout.createParallelGroup()
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(moveTable,200,200,400)
+								.addComponent(xCoord2)
+								.addComponent(yCoord2))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(tableList)
+								.addComponent(xCoordField2)
+								.addComponent(yCoordField2))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(moveTableButton)))
+				//Reserve Table SubMenu
+				.addGroup(layout.createParallelGroup()
+						.addComponent(RESSelectTable,100,150,200)	
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(RESSelectTableMenuScroll,500,500,600)
+								.addGroup(layout.createParallelGroup()
+										.addGroup(layout.createSequentialGroup()
+												.addComponent(RESDate)
+												.addComponent(RESTime)
+												.addComponent(RESNumberInParty))
+										.addGroup(layout.createSequentialGroup()
+												.addComponent(RESDateCalender)
+												.addComponent(RESTimeField)
+												.addComponent(RESNumberInPartyField))
+										.addGroup(layout.createSequentialGroup()
+												.addComponent(RESContactName)
+												.addComponent(RESContactEmail)
+												.addComponent(RESContactPhoneNumber))
+										.addGroup(layout.createSequentialGroup()
+												.addComponent(RESContactNameField)
+												.addComponent(RESContactEmailField)
+												.addComponent(RESContactPhoneNumberField))
+										.addComponent(RESMakeReservation,200,200,400))))	
+				//Restaurant Layout
 				.addComponent(restoLayoutContainer)
 				);
 		
-		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {menu, appetizer, main, dessert, alcoholicBeverage,
-																				nonAlcoholicBeverage, addTable, removeTable, updateTable, 
-																				changeLocation, reserveTable});
-		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {changeLayout, reservation});
-																	
+		//Menu
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {changeLayout, reservation, changeTableStatus});
+		
+		//Menu SubMenu
+				layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {menu, appetizer, main, dessert, alcoholicBeverage,
+																						nonAlcoholicBeverage, addTable, removeTable, updateTable, 
+																						changeLocation, reserveTable});
+		//AddTable
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {tableNumber, xCoord, yCoord, tableWidth, tableLength, numOfSeats,
 																				tableNumberField, xCoordField, yCoordField, tableWidthField, 
 																				tableLengthField, numOfSeatsField, addTableButton});
-		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {moveTable,xCoord, yCoord, tableList, 
-																				xCoordField,yCoordField,moveTableButton});
+		//Move Table
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {moveTable,xCoord2, yCoord2, tableList, 
+																				xCoordField2,yCoordField2,moveTableButton});
+		//Reserve Table
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {RESSelectTable,RESDate, RESTime, RESNumberInParty, 
+																				RESDateCalender,RESTimeField,RESNumberInPartyField,RESContactName,
+																				RESContactEmail, RESContactPhoneNumber, RESContactNameField, RESContactEmailField, 
+																				RESContactPhoneNumberField});
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
+				//Error
 				.addComponent(errorMessage)
+				//Main Menu
 				.addGroup(layout.createParallelGroup()
 						.addComponent(menu)
 						.addComponent(changeLayout)
-						.addComponent(reservation))
+						.addComponent(reservation)
+						.addComponent(changeTableStatus))
 				.addComponent(horizontalLine)
+				//Menu SubMenu
 				.addGroup(layout.createParallelGroup()
 						.addComponent(appetizer)
 						.addComponent(main)
 						.addComponent(dessert)
 						.addComponent(alcoholicBeverage)
-						.addComponent(nonAlcoholicBeverage)
+						.addComponent(nonAlcoholicBeverage))
+				//Change Layout SubMenu
+				.addGroup(layout.createParallelGroup()
 						.addComponent(addTable)
 						.addComponent(removeTable)
 						.addComponent(updateTable)
-						.addComponent(changeLocation)
+						.addComponent(changeLocation))
+				//Reservation SubMenu
+				.addGroup(layout.createParallelGroup()
 						.addComponent(reserveTable))
+				//Menu SubMenu SubMenu
 				.addGroup(layout.createParallelGroup()
 						.addComponent(appetizerMenu)
 						.addComponent(mainMenu)
 						.addComponent(dessertMenu)
 						.addComponent(alcoholicBeverageMenu)
-						.addComponent(nonAlcoholicBeverageMenu)
+						.addComponent(nonAlcoholicBeverageMenu))
+				//Add Table SubMenu
+				.addGroup(layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup()
+								.addComponent(tableNumber)
+								.addComponent(xCoord)
+								.addComponent(yCoord)
+								.addComponent(tableWidth)
+								.addComponent(tableLength)
+								.addComponent(numOfSeats))
+						.addGroup(layout.createParallelGroup()
+								.addComponent(tableNumberField)
+								.addComponent(xCoordField)
+								.addComponent(yCoordField)
+								.addComponent(tableWidthField)
+								.addComponent(tableLengthField)
+								.addComponent(numOfSeatsField))
+						.addComponent(addTableButton))
+				//Remove Table SubMenu
+				.addGroup(layout.createParallelGroup()
+						.addComponent(selectTableRemoveTableLabel)
 						.addGroup(layout.createSequentialGroup()
-								.addGroup(layout.createParallelGroup()
-										.addComponent(tableNumber)
-										.addComponent(xCoord)
-										.addComponent(yCoord)
-										.addComponent(tableWidth)
-										.addComponent(tableLength)
-										.addComponent(numOfSeats))
-								.addGroup(layout.createParallelGroup()
-										.addComponent(tableNumberField)
-										.addComponent(xCoordField)
-										.addComponent(yCoordField)
-										.addComponent(tableWidthField)
-										.addComponent(tableLengthField)
-										.addComponent(numOfSeatsField))
-								.addComponent(addTableButton))
-						.addGroup(layout.createSequentialGroup()
-								.addGroup(layout.createParallelGroup()
-										.addComponent(moveTable)
-										.addComponent(xCoord)
-										.addComponent(yCoord))
-								.addGroup(layout.createParallelGroup()
-										.addComponent(tableList)
-										.addComponent(xCoordField)
-										.addComponent(yCoordField))
-								.addComponent(moveTableButton)))
-				//update table layout
+								.addComponent(selectTableRemoveTable)
+								.addComponent(removeTableConfirm)))
+				//Update Table SubMenu
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup()
 								.addComponent(selectTableUpdateTableLabel)
@@ -738,15 +881,44 @@ public class RestoAppPage extends JFrame {
 								.addComponent(changeNumSeatsLabel)
 								.addComponent(addSeat)
 								.addComponent(removeSeat)))
-				.addGroup(layout.createParallelGroup()
-						.addComponent(selectTableRemoveTableLabel)
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(selectTableRemoveTable)
-								.addComponent(removeTableConfirm)))
-
+				//Move Table SubMenu
+				.addGroup(layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup()
+								.addComponent(moveTable)
+								.addComponent(xCoord2)
+								.addComponent(yCoord2))
+						.addGroup(layout.createParallelGroup()
+								.addComponent(tableList)
+								.addComponent(xCoordField2)
+								.addComponent(yCoordField2))
+						.addComponent(moveTableButton))
+				//Reserve Table SubMenu
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(RESSelectTable)	
+						.addGroup(layout.createParallelGroup()
+								.addComponent(RESSelectTableMenuScroll,75,75,200)
+								.addGroup(layout.createSequentialGroup()
+										.addGroup(layout.createParallelGroup()
+												.addComponent(RESDate)
+												.addComponent(RESTime)
+												.addComponent(RESNumberInParty))
+										.addGroup(layout.createParallelGroup()
+												.addComponent(RESDateCalender)
+												.addComponent(RESTimeField)
+												.addComponent(RESNumberInPartyField))
+										.addGroup(layout.createParallelGroup()
+												.addComponent(RESContactName)
+												.addComponent(RESContactEmail)
+												.addComponent(RESContactPhoneNumber))
+										.addGroup(layout.createParallelGroup()
+												.addComponent(RESContactNameField)
+												.addComponent(RESContactEmailField)
+												.addComponent(RESContactPhoneNumberField))
+										.addComponent(RESMakeReservation))))
+				//Restaurant Layout
 				.addComponent(restoLayoutContainer)
 		);
-		
+	
 	}
 	
 	private void returnToMainMenu() {
@@ -754,14 +926,15 @@ public class RestoAppPage extends JFrame {
 		error = "";
 		errorMessage.setText(error);
 
-		removeAddTableSubmenu();
-		removeMenus();
-		removeChangeLayoutSubmenu();
-		removeUpdateTableSubmenu();
 		removeMenusSubmenu();
-		removeMoveTableSubmenu();
-		removeRemoveTableSubmenu();
+		removeChangeLayoutSubmenu();
 		removeReservationSubmenu();
+		removeMenus();
+		removeAddTableSubmenu();
+		removeRemoveTableSubmenu();
+		removeUpdateTableSubmenu();
+		removeMoveTableSubmenu();
+		removeReserveTableSubmenu();
 		
 		pack();
 	}
@@ -810,6 +983,10 @@ public class RestoAppPage extends JFrame {
 		changeLocation.setVisible(false);
 	}
 	
+	private void removeReservationSubmenu() {
+		reserveTable.setVisible(false);
+	}
+	
 	private void removeAddTableSubmenu() {
 		tableNumber.setVisible(false);
 		xCoord.setVisible(false);
@@ -828,6 +1005,12 @@ public class RestoAppPage extends JFrame {
 		addTableButton.setVisible(false);
 	}
 	
+	private void removeRemoveTableSubmenu() {
+		selectTableRemoveTable.setVisible(false);
+		selectTableRemoveTableLabel.setVisible(false);
+		removeTableConfirm.setVisible(false);
+	}
+	
 	private void removeUpdateTableSubmenu() {
 		selectTableUpdateTable.setVisible(false);
 		tableNumberLabel.setVisible(false);
@@ -844,16 +1027,31 @@ public class RestoAppPage extends JFrame {
 		moveTable.setVisible(false);
 		tableList.setVisible(false);
 		moveTableButton.setVisible(false);
+		xCoord2.setVisible(false);
+		yCoord2.setVisible(false);
+		xCoordField2.setVisible(false);
+		yCoordField2.setVisible(false);
 	}
 	
-	private void removeRemoveTableSubmenu() {
-		selectTableRemoveTable.setVisible(false);
-		selectTableRemoveTableLabel.setVisible(false);
-		removeTableConfirm.setVisible(false);
-	}
-	
-	private void removeReservationSubmenu() {
-		reserveTable.setVisible(false);
+	private void removeReserveTableSubmenu() {
+		RESSelectTable.setVisible(false);
+		RESDate.setVisible(false);
+		RESTime.setVisible(false);
+		RESNumberInParty.setVisible(false);
+		RESContactName.setVisible(false);
+		RESContactEmail.setVisible(false);
+		RESContactPhoneNumber.setVisible(false);
+		
+		RESTimeField.setVisible(false);
+		RESNumberInPartyField.setVisible(false);
+		RESContactNameField.setVisible(false);
+		RESContactEmailField.setVisible(false);
+		RESContactPhoneNumberField.setVisible(false);
+		
+		RESMakeReservation.setVisible(false);
+		RESDateCalender.setVisible(false);
+		RESSelectTableMenu.removeAll();
+		RESSelectTableMenuScroll.setVisible(false);
 	}
 	
 	private void refreshData() {
@@ -863,6 +1061,8 @@ public class RestoAppPage extends JFrame {
 		tableNumberField.setText("");
 		xCoordField.setText("");
 		yCoordField.setText("");
+		xCoordField2.setText("");
+		yCoordField2.setText("");
 		tableWidthField.setText("");
 		tableLengthField.setText("");
 		numOfSeatsField.setText("");
@@ -913,6 +1113,15 @@ public class RestoAppPage extends JFrame {
 		};
 		selectTableUpdateTable.addActionListener(selectTableUpdateTableListener);
 		
+		RESDateCalender.getModel().setValue(null);
+		RESSelectTableMenu.removeAll();
+		int sizeY = 10;
+		for (Table table : RestoAppController.getCurrentTables()){
+			JCheckBox tableCheckBox;
+			RESSelectTableMenu.add(tableCheckBox = new JCheckBox("Table #" + String.valueOf(table.getNumber())));
+			RESSelectTableMenu.setPreferredSize(new Dimension(500, sizeY));
+			sizeY += 10;
+		}
 		restoLayout.setTables(RestoAppController.getCurrentTables());
 		
 		pack();
