@@ -318,7 +318,6 @@ public class RestoAppPage extends JFrame {
 		RESSelectTableMenuScroll = new JScrollPane(RESSelectTableMenu);
 		RESSelectTableMenuScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
-<<<<<<< HEAD
 		//Change Table Status submenu
 		CHGTABSTASelectTable = new JLabel("Select Table(s)");
 		CHGTABSTADate = new JLabel("Date");
@@ -344,9 +343,9 @@ public class RestoAppPage extends JFrame {
 				SelectedGroup = cb.getSelectedIndex();
 			}
 		});
-=======
+		
 		REStables = new ArrayList<Table>();
->>>>>>> 693b4cb08b2d4e00686774751a0fb45a48381442
+
 		
 		//Action Listeners
 		menu.addActionListener(new java.awt.event.ActionListener() {
@@ -713,7 +712,6 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
-<<<<<<< HEAD
 		changeTableStatus.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeMenusSubmenu();
@@ -743,12 +741,10 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
-		
-=======
 		RESMakeReservation.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				error = "";
-				Date date = (Date) RESDateCalender.getModel().getValue();
+				Date date = (Date) RESDateCalendar.getModel().getValue();
 				String contactName = RESContactNameField.getText();
 				String contactEmail = RESContactEmailField.getText();
 				String time = RESTimeField.getText();
@@ -776,7 +772,7 @@ public class RestoAppPage extends JFrame {
 				refreshData();
 			}
 		});
->>>>>>> 693b4cb08b2d4e00686774751a0fb45a48381442
+
 		//Restaurant Layout
 		restoLayout = new RestoLayout(this);
 		restoLayoutContainer = new JScrollPane(restoLayout);

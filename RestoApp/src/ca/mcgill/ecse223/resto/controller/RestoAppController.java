@@ -85,6 +85,10 @@ public class RestoAppController {
 		return RestoAppApplication.getRestoApp().getCurrentTables();
 	}
 	
+	public static List<Order> getCurrentOrders() {
+		return RestoAppApplication.getRestoApp().getCurrentOrders();
+	}
+	
 	public static void createTable(String numberString, String xString, String yString, String widthString, String lengthString, String numOfSeatsString) throws InvalidInputException {
 		String error = "";
 		if (numberString.equals("") || xString.equals("") 
