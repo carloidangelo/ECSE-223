@@ -10,6 +10,7 @@ import java.util.List;
 
 import ca.mcgill.ecse223.resto.application.RestoAppApplication;
 import ca.mcgill.ecse223.resto.model.Table;
+import ca.mcgill.ecse223.resto.model.Table.Status;
 import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.Order;
 import ca.mcgill.ecse223.resto.model.Reservation;
@@ -277,8 +278,13 @@ public class RestoAppController {
 	}
 	
 	private static boolean allTablesAvailableOrDifferentCurrentOrder(List<Table> tables, Order order) {
-		//TODO
-		return false;	//change
+		for(Table table : tables){
+			Order lastOrder = table.getOrder(table.numberOfOrders()-1);
+			if(!(table.getStatus() == Status.Available || lastOrder != order))
+				return false;
+		}
+		
+		return true;
 	}
 	
 	//reserve table

@@ -9,7 +9,7 @@ class Table {
          } -> NothingOrdered; 
       }
       NothingOrdered {
-         orderItem(int quantity, Order o, Seat s, PricedMenuItem i) [quantityNotNegative(quantity)] / {
+         orderItem(int quantity, Order o, Seat s, PricedMenuItem i) [quantityIsPositive(quantity)] / {
             // create a new order item with the provided quantity, order, seat, and priced menu item
          } -> Ordered; 
          addToOrderItem(OrderItem i, Seat s) / {
@@ -24,7 +24,7 @@ class Table {
          } -> Available;
       }
       Ordered {
-         orderItem(int quantity, Order o, Seat s, PricedMenuItem i) [quantityNotNegative(quantity)] / {
+         orderItem(int quantity, Order o, Seat s, PricedMenuItem i) [quantityIsPositive(quantity)] / {
             // create a new order item with the provided quantity, order, seat, and priced menu item
          } -> Ordered; 
          addToOrderItem(OrderItem i, Seat s) / {
@@ -55,21 +55,47 @@ class Table {
    }
    
    // check that the provided quantity is an integer greater than 0
-   private boolean quantityNotNegative(int quantity) {
-      // TODO
-      return false;
+   private boolean quantityIsPositive(int quantity) {
+      return quantity > 0;
    }
 
    // check that the provided order item is the last item of the current order of the table
    private boolean iIsLastItem(OrderItem i) {
-      // TODO
-      return false;
+      return i.getOrder().numberOfOrderItems() == 1;
    }
 
    // check that all seats of the table have a bill that belongs to the current order of the table 
    private boolean allSeatsBilled() {
-      // TODO
-      return false;
+      if(numberOfOrders() == 0)	//table has no orders
+		   return true;
+	   Order order = getOrder(numberOfOrders()-1);
+	   if(!getRestoApp().getCurrentOrders().contains(order))	//order not a current order
+		   return true;
+	   
+	   //creates list of seats that are in use (and belong to relevant table)
+	   List<OrderItem> orderItems = order.getOrderItems();
+	   ArrayList<Seat> usedSeats = new ArrayList<Seat>();
+	   for(OrderItem orderItem : orderItems) {
+		   for(Seat seat : orderItem.getSeats()) {
+			   if(currentSeats.contains(seat) && !usedSeats.contains(seat))
+				   usedSeats.add(seat);
+		   }
+	   }
+	   
+	   //goes through used seats and determines if it is in any bill of the current order
+	   List<Bill> bills = order.getBills();
+	   for(Seat seat : usedSeats) {
+		   Boolean seatBilled = false;
+		   for(Bill bill : bills) {
+			   if(bill.getIssuedForSeats().contains(seat)) {
+				   seatBilled = true;
+				   break;
+			   }
+		   }
+		   if(!seatBilled)
+			   return false;
+	   }
+      return true;
    }
 
 }
