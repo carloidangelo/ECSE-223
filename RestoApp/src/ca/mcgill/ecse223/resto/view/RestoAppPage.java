@@ -5,10 +5,11 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.Time;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -668,13 +669,19 @@ public class RestoAppPage extends JFrame {
 				String contactName = RESContactNameField.getText();
 				String contactEmail = RESContactEmailField.getText();
 				String time = RESTimeField.getText();
-				DateFormat formatter = new SimpleDateFormat("hh:mm:ss a");
-				Time resTime = (Time) formatter.parse(time);
+				DateFormat formatter = new SimpleDateFormat("hh:mm");
+				java.sql.Time timeValue = null;
+				try {
+					timeValue = new java.sql.Time(formatter.parse(time).getTime());
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				int numberInParty = Integer.parseInt(RESNumberInPartyField.getText());
 				String phoneNumber = RESContactPhoneNumberField.getText();
 				if (error.length() == 0) {
 					try {
-						RestoAppController.reserveTable(date, resTime, numberInParty, contactName, contactEmail, phoneNumber,REStables);
+						RestoAppController.reserveTable(date, timeValue, numberInParty, contactName, contactEmail, phoneNumber,REStables);
 						
 					} catch (InvalidInputException e) {
 					// TODO Auto-generated catch block
