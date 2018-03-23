@@ -1,6 +1,8 @@
 package ca.mcgill.ecse223.resto.view;
 
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -137,6 +139,7 @@ public class RestoAppPage extends JFrame {
 	private JDatePickerImpl RESDateCalender;
 	private JPanel RESSelectTableMenu;
 	private JScrollPane RESSelectTableMenuScroll;
+	private List<Table> REStables;
 	
 	//Change table status submenu
 	
@@ -290,6 +293,8 @@ public class RestoAppPage extends JFrame {
 		RESSelectTableMenu = new JPanel();
 		RESSelectTableMenuScroll = new JScrollPane(RESSelectTableMenu);
 		RESSelectTableMenuScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		REStables = new ArrayList<Table>();
 		
 		//Action Listeners
 		menu.addActionListener(new java.awt.event.ActionListener() {
@@ -665,17 +670,11 @@ public class RestoAppPage extends JFrame {
 				String time = RESTimeField.getText();
 				DateFormat formatter = new SimpleDateFormat("hh:mm:ss a");
 				Time resTime = (Time) formatter.parse(time);
-				String numberInParty = RESNumberInPartyField.getText();
+				int numberInParty = Integer.parseInt(RESNumberInPartyField.getText());
 				String phoneNumber = RESContactPhoneNumberField.getText();
-				
-				
-				/*RESNumberInPartyField = new JTextField("");
-				RESContactNameField = new JTextField("");
-				RESContactEmailField = new JTextField("");
-				RESContactPhoneNumberField = new JTextField("");*/
 				if (error.length() == 0) {
 					try {
-						RestoAppController.reserveTable(date, resTime, numberInParty, contactName, contactEmail, phoneNumber);
+						RestoAppController.reserveTable(date, resTime, numberInParty, contactName, contactEmail, phoneNumber,REStables);
 						
 					} catch (InvalidInputException e) {
 					// TODO Auto-generated catch block
@@ -1151,9 +1150,18 @@ public class RestoAppPage extends JFrame {
 		RESDateCalender.getModel().setValue(null);
 		RESSelectTableMenu.removeAll();
 		int sizeY = 10;
-		for (Table table : RestoAppController.getCurrentTables()){
-			JCheckBox tableCheckBox;
-			RESSelectTableMenu.add(tableCheckBox = new JCheckBox("Table #" + String.valueOf(table.getNumber())));
+		for (final Table table : RestoAppController.getCurrentTables()){
+			JCheckBox tableCheckBox = new JCheckBox("Table #" + String.valueOf(table.getNumber()));
+			tableCheckBox.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			        if(e.getStateChange() == ItemEvent.SELECTED) {
+			            REStables.add(table);
+			        } else {
+			        	REStables.remove(table);
+			        };
+			    }
+			});
+			RESSelectTableMenu.add(tableCheckBox);
 			RESSelectTableMenu.setPreferredSize(new Dimension(500, sizeY));
 			sizeY += 10;
 		}
