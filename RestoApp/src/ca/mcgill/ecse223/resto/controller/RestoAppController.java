@@ -1,12 +1,18 @@
 package ca.mcgill.ecse223.resto.controller;
 
+import java.sql.Date;
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import ca.mcgill.ecse223.resto.application.RestoAppApplication;
 import ca.mcgill.ecse223.resto.model.Table;
 import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.Order;
+import ca.mcgill.ecse223.resto.model.Reservation;
 import ca.mcgill.ecse223.resto.model.MenuItem.ItemCategory;
 import ca.mcgill.ecse223.resto.model.RestoApp;
 import ca.mcgill.ecse223.resto.model.Seat;
@@ -218,5 +224,91 @@ public class RestoAppController {
 		}
 		resto.removeCurrentTable(table);
 		RestoAppApplication.save();
+	}
+	
+	//reserve table
+	public static void reserveTable(Date date, Time time, int numberInParty, String contactName, String contactEmailAddress, 
+									String contactPhoneNumber, List<Table> tables) throws InvalidInputException{
+		date = cleanDate(date);
+		String error = "";
+		if (date == null)
+			error = "Date cannot be empty";		
+		if(time == null)
+			error = "Time cannot be empty";
+		if(contactName == null)
+			error = "Contact name cannot be empty";
+		if(contactEmailAddress == null)
+			error = "Contact email address cannot be empty";
+		if(contactPhoneNumber == null)
+			error = "Contact phone number cannot be empty";
+		if(!isDateInPast(date))
+			error = "Invalid date";
+		if (!isTimeInPast(time))
+			error = "Invalid time";
+		if(numberInParty <= 0)
+			error = "Number in party should be positive";
+		if (error.length() > 0) {
+			throw new InvalidInputException(error.trim());
+		}
+		RestoApp restoApp = RestoAppApplication.getRestoApp();
+		List<Table> currentTable = restoApp.getCurrentTables();
+		int seatCapacity = 0;
+		for(Table table: tables) {
+			boolean current = currentTable.contains(table);
+			if(!current) {
+				error = "Table not found in current tables";
+				throw new InvalidInputException(error.trim());
+			}
+			seatCapacity += table.numberOfCurrentSeats();
+			List<Reservation> reservations = table.getReservations();
+				for(Reservation reservation: reservations) {
+					boolean overlaps = reservation.doesOverlap(date, time);
+						if(overlaps) {
+							error = "Cannot create new reservation due to previous reservations";
+							throw new InvalidInputException(error.trim());
+						}
+				}
+		}
+		if(seatCapacity < numberInParty)
+			throw new InvalidInputException("Not enough seats");
+		Table [] tableArray = (Table[]) tables.toArray();
+		Reservation res = new Reservation(date, time, numberInParty, contactName, contactEmailAddress, contactPhoneNumber, restoApp, tableArray);
+		for(Table table: tables) {
+			table.addReservation(res);
+			List<Reservation> reservations = table.getReservations();
+			Collections.sort(reservations, new Comparator<Reservation>() {
+				public int compare(Reservation o1, Reservation o2) {
+				      return o1.getDate().compareTo(o2.getDate());
+				  }
+			});
+		}
+		try {
+			RestoAppApplication.save();
+		}catch(RuntimeException e) {
+			throw new InvalidInputException(e.getMessage());
+		}
+	}
+
+	
+	private static boolean isDateInPast(Date date) {
+		java.util.Date tempToday = RestoAppApplication.getRestoApp().getCurrentDate();
+		return date.before(tempToday);
+	}
+	
+	private static boolean isTimeInPast(Time time) {
+		java.util.Date tempToday = RestoAppApplication.getRestoApp().getCurrentTime();
+		return time.before(tempToday);
+	}
+	
+	private static Date cleanDate(Date date) {
+	    Calendar cal = Calendar.getInstance();
+	    cal.setTimeInMillis(date.getTime());
+	    cal.set(Calendar.HOUR_OF_DAY, 0);
+	    cal.set(Calendar.MINUTE, 0);
+	    cal.set(Calendar.SECOND, 0);
+	    cal.set(Calendar.MILLISECOND, 0);
+	    java.util.Date tempCleanedDate = cal.getTime();
+	    java.sql.Date cleanedDate = new java.sql.Date(tempCleanedDate.getTime());
+	    return cleanedDate;
 	}
 }

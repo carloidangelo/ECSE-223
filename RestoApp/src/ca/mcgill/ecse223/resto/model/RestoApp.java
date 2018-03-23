@@ -814,6 +814,27 @@ public class RestoApp implements Serializable
  		Order.reinitializeAutouniqueON(this.getOrders());
  		MenuItem.reinitializeUniqueMenuItem(this.getMenu().getMenuItems());
   }
+
+  // line 16 "../../../../../RestoApp v3.ump"
+   public java.util.Date getCurrentDate(){
+    java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.set(Calendar.HOUR_OF_DAY, 0);
+    cal.set(Calendar.MINUTE, 0);
+    cal.set(Calendar.SECOND, 0);
+    cal.set(Calendar.MILLISECOND, 0);
+    java.util.Date date = cal.getTime();
+    return date;
+  }
+
+  // line 25 "../../../../../RestoApp v3.ump"
+   public java.sql.Time getCurrentTime(){
+    java.util.Calendar cal = java.util.Calendar.getInstance();
+	    cal.set(Calendar.YEAR, 0);
+	    cal.set(Calendar.MONTH, 0);
+	    cal.set(Calendar.DAY_OF_MONTH, 0);
+	    java.sql.Time time = (Time) cal.getTime();
+	    return time;
+  }
   
   //------------------------
   // DEVELOPER CODE - PROVIDED AS-IS

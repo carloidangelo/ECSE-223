@@ -12,9 +12,26 @@ class RestoApp {
    1 <@>- 1 Menu menu;   
    1 <@>- * PricedMenuItem pricedMenuItems;
    1 <@>- * Bill bills;
+    public java.util.Date getCurrentDate() {
+    java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.set(Calendar.HOUR_OF_DAY, 0);
+    cal.set(Calendar.MINUTE, 0);
+    cal.set(Calendar.SECOND, 0);
+    cal.set(Calendar.MILLISECOND, 0);
+    java.util.Date date = cal.getTime();
+    return date;
+  }
+     public java.sql.Time getCurrentTime(){
+	    java.util.Calendar cal = java.util.Calendar.getInstance();
+	    cal.set(Calendar.YEAR, 0);
+	    cal.set(Calendar.MONTH, 0);
+	    cal.set(Calendar.DAY_OF_MONTH, 0);
+	    java.sql.Time time = (Time) cal.getTime();
+	    return time;
+	  }
 }
 
-class Reservation {
+class Reservation{
    Date date;
    Time time;
    Integer numberInParty;
@@ -22,7 +39,18 @@ class Reservation {
    contactEmailAddress;
    contactPhoneNumber;
    autounique reservationNumber;
-   * reservations -- 1..* Table tables; // only from currentTables
+   *reservations -- 1..* Table tables; // only from currentTables
+ public boolean doesOverlap(Date date, Time time){
+	   int time1 = this.time.getHours();
+	   int time2 = time.getHours();
+	   int timediff = Math.abs(time2 - time1);
+	  if (date.before(this.date)) {
+		  return false;
+	  }else if(timediff < 2) {
+		  return false;
+	  }
+	return true;
+  }
 }
 
 class Table {
