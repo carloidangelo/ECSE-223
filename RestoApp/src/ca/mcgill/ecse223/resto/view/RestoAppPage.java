@@ -1,8 +1,12 @@
 package ca.mcgill.ecse223.resto.view;
 
 import java.awt.*;
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -652,6 +656,37 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
+		RESMakeReservation.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				Date date = (Date) RESDateCalender.getModel().getValue();
+				String contactName = RESContactNameField.getText();
+				String contactEmail = RESContactEmailField.getText();
+				String time = RESTimeField.getText();
+				DateFormat formatter = new SimpleDateFormat("hh:mm:ss a");
+				Time resTime = (Time) formatter.parse(time);
+				String numberInParty = RESNumberInPartyField.getText();
+				String phoneNumber = RESContactPhoneNumberField.getText();
+				
+				
+				/*RESNumberInPartyField = new JTextField("");
+				RESContactNameField = new JTextField("");
+				RESContactEmailField = new JTextField("");
+				RESContactPhoneNumberField = new JTextField("");*/
+				if (error.length() == 0) {
+					try {
+						RestoAppController.reserveTable(date, resTime, numberInParty, contactName, contactEmail, phoneNumber);
+						
+					} catch (InvalidInputException e) {
+					// TODO Auto-generated catch block
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+				}
+				
+				refreshData();
+			}
+		});
 		//Restaurant Layout
 		restoLayout = new RestoLayout(this);
 		restoLayoutContainer = new JScrollPane(restoLayout);
