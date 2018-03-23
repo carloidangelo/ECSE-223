@@ -269,7 +269,7 @@ public class RestoAppPage extends JFrame {
 		//Reserve Table SubMenu
 		RESSelectTable = new JLabel("Select Table(s)");
 		RESDate = new JLabel("Date");
-		RESTime = new JLabel("Time");
+		RESTime = new JLabel("Time (hh:mm)");
 		RESNumberInParty = new JLabel("Number in party");
 		RESContactName = new JLabel("Contact Name");
 		RESContactEmail = new JLabel("Contact Email");
