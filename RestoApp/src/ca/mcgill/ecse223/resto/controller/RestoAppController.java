@@ -305,6 +305,7 @@ public class RestoAppController {
 	public static void reserveTable(Date date, Time time, int numberInParty, String contactName, String contactEmailAddress, 
 									String contactPhoneNumber, List<Table> tables) throws InvalidInputException{
 		date = cleanDate(date);
+		tables = new ArrayList<Table>(tables);
 		String error = "";
 		if (date == null)
 			error = "Date cannot be empty";		
@@ -316,9 +317,9 @@ public class RestoAppController {
 			error = "Contact email address cannot be empty";
 		if(contactPhoneNumber == null)
 			error = "Contact phone number cannot be empty";
-		if(!isDateInPast(date))
+		if(isDateInPast(date))
 			error = "Invalid date";
-		if (!isTimeInPast(time))
+		if (isTimeInPast(time)&&isDateToday(date))
 			error = "Invalid time";
 		if(numberInParty <= 0)
 			error = "Number in party should be positive";
@@ -346,11 +347,12 @@ public class RestoAppController {
 		}
 		if(seatCapacity < numberInParty)
 			throw new InvalidInputException("Not enough seats");
-		Table [] tableArray = (Table[]) tables.toArray();
+		Table [] tableArray = tables.toArray(new Table[tables.size()]);
 		Reservation res = new Reservation(date, time, numberInParty, contactName, contactEmailAddress, contactPhoneNumber, restoApp, tableArray);
 		for(Table table: tables) {
 			table.addReservation(res);
 			List<Reservation> reservations = table.getReservations();
+			reservations = new ArrayList<Reservation>(reservations);
 			Collections.sort(reservations, new Comparator<Reservation>() {
 				public int compare(Reservation o1, Reservation o2) {
 				      return o1.getDate().compareTo(o2.getDate());
@@ -364,7 +366,10 @@ public class RestoAppController {
 		}
 	}
 
-	
+	private static boolean isDateToday(Date date) {
+		java.util.Date tempToday = RestoAppApplication.getRestoApp().getCurrentDate();
+		return date.equals(tempToday);
+	}
 	private static boolean isDateInPast(Date date) {
 		java.util.Date tempToday = RestoAppApplication.getRestoApp().getCurrentDate();
 		return date.before(tempToday);
