@@ -219,4 +219,59 @@ public class RestoAppController {
 		resto.removeCurrentTable(table);
 		RestoAppApplication.save();
 	}
+	
+	//starts an order
+	public static void startOrder(List<Table> tables) throws InvalidInputException {
+		if(tables == null)
+			throw new InvalidInputException("At least one table is required to create an order.");
+		RestoApp r = RestoAppApplication.getRestoApp();
+		List<Table> currentTables = r.getCurrentTables();
+		for(Table table : tables) {
+			Boolean current = currentTables.contains(table);
+			if(current == false)
+				throw new InvalidInputException("Order must include at least one currently used table.");
+		}
+		Boolean orderCreated = false;
+		Order newOrder = null;
+		for(Table table : tables) {
+			if(orderCreated)
+				table.addToOrder(newOrder);
+			else {
+				Order lastOrder = null;
+				if(table.numberOfOrders() > 0)
+					lastOrder = table.getOrder(table.numberOfOrders()-1);
+				table.startOrder();
+				if(table.numberOfOrders() > 0 && !table.getOrder(table.numberOfOrders()-1).equals(lastOrder)) {
+					orderCreated = true;
+					newOrder = table.getOrder(table.numberOfOrders()-1);
+				}
+			}
+		}
+		if(!orderCreated)
+			throw new InvalidInputException("At least one of the selected tables cannot currently be included in an order.");
+		r.addCurrentOrder(newOrder);
+		RestoAppApplication.save();
+	}
+	
+	//ends an order
+	public static void endOrder(Order order) throws InvalidInputException {
+		if(order == null)
+			throw new InvalidInputException("An order must be selected to remove an order.");
+		RestoApp r = RestoAppApplication.getRestoApp();
+		List<Order> currentOrders = r.getCurrentOrders();
+		Boolean current = currentOrders.contains(order);
+		if(!current)
+			throw new InvalidInputException("Order is not a current Order.");
+		List<Table> tables = order.getTables();
+		for(Table table : tables)
+			table.endOrder(order);
+		if(RestoAppController.allTablesAvailableOrDifferentCurrentOrder(tables, order))
+			r.removeCurrentOrder(order);
+		RestoAppApplication.save();
+	}
+	
+	private static boolean allTablesAvailableOrDifferentCurrentOrder(List<Table> tables, Order order) {
+		//TODO
+		return false;	//change
+	}
 }
