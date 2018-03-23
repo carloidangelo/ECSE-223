@@ -211,7 +211,7 @@ public class Table implements Serializable
     switch (aStatus)
     {
       case NothingOrdered:
-        if (quantityNotNegative(quantity))
+        if (quantityIsPositive(quantity))
         {
         // line 12 "../../../../../RestoAppTableStateMachine.ump"
           // create a new order item with the provided quantity, order, seat, and priced menu item
@@ -221,7 +221,7 @@ public class Table implements Serializable
         }
         break;
       case Ordered:
-        if (quantityNotNegative(quantity))
+        if (quantityIsPositive(quantity))
         {
         // line 27 "../../../../../RestoAppTableStateMachine.ump"
           // create a new order item with the provided quantity, order, seat, and priced menu item
@@ -916,29 +916,51 @@ public class Table implements Serializable
    * check that the provided quantity is an integer greater than 0
    */
   // line 59 "../../../../../RestoAppTableStateMachine.ump"
-   private boolean quantityNotNegative(int quantity){
-    // TODO
-      return false;
+   private boolean quantityIsPositive(int quantity){
+    return quantity > 0;
   }
 
 
   /**
    * check that the provided order item is the last item of the current order of the table
    */
-  // line 65 "../../../../../RestoAppTableStateMachine.ump"
+  // line 64 "../../../../../RestoAppTableStateMachine.ump"
    private boolean iIsLastItem(OrderItem i){
-    // TODO
-      return false;
+    return i.getOrder().numberOfOrderItems() == 1;
   }
 
 
   /**
    * check that all seats of the table have a bill that belongs to the current order of the table
    */
-  // line 71 "../../../../../RestoAppTableStateMachine.ump"
+  // line 69 "../../../../../RestoAppTableStateMachine.ump"
    private boolean allSeatsBilled(){
-    // TODO
-      return false;
+    Order order = getOrder(numberOfOrders()-1);
+	   
+	   //creates list of seats that are in use (and belong to relevant table)
+	   List<OrderItem> orderItems = order.getOrderItems();
+	   ArrayList<Seat> usedSeats = new ArrayList<Seat>();
+	   for(OrderItem orderItem : orderItems) {
+		   for(Seat seat : orderItem.getSeats()) {
+			   if(currentSeats.contains(seat) && !usedSeats.contains(seat))
+				   usedSeats.add(seat);
+		   }
+	   }
+	   
+	   //goes through used seats and determines if it is in any bill of the current order
+	   List<Bill> bills = order.getBills();
+	   for(Seat seat : usedSeats) {
+		   Boolean seatBilled = false;
+		   for(Bill bill : bills) {
+			   if(bill.getIssuedForSeats().contains(seat)) {
+				   seatBilled = true;
+				   break;
+			   }
+		   }
+		   if(!seatBilled)
+			   return false;
+	   }
+      return true;
   }
 
   // line 66 "../../../../../RestoApp v3.ump"

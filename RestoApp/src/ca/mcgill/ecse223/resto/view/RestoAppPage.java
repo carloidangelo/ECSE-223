@@ -1,8 +1,15 @@
 package ca.mcgill.ecse223.resto.view;
 
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -135,6 +142,7 @@ public class RestoAppPage extends JFrame {
 	private JDatePickerImpl RESDateCalendar;
 	private JPanel RESSelectTableMenu;
 	private JScrollPane RESSelectTableMenuScroll;
+	private List<Table> REStables;
 	
 	//Change table status submenu
 	private JComboBox <String> SelectGroupList;
@@ -284,7 +292,7 @@ public class RestoAppPage extends JFrame {
 		//Reserve Table SubMenu
 		RESSelectTable = new JLabel("Select Table(s)");
 		RESDate = new JLabel("Date");
-		RESTime = new JLabel("Time");
+		RESTime = new JLabel("Time (hh:mm)");
 		RESNumberInParty = new JLabel("Number in party");
 		RESContactName = new JLabel("Contact Name");
 		RESContactEmail = new JLabel("Contact Email");
@@ -310,6 +318,7 @@ public class RestoAppPage extends JFrame {
 		RESSelectTableMenuScroll = new JScrollPane(RESSelectTableMenu);
 		RESSelectTableMenuScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
+<<<<<<< HEAD
 		//Change Table Status submenu
 		CHGTABSTASelectTable = new JLabel("Select Table(s)");
 		CHGTABSTADate = new JLabel("Date");
@@ -335,6 +344,9 @@ public class RestoAppPage extends JFrame {
 				SelectedGroup = cb.getSelectedIndex();
 			}
 		});
+=======
+		REStables = new ArrayList<Table>();
+>>>>>>> 693b4cb08b2d4e00686774751a0fb45a48381442
 		
 		//Action Listeners
 		menu.addActionListener(new java.awt.event.ActionListener() {
@@ -701,6 +713,7 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
+<<<<<<< HEAD
 		changeTableStatus.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeMenusSubmenu();
@@ -731,6 +744,39 @@ public class RestoAppPage extends JFrame {
 		});
 		
 		
+=======
+		RESMakeReservation.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				Date date = (Date) RESDateCalender.getModel().getValue();
+				String contactName = RESContactNameField.getText();
+				String contactEmail = RESContactEmailField.getText();
+				String time = RESTimeField.getText();
+				DateFormat formatter = new SimpleDateFormat("hh:mm");
+				java.sql.Time timeValue = null;
+				try {
+					timeValue = new java.sql.Time(formatter.parse(time).getTime());
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				int numberInParty = Integer.parseInt(RESNumberInPartyField.getText());
+				String phoneNumber = RESContactPhoneNumberField.getText();
+				if (error.length() == 0) {
+					try {
+						RestoAppController.reserveTable(date, timeValue, numberInParty, contactName, contactEmail, phoneNumber,REStables);
+						
+					} catch (InvalidInputException e) {
+					// TODO Auto-generated catch block
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+				}
+				
+				refreshData();
+			}
+		});
+>>>>>>> 693b4cb08b2d4e00686774751a0fb45a48381442
 		//Restaurant Layout
 		restoLayout = new RestoLayout(this);
 		restoLayoutContainer = new JScrollPane(restoLayout);
@@ -1279,9 +1325,18 @@ public class RestoAppPage extends JFrame {
 		RESDateCalendar.getModel().setValue(null);
 		RESSelectTableMenu.removeAll();
 		int sizeY = 10;
-		for (Table table : RestoAppController.getCurrentTables()){
-			JCheckBox tableCheckBox;
-			RESSelectTableMenu.add(tableCheckBox = new JCheckBox("Table #" + String.valueOf(table.getNumber())));
+		for (final Table table : RestoAppController.getCurrentTables()){
+			JCheckBox tableCheckBox = new JCheckBox("Table #" + String.valueOf(table.getNumber()));
+			tableCheckBox.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			        if(e.getStateChange() == ItemEvent.SELECTED) {
+			            REStables.add(table);
+			        } else {
+			        	REStables.remove(table);
+			        };
+			    }
+			});
+			RESSelectTableMenu.add(tableCheckBox);
 			RESSelectTableMenu.setPreferredSize(new Dimension(500, sizeY));
 			sizeY += 10;
 		}

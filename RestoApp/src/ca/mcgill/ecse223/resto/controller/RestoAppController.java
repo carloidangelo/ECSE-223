@@ -10,6 +10,7 @@ import java.util.List;
 
 import ca.mcgill.ecse223.resto.application.RestoAppApplication;
 import ca.mcgill.ecse223.resto.model.Table;
+import ca.mcgill.ecse223.resto.model.Table.Status;
 import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.Order;
 import ca.mcgill.ecse223.resto.model.Reservation;
@@ -206,6 +207,16 @@ public class RestoAppController {
 			throw new InvalidInputException("A table must be specified to change a table number.");
 		if(number <= 0)
 			throw new InvalidInputException("A table's number must be greater than 0.");
+		if(table.hasReservations())
+			throw new InvalidInputException("A table with reservations cannot have its number changed.");
+		RestoApp resto = RestoAppApplication.getRestoApp();
+		List<Order> currentOrders = resto.getCurrentOrders();
+		for(Order order : currentOrders) {
+			List<Table> tables = order.getTables();
+			Boolean inUse = tables.contains(table);
+			if(inUse)
+				throw new InvalidInputException("A table's number cannot be changed if it is currently in use.");
+		}
 		Boolean wasSet = table.setNumber(number);
 		if(!wasSet)
 			throw new InvalidInputException("A table with this number already exists. Please choose a different number.");
@@ -281,8 +292,13 @@ public class RestoAppController {
 	}
 	
 	private static boolean allTablesAvailableOrDifferentCurrentOrder(List<Table> tables, Order order) {
-		//TODO
-		return false;	//change
+		for(Table table : tables){
+			Order lastOrder = table.getOrder(table.numberOfOrders()-1);
+			if(!(table.getStatus() == Status.Available || lastOrder != order))
+				return false;
+		}
+		
+		return true;
 	}
 	
 	//reserve table
