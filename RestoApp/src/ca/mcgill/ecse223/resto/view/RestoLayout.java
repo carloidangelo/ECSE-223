@@ -18,7 +18,11 @@ import javax.swing.JPanel;
 
 import ca.mcgill.ecse223.resto.application.RestoAppApplication;
 import ca.mcgill.ecse223.resto.controller.RestoAppController;
+import ca.mcgill.ecse223.resto.model.Order;
+import ca.mcgill.ecse223.resto.model.OrderItem;
+import ca.mcgill.ecse223.resto.model.Seat;
 import ca.mcgill.ecse223.resto.model.Table;
+import ca.mcgill.ecse223.resto.model.Table.Status;
 
 public class RestoLayout extends JPanel {
 	
@@ -106,6 +110,20 @@ public class RestoLayout extends JPanel {
 		g2d.setStroke(thinStroke);
 		g2d.setColor(Color.WHITE);
 		for (Table table : tables) {
+			int numberSeatsInUse = 0;
+			if (table.getStatus() != Status.Available) {
+				Order order = table.getOrder(table.numberOfOrders()-1);
+			   //creates list of seats that are in use (and belong to relevant table)
+				List<OrderItem> orderItems = order.getOrderItems();
+				ArrayList<Seat> usedSeats = new ArrayList<Seat>();
+				for(OrderItem orderItem : orderItems) {
+					for(Seat seat : orderItem.getSeats()) {
+						if(table.getCurrentSeats().contains(seat) && !usedSeats.contains(seat))
+							usedSeats.add(seat);
+					}
+				}
+				numberSeatsInUse = usedSeats.size();
+			}
 			Rectangle2D rectangle = new Rectangle2D.Float(table.getX(), table.getY(), table.getWidth(), table.getLength());
 			rectangles.add(rectangle);
 			visualTables.put(rectangle, table);
@@ -118,17 +136,22 @@ public class RestoLayout extends JPanel {
 				g2d.setFont(currentFont);
 				int seatNumberLength = (int) Math.log10(table.getCurrentSeats().size()) + 1;
 				if (table.getWidth() < (40 + (seatNumberLength - 1) * currentFont.getSize() * 3 / 4) && table.getX() < (20 + (seatNumberLength - 1) * currentFont.getSize() * 3 / 4)) {
-					g2d.drawString(new Integer(table.getCurrentSeats().size()).toString() + " seats", 
+					g2d.drawString(new Integer(numberSeatsInUse).toString() + "/" + new Integer(table.getCurrentSeats().size()).toString() + " seats", 
 										(int) rectangle.getCenterX() + currentFont.getSize() * 7 / 5 + seatNumberLength * currentFont.getSize() / 3, 
 										(int) rectangle.getCenterY() + currentFont.getSize() / 3);
 				}else {
-					g2d.drawString(new Integer(table.getCurrentSeats().size()).toString() + " seats", 
+					g2d.drawString(new Integer(numberSeatsInUse).toString() + "/" + new Integer(table.getCurrentSeats().size()).toString() + " seats", 
 										(int) rectangle.getCenterX() - currentFont.getSize() * 7 / 5 - seatNumberLength * currentFont.getSize() / 3, 
 										(int) rectangle.getCenterY() + currentFont.getSize() * 5 / 2);
 				}
 			}else {
-				g2d.setColor(Color.WHITE);
-				g2d.fill(rectangle);
+				if (table.getStatus() != Status.Available) {
+					g2d.setColor(Color.CYAN);
+					g2d.fill(rectangle);
+				}else {
+					g2d.setColor(Color.WHITE);
+					g2d.fill(rectangle);
+				}
 				g2d.setColor(Color.BLACK);
 				g2d.draw(rectangle);
 			}
