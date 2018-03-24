@@ -375,13 +375,19 @@ public class Reservation implements Serializable
   // line 31 "../../../../../RestoApp v3.ump"
    public boolean doesOverlap(Date date, Time time){
 	   boolean overlap=false; 
-	   if(this.date.equals(date)) {
+	   int date1 = this.date.getDate();
+	   int date2 = date.getDate();
+	   if(date1 == date2) {
 		   long time1 = this.time.getTime();
 		   long time2 = time.getTime();
+		   System.out.println(date1 + " " + time1);
+		   System.out.println(date2 + " " + time2);
 		   long twoh= 72 * 10^(5);
 		   long timediff = Math.abs(time2 - time1);
+		   System.out.println(timediff);
 		   if(timediff < twoh) {
 			   overlap=true;
+			   return overlap;
 		   }
 		   else {
 			   overlap=false;

@@ -347,7 +347,7 @@ public class RestoAppController {
 			throw new InvalidInputException("Not enough seats");
 		//tables = new ArrayList<Table>(tables);
 		Table [] tableArray = tables.toArray(new Table[tables.size()]);
-		System.out.print(tableArray.toString());
+		//System.out.print(tableArray.toString());
 		Reservation res = new Reservation(date, time, numberInParty, contactName, contactEmailAddress, contactPhoneNumber, restoApp, tableArray);
 		for(Table table: tables) {
 			table.addReservation(res);
