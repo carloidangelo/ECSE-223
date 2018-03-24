@@ -269,7 +269,7 @@ public class RestoAppController {
 			}
 		}
 		if(!orderCreated)
-			throw new InvalidInputException("At least one of the selected tables cannot currently be included in an order.");
+			throw new InvalidInputException("Order could not be created from currently selected tables.");
 		r.addCurrentOrder(newOrder);
 		RestoAppApplication.save();
 	}
@@ -284,8 +284,17 @@ public class RestoAppController {
 		if(!current)
 			throw new InvalidInputException("Order is not a current Order.");
 		List<Table> tables = order.getTables();
-		for(Table table : tables)
-			table.endOrder(order);
+		int size = tables.size();
+		for(int i = 0; i < size; i++) {
+			Table table = tables.get(i);
+			if(table.numberOfOrders() > 0 && table.getOrder(table.numberOfOrders()-1).equals(order)) {
+				table.endOrder(order);
+				if(tables.size() < size) {
+					size--;
+					i--;
+				}
+			}
+		}
 		if(RestoAppController.allTablesAvailableOrDifferentCurrentOrder(tables, order))
 			r.removeCurrentOrder(order);
 		RestoAppApplication.save();

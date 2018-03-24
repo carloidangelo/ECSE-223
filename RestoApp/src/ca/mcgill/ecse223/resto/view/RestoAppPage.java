@@ -726,7 +726,29 @@ public class RestoAppPage extends JFrame {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				error = "";
 				
-				//TODO
+				try {
+					RestoAppController.startOrder(CHGTABSTAtables);
+				}
+				catch(InvalidInputException e) {
+					error = e.getMessage();
+					errorMessage.setText(error);
+				}
+				
+				refreshData();
+			}
+		});
+		
+		CHGTABSTARemoveGroup.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				try {
+					RestoAppController.endOrder(groups.get(SelectedGroup));
+				}
+				catch(InvalidInputException e) {
+					error = e.getMessage();
+					errorMessage.setText(error);
+				}
 				
 				refreshData();
 			}
@@ -1220,20 +1242,25 @@ public class RestoAppPage extends JFrame {
 		groups = new HashMap<Integer, Order>();
 		SelectGroupList.removeAllItems();
 		Integer indexGroup = 0;
-		String tablesInGroup = new String();
 		for (Order order : RestoAppController.getCurrentOrders()) {
-			groups.put(indexGroup, order);
+			String tablesInGroup = "";
 			for (int i = 0; i<order.numberOfTables(); i++)
 			{	
-				tablesInGroup = "";
 				Table currentTable = order.getTable(i);
-				tablesInGroup += "#" + currentTable.getNumber() + " ";
+				tablesInGroup += "#" + currentTable.getNumber();
+				if(i < order.numberOfTables()-1)
+					tablesInGroup += ", ";
 			}
+			groups.put(indexGroup, order);
 			
 			SelectGroupList.addItem(tablesInGroup);
 			indexGroup++;
 		}
 	
+		
+		//for change table status, combo box resets
+		SelectedGroup = -1;
+		SelectGroupList.setSelectedIndex(SelectedGroup);
 		
 		//for move table, combo box resets
 		selectedTable = -1;
@@ -1280,6 +1307,7 @@ public class RestoAppPage extends JFrame {
 			sizeY += 10;
 		}
 		
+		CHGTABSTAtables.clear();
 		CHGTABSTASelectTableMenu.removeAll();
 		int sizeY2 = 10;
 		for (final Table table : RestoAppController.getCurrentTables()){
