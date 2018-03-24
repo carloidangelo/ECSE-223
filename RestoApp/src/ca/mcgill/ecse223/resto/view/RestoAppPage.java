@@ -730,7 +730,21 @@ public class RestoAppPage extends JFrame {
 
 				refreshData();
 			}
+<<<<<<< HEAD
 		});	
+=======
+		});
+		
+		CHGTABSTAAssignTables.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				//TODO
+				
+				refreshData();
+			}
+		});
+>>>>>>> 141f7a7b8e368639b7ce4862c00a29852cac1c00
 		
 		RESMakeReservation.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
