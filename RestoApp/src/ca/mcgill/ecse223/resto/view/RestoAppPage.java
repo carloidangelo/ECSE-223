@@ -1,6 +1,8 @@
 package ca.mcgill.ecse223.resto.view;
 
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.DateFormat;
@@ -140,26 +142,22 @@ public class RestoAppPage extends JFrame {
 	private JDatePickerImpl RESDateCalendar;
 	private JPanel RESSelectTableMenu;
 	private JScrollPane RESSelectTableMenuScroll;
+	private List<Table> REStables;
 	
 	//Change table status submenu
 	private JComboBox <String> SelectGroupList;
 	
 	private JLabel CHGTABSTASelectTable;
-	private JLabel CHGTABSTADate;
-	private JLabel CHGTABSTATime;
 	private JLabel CHGTABSTASelectGroup;
 	
 	private Integer SelectedGroup = -1;
 	
-	private JTextField CHGTABSTATimeField;
-	private JTextField CHGTABSTASelectGroupField;
-	
 	private JButton CHGTABSTAAssignTables;
 	private JButton CHGTABSTARemoveGroup;
 	
-	private JDatePickerImpl CHGTABSTADateCalendar;
 	private JPanel CHGTABSTASelectTableMenu;
 	private JScrollPane CHGTABSTASelectTableMenuScroll;
+	private List<Table> CHGTABSTAtables;
 	
 	//select group combo box hashmap
 	private HashMap<Integer, Order> groups;
@@ -315,23 +313,20 @@ public class RestoAppPage extends JFrame {
 		RESSelectTableMenuScroll = new JScrollPane(RESSelectTableMenu);
 		RESSelectTableMenuScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
+		REStables = new ArrayList<Table>();
+		
 		//Change Table Status submenu
 		CHGTABSTASelectTable = new JLabel("Select Table(s)");
-		CHGTABSTADate = new JLabel("Date");
-		CHGTABSTATime = new JLabel("Time");
 		CHGTABSTASelectGroup = new JLabel("Select Group");
-		
-		CHGTABSTATimeField = new JTextField("");
-		CHGTABSTASelectGroupField = new JTextField("");
 		
 		CHGTABSTAAssignTables = new JButton("Assign Tables");
 		CHGTABSTARemoveGroup = new JButton("Remove Group");
 		
-		CHGTABSTADateCalendar = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-		
 		CHGTABSTASelectTableMenu = new JPanel();
 		CHGTABSTASelectTableMenuScroll = new JScrollPane(CHGTABSTASelectTableMenu);
 		CHGTABSTASelectTableMenuScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		CHGTABSTAtables = new ArrayList<Table>();
 		
 		SelectGroupList = new JComboBox<String>(new String[0]);
 		SelectGroupList.addActionListener(new java.awt.event.ActionListener() {
@@ -381,17 +376,11 @@ public class RestoAppPage extends JFrame {
 				SelectGroupList.setVisible(true);
 				
 				CHGTABSTASelectTable.setVisible(true);
-				CHGTABSTADate.setVisible(true);
-				CHGTABSTATime.setVisible(true);
 				CHGTABSTASelectGroup.setVisible(true);
-								
-				CHGTABSTATimeField.setVisible(true);
-				CHGTABSTASelectGroupField.setVisible(true);
 				
 				CHGTABSTAAssignTables.setVisible(true);
 				CHGTABSTARemoveGroup.setVisible(true);
 				
-				CHGTABSTADateCalendar.setVisible(true);
 				CHGTABSTASelectTableMenu.setVisible(true);
 				CHGTABSTASelectTableMenuScroll.setVisible(true);
 
@@ -730,9 +719,6 @@ public class RestoAppPage extends JFrame {
 
 				refreshData();
 			}
-<<<<<<< HEAD
-		});	
-=======
 		});
 		
 		CHGTABSTAAssignTables.addActionListener(new java.awt.event.ActionListener() {
@@ -744,7 +730,6 @@ public class RestoAppPage extends JFrame {
 				refreshData();
 			}
 		});
->>>>>>> 141f7a7b8e368639b7ce4862c00a29852cac1c00
 		
 		RESMakeReservation.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -915,11 +900,6 @@ public class RestoAppPage extends JFrame {
 								.addComponent(CHGTABSTASelectTableMenuScroll,500,500,600)
 								.addGroup(layout.createParallelGroup()
 										.addGroup(layout.createSequentialGroup()
-												.addComponent(CHGTABSTADate)
-												.addComponent(CHGTABSTATime))
-										.addGroup(layout.createSequentialGroup()
-												.addComponent(CHGTABSTADateCalendar)
-												.addComponent(CHGTABSTATimeField)
 												.addComponent(CHGTABSTAAssignTables))
 										.addGroup(layout.createSequentialGroup()
 												.addComponent(CHGTABSTASelectGroup))
@@ -949,9 +929,8 @@ public class RestoAppPage extends JFrame {
 																				RESContactEmail, RESContactPhoneNumber, RESContactNameField, RESContactEmailField, 
 																				RESContactPhoneNumberField});
 		//Change Table Status
-		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {SelectGroupList, CHGTABSTADate, CHGTABSTATime, CHGTABSTAAssignTables, 
-																				CHGTABSTADateCalendar, CHGTABSTADateCalendar, CHGTABSTATimeField, 
-																				CHGTABSTASelectGroup, CHGTABSTARemoveGroup});
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {CHGTABSTASelectTable, CHGTABSTAAssignTables, SelectGroupList, CHGTABSTASelectGroup, CHGTABSTARemoveGroup});
+
 
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
@@ -1070,11 +1049,6 @@ public class RestoAppPage extends JFrame {
 								.addComponent(CHGTABSTASelectTableMenuScroll,75,75,200)
 								.addGroup(layout.createSequentialGroup()
 										.addGroup(layout.createParallelGroup()
-												.addComponent(CHGTABSTADate)
-												.addComponent(CHGTABSTATime))
-										.addGroup(layout.createParallelGroup()
-												.addComponent(CHGTABSTADateCalendar)
-												.addComponent(CHGTABSTATimeField)
 												.addComponent(CHGTABSTAAssignTables))
 										.addGroup(layout.createParallelGroup()
 												.addComponent(CHGTABSTASelectGroup))
@@ -1159,17 +1133,11 @@ public class RestoAppPage extends JFrame {
 		SelectGroupList.setVisible(false);
 		
 		CHGTABSTASelectTable.setVisible(false);
-		CHGTABSTADate.setVisible(false);
-		CHGTABSTATime.setVisible(false);
 		CHGTABSTASelectGroup.setVisible(false);
-						
-		CHGTABSTATimeField.setVisible(false);
-		CHGTABSTASelectGroupField.setVisible(false);
 		
 		CHGTABSTAAssignTables.setVisible(false);
 		CHGTABSTARemoveGroup.setVisible(false);
 		
-		CHGTABSTADateCalendar.setVisible(false);
 		CHGTABSTASelectTableMenu.setVisible(false);
 		CHGTABSTASelectTableMenuScroll.setVisible(false);
 	}
@@ -1324,20 +1292,37 @@ public class RestoAppPage extends JFrame {
 		RESDateCalendar.getModel().setValue(null);
 		RESSelectTableMenu.removeAll();
 		int sizeY = 10;
-		for (Table table : RestoAppController.getCurrentTables()){
-			JCheckBox tableCheckBox;
-			RESSelectTableMenu.add(tableCheckBox = new JCheckBox("Table #" + String.valueOf(table.getNumber())));
+		for (final Table table : RestoAppController.getCurrentTables()){
+			JCheckBox tableCheckBox = new JCheckBox("Table #" + String.valueOf(table.getNumber()));
+			tableCheckBox.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			        if(e.getStateChange() == ItemEvent.SELECTED) {
+			        	REStables.add(table);
+			        } else {
+			        	REStables.remove(table);
+			        };
+			    }
+			});
+			RESSelectTableMenu.add(tableCheckBox);
 			RESSelectTableMenu.setPreferredSize(new Dimension(500, sizeY));
 			sizeY += 10;
 		}
 		
-		CHGTABSTADateCalendar.getModel().setValue(null);
 		CHGTABSTASelectTableMenu.removeAll();
 		int sizeY2 = 10;
-		for (Table table : RestoAppController.getCurrentTables()){
-			JCheckBox tableCheckBox;
-			CHGTABSTASelectTableMenu.add(tableCheckBox = new JCheckBox("Table #" + String.valueOf(table.getNumber())));
-			CHGTABSTASelectTableMenu.setPreferredSize(new Dimension(500, sizeY));
+		for (final Table table : RestoAppController.getCurrentTables()){
+			JCheckBox tableCheckBox2 = new JCheckBox("Table #" + String.valueOf(table.getNumber()));
+			tableCheckBox2.addItemListener(new ItemListener() {
+			    public void itemStateChanged(ItemEvent e) {
+			        if(e.getStateChange() == ItemEvent.SELECTED) {
+			        	CHGTABSTAtables.add(table);
+			        } else {
+			        	CHGTABSTAtables.remove(table);
+			        };
+			    }
+			});
+			CHGTABSTASelectTableMenu.add(tableCheckBox2);
+			CHGTABSTASelectTableMenu.setPreferredSize(new Dimension(500, sizeY2));
 			sizeY2 += 10;
 		}
 		
