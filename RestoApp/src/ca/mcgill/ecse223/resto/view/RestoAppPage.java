@@ -3,6 +3,11 @@ package ca.mcgill.ecse223.resto.view;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.sql.Date;
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -146,8 +151,6 @@ public class RestoAppPage extends JFrame {
 	private JLabel CHGTABSTASelectGroup;
 	
 	private Integer SelectedGroup = -1;
-	
-	private JTextField CHGTABSTASelectGroupField;
 	
 	private JButton CHGTABSTAAssignTables;
 	private JButton CHGTABSTARemoveGroup;
@@ -316,8 +319,6 @@ public class RestoAppPage extends JFrame {
 		CHGTABSTASelectTable = new JLabel("Select Table(s)");
 		CHGTABSTASelectGroup = new JLabel("Select Group");
 		
-		CHGTABSTASelectGroupField = new JTextField("");
-		
 		CHGTABSTAAssignTables = new JButton("Assign Tables");
 		CHGTABSTARemoveGroup = new JButton("Remove Group");
 		
@@ -376,8 +377,6 @@ public class RestoAppPage extends JFrame {
 				
 				CHGTABSTASelectTable.setVisible(true);
 				CHGTABSTASelectGroup.setVisible(true);
-								
-				CHGTABSTASelectGroupField.setVisible(true);
 				
 				CHGTABSTAAssignTables.setVisible(true);
 				CHGTABSTARemoveGroup.setVisible(true);
@@ -754,6 +753,43 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
+		RESMakeReservation.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				if (error.length() == 0) {
+					try {
+						Date date = (Date) RESDateCalendar.getModel().getValue();
+						String time = RESTimeField.getText();
+						DateFormat formatter = new SimpleDateFormat("hh:mm");
+						java.sql.Time timeValue = null;
+						try {
+							timeValue = new java.sql.Time(formatter.parse(time).getTime());
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+						 	e1.printStackTrace();
+						}
+						int numberInParty = Integer.parseInt(RESNumberInPartyField.getText()); 
+						String name = RESContactNameField.getText();
+						String email = RESContactEmailField.getText();
+						String phoneNumber = RESContactPhoneNumberField.getText();
+						RestoAppController.reserveTable(date, timeValue, numberInParty, name, email, phoneNumber, REStables);
+						
+					} catch (InvalidInputException e) {
+					// TODO Auto-generated catch block
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+					catch (NumberFormatException e) {
+						// TODO Auto-generated catch block
+							error = "Please provide non-empty numerical input.";
+							errorMessage.setText(error);
+						}
+				}
+				
+				refreshData();
+			}
+		});
 		//Restaurant Layout
 		restoLayout = new RestoLayout(this);
 		restoLayoutContainer = new JScrollPane(restoLayout);
@@ -923,6 +959,7 @@ public class RestoAppPage extends JFrame {
 																				RESContactPhoneNumberField});
 		//Change Table Status
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {CHGTABSTASelectTable, CHGTABSTAAssignTables, SelectGroupList, CHGTABSTASelectGroup, CHGTABSTARemoveGroup});
+
 
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
@@ -1126,8 +1163,6 @@ public class RestoAppPage extends JFrame {
 		
 		CHGTABSTASelectTable.setVisible(false);
 		CHGTABSTASelectGroup.setVisible(false);
-				
-		CHGTABSTASelectGroupField.setVisible(false);
 		
 		CHGTABSTAAssignTables.setVisible(false);
 		CHGTABSTARemoveGroup.setVisible(false);
@@ -1287,7 +1322,7 @@ public class RestoAppPage extends JFrame {
 			}
 		};
 		selectTableUpdateTable.addActionListener(selectTableUpdateTableListener);
-		
+		REStables.clear();
 		RESDateCalendar.getModel().setValue(null);
 		RESSelectTableMenu.removeAll();
 		int sizeY = 10;
