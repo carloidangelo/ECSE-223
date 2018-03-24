@@ -125,17 +125,19 @@ public class RestoLayout extends JPanel {
 					g2d.drawString(new Integer(table.getCurrentSeats().size()).toString() + " seats", 
 										(int) rectangle.getCenterX() - currentFont.getSize() * 7 / 5 - seatNumberLength * currentFont.getSize() / 3, 
 										(int) rectangle.getCenterY() + currentFont.getSize() * 5 / 2);
-					if (table.hasReservations()) {
-						g2d.drawString("<reserved>", 
-								(int) rectangle.getCenterX() - currentFont.getSize() * 7 / 5 - seatNumberLength * currentFont.getSize() / 3, 
-								(int) rectangle.getCenterY() - currentFont.getSize() * 5 / 2);
-					}
 				}
 			}else {
 				g2d.setColor(Color.WHITE);
 				g2d.fill(rectangle);
 				g2d.setColor(Color.BLACK);
 				g2d.draw(rectangle);
+			}
+			g2d.setFont(currentFont);
+			int seatNumberLength = (int) Math.log10(table.getCurrentSeats().size()) + 1;
+			if (table.hasReservations()) {
+				g2d.drawString("<reserved>", 
+						(int) rectangle.getCenterX() - currentFont.getSize() * 7 / 5 - seatNumberLength * currentFont.getSize() / 3, 
+						(int) rectangle.getCenterY() - currentFont.getSize() * 5 / 2);
 			}
 			Font newFont = currentFont.deriveFont(currentFont.getSize() * 2F);
 			g2d.setFont(newFont);
