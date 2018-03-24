@@ -304,7 +304,6 @@ public class RestoAppController {
 	//reserve table
 	public static void reserveTable(Date date, Time time, int numberInParty, String contactName, String contactEmailAddress, 
 									String contactPhoneNumber, List<Table> tables) throws InvalidInputException{
-		tables = new ArrayList<Table>(tables);
 		String error = "";
 		if (date == null)
 			error = "Date cannot be empty";		
@@ -346,7 +345,9 @@ public class RestoAppController {
 		}
 		if(seatCapacity < numberInParty)
 			throw new InvalidInputException("Not enough seats");
+		//tables = new ArrayList<Table>(tables);
 		Table [] tableArray = tables.toArray(new Table[tables.size()]);
+		System.out.print(tableArray.toString());
 		Reservation res = new Reservation(date, time, numberInParty, contactName, contactEmailAddress, contactPhoneNumber, restoApp, tableArray);
 		for(Table table: tables) {
 			table.addReservation(res);

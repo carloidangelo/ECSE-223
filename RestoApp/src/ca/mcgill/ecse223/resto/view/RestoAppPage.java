@@ -734,22 +734,23 @@ public class RestoAppPage extends JFrame {
 		RESMakeReservation.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				error = "";
-				Date date = (Date) RESDateCalendar.getModel().getValue();
-				String time = RESTimeField.getText();
-				DateFormat formatter = new SimpleDateFormat("hh:mm");
-				java.sql.Time timeValue = null;
-				try {
-					timeValue = new java.sql.Time(formatter.parse(time).getTime());
-				} catch (ParseException e1) {
-					// TODO Auto-generated catch block
-				 	e1.printStackTrace();
-				}
-				int numberInParty = Integer.parseInt(RESNumberInPartyField.getText()); 
-				String name = RESContactNameField.getText();
-				String email = RESContactEmailField.getText();
-				String phoneNumber = RESContactPhoneNumberField.getText();
+				
 				if (error.length() == 0) {
 					try {
+						Date date = (Date) RESDateCalendar.getModel().getValue();
+						String time = RESTimeField.getText();
+						DateFormat formatter = new SimpleDateFormat("hh:mm");
+						java.sql.Time timeValue = null;
+						try {
+							timeValue = new java.sql.Time(formatter.parse(time).getTime());
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+						 	e1.printStackTrace();
+						}
+						int numberInParty = Integer.parseInt(RESNumberInPartyField.getText()); 
+						String name = RESContactNameField.getText();
+						String email = RESContactEmailField.getText();
+						String phoneNumber = RESContactPhoneNumberField.getText();
 						RestoAppController.reserveTable(date, timeValue, numberInParty, name, email, phoneNumber, REStables);
 						
 					} catch (InvalidInputException e) {
@@ -757,6 +758,11 @@ public class RestoAppPage extends JFrame {
 						error = e.getMessage();
 						errorMessage.setText(error);
 					}
+					catch (NumberFormatException e) {
+						// TODO Auto-generated catch block
+							error = "Please provide non-empty numerical input.";
+							errorMessage.setText(error);
+						}
 				}
 				
 				refreshData();
@@ -1289,7 +1295,7 @@ public class RestoAppPage extends JFrame {
 			}
 		};
 		selectTableUpdateTable.addActionListener(selectTableUpdateTableListener);
-		
+		REStables.clear();
 		RESDateCalendar.getModel().setValue(null);
 		RESSelectTableMenu.removeAll();
 		int sizeY = 10;

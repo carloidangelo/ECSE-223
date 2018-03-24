@@ -5,6 +5,10 @@ package ca.mcgill.ecse223.resto.model;
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.*;
 
 // line 15 "../../../../../RestoAppPersistence.ump"
@@ -370,15 +374,20 @@ public class Reservation implements Serializable
 
   // line 31 "../../../../../RestoApp v3.ump"
    public boolean doesOverlap(Date date, Time time){
-    int time1 = this.time.getHours();
-	   int time2 = time.getHours();
-	   int timediff = Math.abs(time2 - time1);
-	  if (date.before(this.date) || date.after(this.date)) {
-		  return false;
-	  }else if(timediff < 2) {
-		  return false;
-	  }
-	return true;
+	   boolean overlap=false; 
+	   if(this.date.equals(date)) {
+		   long time1 = this.time.getTime();
+		   long time2 = time.getTime();
+		   long twoh= 72 * 10^(5);
+		   long timediff = Math.abs(time2 - time1);
+		   if(timediff < twoh) {
+			   overlap=true;
+		   }
+		   else {
+			   overlap=false;
+		   }
+	   }
+	   return overlap;
   }
 
 
