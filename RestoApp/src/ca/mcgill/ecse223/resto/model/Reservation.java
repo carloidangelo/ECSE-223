@@ -376,8 +376,9 @@ public class Reservation implements Serializable
 	   if(date1 == date2) {
 		   long time1 = this.time.getTime();
 		   long time2 = time.getTime();
-		   long twoh= 72 * 10^(5);
+		   long twoh= 7200000;
 		   long timediff = Math.abs(time2 - time1);
+		   System.out.print(twoh);
 		   if(timediff < twoh) {
 			   overlap=true;
 			   return overlap;
