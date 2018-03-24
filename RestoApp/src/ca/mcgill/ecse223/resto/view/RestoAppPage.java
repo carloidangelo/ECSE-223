@@ -736,12 +736,13 @@ public class RestoAppPage extends JFrame {
 				error = "";
 				Date date = (Date) RESDateCalendar.getModel().getValue();
 				String time = RESTimeField.getText();
-				DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+				DateFormat formatter = new SimpleDateFormat("hh:mm");
+				java.sql.Time timeValue = null;
 				try {
-					Time restime = (Time) dateFormat.parse(time);
-				} catch (ParseException e) {
+					timeValue = new java.sql.Time(formatter.parse(time).getTime());
+				} catch (ParseException e1) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+				 	e1.printStackTrace();
 				}
 				int numberInParty = Integer.parseInt(RESNumberInPartyField.getText()); 
 				String name = RESContactNameField.getText();
@@ -749,7 +750,7 @@ public class RestoAppPage extends JFrame {
 				String phoneNumber = RESContactPhoneNumberField.getText();
 				if (error.length() == 0) {
 					try {
-						RestoAppController.reserveTable(date, restime, numberInParty, name, email, phoneNumber, REStables);
+						RestoAppController.reserveTable(date, timeValue, numberInParty, name, email, phoneNumber, REStables);
 						
 					} catch (InvalidInputException e) {
 					// TODO Auto-generated catch block
