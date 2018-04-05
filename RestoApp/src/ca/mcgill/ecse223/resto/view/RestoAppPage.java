@@ -894,7 +894,7 @@ public class RestoAppPage extends JFrame {
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(viewMenu)
 						.addComponent(updateMenu))
-				//Change Layout SubMenu
+				//Restaurant Layout SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(addTable)
 						.addComponent(removeTable)
@@ -1055,7 +1055,7 @@ public class RestoAppPage extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addComponent(viewMenu)
 						.addComponent(updateMenu))
-				//Change Layout SubMenu
+				//Restaurant Layout SubMenu
 				.addGroup(layout.createParallelGroup()
 						.addComponent(addTable)
 						.addComponent(removeTable)
