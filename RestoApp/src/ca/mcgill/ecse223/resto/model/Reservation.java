@@ -377,8 +377,6 @@ public class Reservation implements Serializable
 	   int month2 = date.getMonth();
 	   int year1 = this.date.getYear();
 	   int year2 = date.getYear();
-	   //System.out.println(date1);
-	   //System.out.println(date2);
 	   if(date1 == date2 && month1 == month2 && year1 == year2) {
 		   long time1 = this.time.getTime();
 		   long time2 = time.getTime();
@@ -394,7 +392,7 @@ public class Reservation implements Serializable
 	   }
 	   return overlap;
   }
-   
+
 
   public String toString()
   {

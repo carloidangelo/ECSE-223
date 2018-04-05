@@ -13,6 +13,7 @@ import ca.mcgill.ecse223.resto.model.Table;
 import ca.mcgill.ecse223.resto.model.Table.Status;
 import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.Order;
+import ca.mcgill.ecse223.resto.model.OrderItem;
 import ca.mcgill.ecse223.resto.model.Reservation;
 import ca.mcgill.ecse223.resto.model.MenuItem.ItemCategory;
 import ca.mcgill.ecse223.resto.model.RestoApp;
@@ -381,9 +382,39 @@ public class RestoAppController {
 		java.util.Date tempToday = RestoAppApplication.getRestoApp().getCurrentDate();
 		return date.before(tempToday);
 	}
-	
+
 	private static boolean isTimeInPast(Time time) {
 		java.util.Date tempToday = RestoAppApplication.getRestoApp().getCurrentDate();
 		return time.before(tempToday);
+	}
+	
+	//view order
+	public static List<OrderItem> getOrderItem(Table table) throws InvalidInputException{
+		if(table == null) {
+			throw new InvalidInputException("Table cannot be empty");
+		}
+		RestoApp r = RestoAppApplication.getRestoApp();
+		List <Table> currentTables = r.getCurrentTables();
+		boolean current = currentTables.contains(table);
+		if(!current)
+			throw new InvalidInputException("Table not found in current tables");
+		Status status = table.getStatus();
+		if(status == Status.Available)
+			throw new InvalidInputException("No order found");
+		Order lastOrder = null;
+		if(table.numberOfOrders() > 0) {
+			lastOrder = table.getOrder(table.numberOfOrders() - 1);
+		}
+		List <Seat> currentSeats = table.getCurrentSeats();
+		List <OrderItem> result = null;
+		for(Seat seat:currentSeats) {
+			List <OrderItem> orderItems = seat.getOrderItems();
+			for(OrderItem orderItem :orderItems) {
+				Order order = orderItem.getOrder();
+				if(lastOrder.equals(order) && !result.contains(orderItem))
+					result.add(orderItem);
+			}
+		}
+		return result;
 	}
 }

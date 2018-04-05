@@ -38,7 +38,7 @@ class Reservation{
 	   if(date1 == date2 && month1 == month2 && year1 == year2) {
 		   long time1 = this.time.getTime();
 		   long time2 = time.getTime();
-		   long twoh= 7199999;
+		   long twoh= 7200000;
 		   long timediff = Math.abs(time2 - time1);
 		   if(timediff < twoh) {
 			   overlap=true;

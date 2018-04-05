@@ -1,4 +1,3 @@
-
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.27.0.3728.d139ed893 modeling language!*/
 
@@ -7,7 +6,7 @@ import java.io.Serializable;
 import java.util.*;
 
 // line 92 "../../../../../RestoAppPersistence.ump"
-// line 101 "../../../../../RestoApp v3.ump"
+// line 106 "../../../../../RestoApp v3.ump"
 public class PricedMenuItem implements Serializable
 {
 
