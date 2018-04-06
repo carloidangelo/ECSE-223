@@ -11,6 +11,7 @@ import java.util.List;
 import ca.mcgill.ecse223.resto.application.RestoAppApplication;
 import ca.mcgill.ecse223.resto.model.Table;
 import ca.mcgill.ecse223.resto.model.Table.Status;
+import ca.mcgill.ecse223.resto.model.Bill;
 import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.Order;
 import ca.mcgill.ecse223.resto.model.OrderItem;
@@ -416,5 +417,56 @@ public class RestoAppController {
 			}
 		}
 		return result;
+	}
+	
+	public static void issueBill(List<Seat> seats) throws InvalidInputException{
+		if(seats == null || seats.isEmpty())
+			throw new InvalidInputException("A bill must be assigned to at least one seat");
+		RestoApp r = RestoAppApplication.getRestoApp();
+		List<Table> currentTables = r.getCurrentTables();
+		Order lastOrder = null;
+		for(Seat seat : seats) {
+			Table table = seat.getTable();
+			Boolean current = currentTables.contains(table);
+			if(!current)
+				throw new InvalidInputException("At least one seat is not associated with a current order");
+			if(lastOrder == null) {
+				if(table.numberOfOrders() > 0)
+					lastOrder = table.getOrder(table.numberOfOrders()-1);
+				else
+					throw new InvalidInputException("A seat without an order cannot be billed");
+			}
+			else {
+				Order comparedOrder = null;
+				if(table.numberOfOrders() > 0)
+					comparedOrder = table.getOrder(table.numberOfOrders()-1);
+				else
+					throw new InvalidInputException("A seat without an order cannot be billed");
+				if(!comparedOrder.equals(lastOrder))
+					throw new InvalidInputException("A seat that is not currently used cannot be billed");
+			}
+		}
+		if(lastOrder == null)
+			throw new InvalidInputException("A bill must be assigned to at least one seat that can be billed");
+		boolean billCreated = false;
+		Bill newBill = null;
+		for(Seat seat : seats) {
+			Table table = seat.getTable();
+			if(billCreated)
+				table.addToBill(newBill, seat);
+			else {
+				Bill lastBill = null;
+				if(lastOrder.numberOfBills() > 0)
+					lastBill = lastOrder.getBill(lastOrder.numberOfBills()-1);
+				table.billForSeat(lastOrder, seat);
+				if(lastOrder.numberOfBills() > 0 && !lastOrder.getBill(lastOrder.numberOfBills()-1).equals(lastBill)) {
+					billCreated = true;
+					newBill = lastOrder.getBill(lastOrder.numberOfBills()-1);
+				}
+			}
+		}
+		if(billCreated == false)
+			throw new InvalidInputException("Unable to bill seat(s)");
+		RestoAppApplication.save();
 	}
 }
