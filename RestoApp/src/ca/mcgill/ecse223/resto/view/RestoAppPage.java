@@ -13,8 +13,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.Vector;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
@@ -26,8 +28,10 @@ import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.MenuItem.ItemCategory;
 
 import ca.mcgill.ecse223.resto.model.RestoApp;
+import ca.mcgill.ecse223.resto.model.Seat;
 import ca.mcgill.ecse223.resto.model.Table;
 import ca.mcgill.ecse223.resto.model.Order;
+import ca.mcgill.ecse223.resto.model.OrderItem;
 
 
 public class RestoAppPage extends JFrame {
@@ -176,6 +180,18 @@ public class RestoAppPage extends JFrame {
 	//Restaurant Layout Display
 	private RestoLayout restoLayout;
 	private JScrollPane restoLayoutContainer;
+	
+	//View Order
+	private JLabel viewOrderSelectTable;
+	private JComboBox <String> viewOrderTableList;
+	private JLabel viewOrderLabel;
+	private JButton viewOrderButton;
+	private JTable viewOrderList;
+	private Integer selectedTable3 = -1;
+	private DefaultTableModel viewOrderDtm;
+	private String viewOrderListColumnNames[] = {"Order Item", "Seat"};
+	private static final int HEIGHT_OVERVIEW_TABLE = 200;
+	private JScrollPane viewOrderScrollPane;
 	
 	public RestoAppPage() {
 		initComponents();
@@ -356,6 +372,29 @@ public class RestoAppPage extends JFrame {
 		dessertMenu  = new JPanel();
 		alcoholicBeverageMenu = new JPanel();
 		nonAlcoholicBeverageMenu  = new JPanel();
+		
+		//View Order SubMenu
+		viewOrderSelectTable = new JLabel("Select Table");
+		viewOrderLabel = new JLabel("Order");
+		viewOrderButton = new JButton("View Order");
+		viewOrderTableList = new JComboBox<String>(new String[0]);
+		viewOrderTableList.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {				
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+		        selectedTable3 = cb.getSelectedIndex();
+			}
+		});
+		viewOrderList = new JTable();
+		viewOrderScrollPane = new JScrollPane(viewOrderList);
+		this.add(viewOrderScrollPane);
+		Dimension d = viewOrderList.getPreferredSize();
+		viewOrderScrollPane.setPreferredSize(new Dimension(d.width, HEIGHT_OVERVIEW_TABLE));
+		viewOrderScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		viewOrderDtm = new DefaultTableModel(0, 0);
+		viewOrderDtm.setColumnIdentifiers(viewOrderListColumnNames);
+		viewOrderList.setModel(viewOrderDtm);
+		viewOrderList.setShowGrid(true);
 		
 		/*Action Listeners*/
 		//Menu Button
@@ -855,7 +894,44 @@ public class RestoAppPage extends JFrame {
 				viewOrder.setVisible(true);
 				refreshData();
 			}
-		});	
+		});
+		
+		//View Order SubMenu Button
+		viewOrder.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				viewOrderSelectTable.setVisible(true);
+				viewOrderTableList.setVisible(true);
+				viewOrderScrollPane.setVisible(true);
+				viewOrderLabel.setVisible(true);
+				viewOrderButton.setVisible(true);
+				refreshData();
+			}
+		});
+		
+		//View Order Button
+		viewOrderButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+			
+				try {
+					List <OrderItem> orderItems = RestoAppController.getOrderItem(tables.get(selectedTable3));
+					for(OrderItem orderItem : orderItems) {
+						String orderItemName = orderItem.toString();
+						List <Seat> seats = orderItem.getSeats();
+						Seat[] seatArray = seats.toArray(new Seat[seats.size()]);
+						Object []obj = {orderItemName, seatArray};
+						viewOrderDtm.addRow(obj);
+					}
+					
+				}
+				catch(InvalidInputException e) {
+					error = e.getMessage();
+					errorMessage.setText(error);
+				}
+				
+				refreshData();
+			}
+		});
 		
 		//Restaurant Layout Display
 		restoLayout = new RestoLayout(this);
@@ -1012,6 +1088,15 @@ public class RestoAppPage extends JFrame {
 						.addComponent(dessertMenu)
 						.addComponent(alcoholicBeverageMenu)
 						.addComponent(nonAlcoholicBeverageMenu))
+				//View Order SubMenu
+				.addGroup(layout.createParallelGroup()
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(viewOrderSelectTable,100,150,200)
+								.addComponent(viewOrderLabel))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(viewOrderTableList)
+								.addComponent(viewOrderScrollPane,500,500,600))
+						.addComponent(viewOrderButton))
 				//Restaurant Layout
 				.addComponent(restoLayoutContainer));
 		
@@ -1036,7 +1121,9 @@ public class RestoAppPage extends JFrame {
 																				RESContactPhoneNumberField});
 		//Change Table Status
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {CHGTABSTASelectTable, CHGTABSTAAssignTables, SelectGroupList, CHGTABSTASelectGroup, CHGTABSTARemoveGroup});
-
+		
+		//View Order
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {viewOrderSelectTable, viewOrderTableList, viewOrderScrollPane, viewOrderButton, viewOrderLabel});
 
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
@@ -1171,6 +1258,15 @@ public class RestoAppPage extends JFrame {
 						.addComponent(dessertMenu)
 						.addComponent(alcoholicBeverageMenu)
 						.addComponent(nonAlcoholicBeverageMenu))
+				//View Order SubMenu
+				.addGroup(layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup()
+								.addComponent(viewOrderSelectTable)
+								.addComponent(viewOrderLabel))
+						.addGroup(layout.createParallelGroup()
+								.addComponent(viewOrderScrollPane)
+								.addComponent(viewOrderTableList))
+						.addComponent(viewOrderButton))
 				//Restaurant Layout
 				.addComponent(restoLayoutContainer)
 		);
@@ -1198,6 +1294,8 @@ public class RestoAppPage extends JFrame {
 		removeReserveTableSubmenu();
 		
 		removeViewMenuSubMenuSubMenu();
+		
+		removeViewOrderSubMenu();
 		
 		pack();
 	}
@@ -1337,6 +1435,14 @@ public class RestoAppPage extends JFrame {
 		alcoholicBeverageMenu.setVisible(false);
 		nonAlcoholicBeverageMenu.setVisible(false);
 	}
+	//View Order SubMenu
+	private void removeViewOrderSubMenu() {
+		viewOrderSelectTable.setVisible(false);
+		viewOrderTableList.setVisible(false);
+		viewOrderScrollPane.setVisible(false);
+		viewOrderLabel.setVisible(false);
+		viewOrderButton.setVisible(false);
+	}
 	
 	//Refresh Data
 	private void refreshData() {
@@ -1356,12 +1462,13 @@ public class RestoAppPage extends JFrame {
 		//update table table selector removed to prevent unwanted actionPerformed calls
 		selectTableUpdateTable.removeActionListener(selectTableUpdateTableListener);
 		
-		//move table & update table combo box refresh
+		//move table & update table & view order combo box refresh
 		tables = new HashMap<Integer, Table>();
 		tablesReverse = new HashMap<Table, Integer>();
 		tableList.removeAllItems();
 		selectTableUpdateTable.removeAllItems();
 		selectTableRemoveTable.removeAllItems();
+		viewOrderTableList.removeAllItems();
 		Integer index = 0;
 		for (Table table : RestoAppController.getCurrentTables()) {
 			tables.put(index, table);
@@ -1369,6 +1476,7 @@ public class RestoAppPage extends JFrame {
 			tableList.addItem("#" + table.getNumber());
 			selectTableUpdateTable.addItem("#" + table.getNumber());
 			selectTableRemoveTable.addItem("#" + table.getNumber());
+			viewOrderTableList.addItem("#" + table.getNumber());
 			index++;
 		};
 		
@@ -1403,6 +1511,11 @@ public class RestoAppPage extends JFrame {
 		//for remove table, the combo box resets
 		selectedTable2 = -1;
 		selectTableRemoveTable.setSelectedIndex(selectedTable2);
+		
+		//for view order, combo box resets
+		selectedTable3 = -1;
+		viewOrderTableList.setSelectedIndex(selectedTable3);
+		
 		
 		//for update table, combo box goes to table selected in restaurant layout, -1 if none selected
 		Table layoutSelectedTable = restoLayout.getSelectedTable();
@@ -1475,6 +1588,8 @@ public class RestoAppPage extends JFrame {
 		tableList.setSelectedIndex(selectedTable);
 		selectedTable2 = tablesReverse.get(restoLayout.getSelectedTable());
 		selectTableRemoveTable.setSelectedIndex(selectedTable2);
+		selectedTable3 = tablesReverse.get(restoLayout.getSelectedTable());
+		viewOrderTableList.setSelectedIndex(selectedTable3);
 	}
 	
 	private List <MenuItem> giveList(ItemCategory aItemCategory) { 

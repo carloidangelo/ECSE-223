@@ -331,6 +331,8 @@ public class RestoAppController {
 			error = "Invalid time";
 		if(numberInParty <= 0)
 			error = "Number in party should be positive";
+		if(tables.size() == 0)
+			error = "Must select a table";
 		if (error.length() > 0) {
 			throw new InvalidInputException(error.trim());
 		}
