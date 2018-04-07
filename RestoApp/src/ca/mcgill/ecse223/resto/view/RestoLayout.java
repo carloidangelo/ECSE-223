@@ -137,12 +137,12 @@ public class RestoLayout extends JPanel {
 				int seatNumberLength = (int) Math.log10(table.getCurrentSeats().size()) + 1;
 				if (table.getWidth() < (40 + (seatNumberLength - 1) * currentFont.getSize() * 3 / 4) && table.getX() < (20 + (seatNumberLength - 1) * currentFont.getSize() * 3 / 4)) {
 					g2d.drawString(new Integer(numberSeatsInUse).toString() + "/" + new Integer(table.getCurrentSeats().size()).toString() + " seats", 
-										(int) rectangle.getCenterX() + currentFont.getSize() * 7 / 5 + seatNumberLength * currentFont.getSize() / 3, 
+										(int) rectangle.getCenterX() + currentFont.getSize() * 7 / 4 + seatNumberLength * currentFont.getSize() / 3, 
 										(int) rectangle.getCenterY() + currentFont.getSize() / 3);
 				}else {
 					g2d.drawString(new Integer(numberSeatsInUse).toString() + "/" + new Integer(table.getCurrentSeats().size()).toString() + " seats", 
-										(int) rectangle.getCenterX() - currentFont.getSize() * 7 / 5 - seatNumberLength * currentFont.getSize() / 3, 
-										(int) rectangle.getCenterY() + currentFont.getSize() * 5 / 2);
+										(int) rectangle.getCenterX() - currentFont.getSize() * 7 / 4 - seatNumberLength * currentFont.getSize() / 3, 
+										(int) rectangle.getCenterY() + currentFont.getSize() * 4 / 2);
 				}
 			}else {
 				if (table.getStatus() != Status.Available) {
@@ -156,11 +156,10 @@ public class RestoLayout extends JPanel {
 				g2d.draw(rectangle);
 			}
 			g2d.setFont(currentFont);
-			int seatNumberLength = (int) Math.log10(table.getCurrentSeats().size()) + 1;
 			if (table.hasReservations()) {
 				g2d.drawString("<reserved>", 
-						(int) rectangle.getCenterX() - currentFont.getSize() * 7 / 5 - seatNumberLength * currentFont.getSize() / 3, 
-						(int) rectangle.getCenterY() - currentFont.getSize() * 5 / 2);
+						(int) rectangle.getCenterX() - currentFont.getSize() * 26/10, 
+						(int) rectangle.getCenterY() - currentFont.getSize() * 3 / 2);
 			}
 			Font newFont = currentFont.deriveFont(currentFont.getSize() * 2F);
 			g2d.setFont(newFont);
