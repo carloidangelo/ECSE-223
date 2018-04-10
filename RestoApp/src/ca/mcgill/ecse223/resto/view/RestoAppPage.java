@@ -24,6 +24,7 @@ import org.jdatepicker.impl.SqlDateModel;
 
 import ca.mcgill.ecse223.resto.controller.InvalidInputException;
 import ca.mcgill.ecse223.resto.controller.RestoAppController;
+import ca.mcgill.ecse223.resto.model.Bill;
 import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.MenuItem.ItemCategory;
 
@@ -192,6 +193,40 @@ public class RestoAppPage extends JFrame {
 	private String viewOrderListColumnNames[] = {"Order Item", "Seat"};
 	private static final int HEIGHT_OVERVIEW_TABLE = 200;
 	private JScrollPane viewOrderScrollPane;
+	
+	//Issue Bill
+	private JLabel issueBillSelectOrderLabel;
+	private JComboBox <String> issueBillSelectOrder;
+	//uses groups hashmap
+	private Integer selectedOrder = -1;
+	
+	private JPanel issueBillSelectSeat;
+	private JScrollPane issueBillSelectSeatScroll;
+	private List<Table> issueBillSeats;
+	
+	private JLabel issueBillSelectTableLabel;
+	private JComboBox <String> issueBillSelectTable;
+	//uses tables hashmap
+	private Integer selectedTable4 = -1;
+	
+	private JButton issueBillCreate;
+	private JButton issueBillEntireTable;
+	private JButton issueBillEachSeat;
+	
+	private JLabel issueBillSelectBillLabel;
+	private JComboBox <String> issueBillSelectBill;
+	private HashMap <Integer, Bill> bills;
+	private Integer selectedBill = -1;
+	private JButton selectBill;
+	
+	private JTable viewBillTable;
+	private DefaultTableModel viewBillDtm;
+	private String viewBillColumnNames[] = {"Table", "Seat", "Amount Owed"};
+	//uses HEIGHT_OVERVIEW_TABLE
+	private JScrollPane viewBillScrollPane;
+	private JLabel billTotalOwed;
+	private JLabel billTotalOwedLabel;
+	
 	
 	public RestoAppPage() {
 		initComponents();
@@ -395,6 +430,57 @@ public class RestoAppPage extends JFrame {
 		viewOrderDtm.setColumnIdentifiers(viewOrderListColumnNames);
 		viewOrderList.setModel(viewOrderDtm);
 		viewOrderList.setShowGrid(true);
+		
+		//Issue Bill SubMenu
+		issueBillSelectOrderLabel = new JLabel("Select order:");
+		issueBillSelectOrder = new JComboBox<String>(new String[0]);
+		issueBillSelectOrder.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				selectedOrder = cb.getSelectedIndex();
+			}
+		});
+		
+		issueBillSelectSeat = new JPanel();
+		issueBillSelectSeatScroll = new JScrollPane(issueBillSelectSeat);
+		issueBillSelectSeatScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		issueBillSelectTableLabel = new JLabel("Select table:");
+		issueBillSelectTable = new JComboBox<String>(new String[0]);
+		issueBillSelectTable.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				selectedTable4 = cb.getSelectedIndex();
+			}
+		});
+		
+		issueBillCreate = new JButton("Issue bill");
+		issueBillEntireTable = new JButton("Issue bill for entire table");
+		issueBillEachSeat = new JButton("Issue bill for each seat");
+		
+		issueBillSelectBillLabel = new JLabel("Select bill:");
+		issueBillSelectBill = new JComboBox<String>(new String[0]);
+		issueBillSelectBill.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				selectedBill = cb.getSelectedIndex();
+			}
+		});
+		
+		viewBillTable = new JTable();
+		viewBillScrollPane = new JScrollPane(viewBillTable);
+		this.add(viewBillScrollPane);
+		d = viewBillTable.getPreferredSize();
+		viewBillScrollPane.setPreferredSize(new Dimension(d.width, HEIGHT_OVERVIEW_TABLE));
+		viewBillScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		viewBillDtm = new DefaultTableModel(0, 0);
+		viewBillDtm.setColumnIdentifiers(viewBillColumnNames);
+		viewBillTable.setModel(viewBillDtm);
+		viewBillTable.setShowGrid(true);
+		
+		billTotalOwedLabel = new JLabel("Total amount owed:");
+		billTotalOwed = new JLabel("");
 		
 		/*Action Listeners*/
 		//Menu Button
@@ -933,6 +1019,29 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
+		//Issue Bill Button
+		issueBill.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				returnToMainMenu();
+		
+				issueBillSelectTableLabel.setVisible(true);
+				issueBillSelectTable.setVisible(true);
+				issueBillEntireTable.setVisible(true);
+				issueBillEachSeat.setVisible(true);
+				issueBillSelectOrderLabel.setVisible(true);
+				issueBillSelectOrder.setVisible(true);
+				issueBillSelectSeatScroll.setVisible(true);
+				issueBillCreate.setVisible(true);
+				issueBillSelectBillLabel.setVisible(true);
+				issueBillSelectBill.setVisible(true);
+				viewBillScrollPane.setVisible(true);
+				billTotalOwedLabel.setVisible(true);
+				billTotalOwed.setVisible(true);
+				
+				refreshData();
+			}
+		});
+		
 		//Restaurant Layout Display
 		restoLayout = new RestoLayout(this);
 		restoLayoutContainer = new JScrollPane(restoLayout);
@@ -943,11 +1052,16 @@ public class RestoAppPage extends JFrame {
 		
 		//Layout
 		JSeparator horizontalLine = new JSeparator();
-		Dimension verticalLineSize = new Dimension(0,100);
+		Dimension verticalLineSize0 = new Dimension(0,100);
 		JSeparator verticalLine0 = new JSeparator(SwingConstants.VERTICAL);
-		verticalLine0.setMaximumSize(verticalLineSize);
+		verticalLine0.setMaximumSize(verticalLineSize0);
 		JSeparator verticalLine1 = new JSeparator(SwingConstants.VERTICAL);
-		verticalLine1.setMaximumSize(verticalLineSize);
+		verticalLine1.setMaximumSize(verticalLineSize0);
+		Dimension verticalLineSize1 = new Dimension(0,150);
+		JSeparator verticalLine2 = new JSeparator(SwingConstants.VERTICAL);
+		verticalLine0.setMaximumSize(verticalLineSize1);
+		JSeparator verticalLine3 = new JSeparator(SwingConstants.VERTICAL);
+		verticalLine0.setMaximumSize(verticalLineSize1);
 		
 		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
@@ -1097,6 +1211,30 @@ public class RestoAppPage extends JFrame {
 								.addComponent(viewOrderTableList)
 								.addComponent(viewOrderScrollPane,500,500,600))
 						.addComponent(viewOrderButton))
+				//Issue Bill SubMenu
+				.addGroup(layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup()
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(issueBillSelectTableLabel, 75, 75, 75)
+										.addComponent(issueBillSelectTable, 150, 150, 150))
+								.addComponent(issueBillEntireTable, 235, 235, 235)
+								.addComponent(issueBillEachSeat, 235, 235, 235))
+						.addComponent(verticalLine2, 1, 1, 1)
+						.addGroup(layout.createParallelGroup()
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(issueBillSelectOrderLabel, 75, 75, 75)
+										.addComponent(issueBillSelectOrder, 200, 200, 200))
+								.addComponent(issueBillSelectSeatScroll, 288, 288, 288)
+								.addComponent(issueBillCreate, 288, 288, 288))
+						.addComponent(verticalLine3, 1, 1, 1)
+						.addGroup(layout.createParallelGroup()
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(issueBillSelectBillLabel, 75, 75, 75)
+										.addComponent(issueBillSelectBill, 150, 150, 150))
+								.addComponent(viewBillScrollPane, 300, 400, 400)
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(billTotalOwedLabel)
+										.addComponent(billTotalOwed))))
 				//Restaurant Layout
 				.addComponent(restoLayoutContainer));
 		
@@ -1259,14 +1397,38 @@ public class RestoAppPage extends JFrame {
 						.addComponent(alcoholicBeverageMenu)
 						.addComponent(nonAlcoholicBeverageMenu))
 				//View Order SubMenu
-				.addGroup(layout.createSequentialGroup()
-						.addGroup(layout.createParallelGroup()
+				.addGroup(layout.createParallelGroup()
+						.addGroup(layout.createSequentialGroup()
 								.addComponent(viewOrderSelectTable)
 								.addComponent(viewOrderLabel))
-						.addGroup(layout.createParallelGroup()
+						.addGroup(layout.createSequentialGroup()
 								.addComponent(viewOrderScrollPane)
 								.addComponent(viewOrderTableList))
 						.addComponent(viewOrderButton))
+				//Issue Bill SubMenu
+				.addGroup(layout.createParallelGroup()
+						.addGroup(layout.createSequentialGroup()
+								.addGroup(layout.createParallelGroup()
+										.addComponent(issueBillSelectTableLabel)
+										.addComponent(issueBillSelectTable, 26, 26, 26))
+								.addComponent(issueBillEntireTable)
+								.addComponent(issueBillEachSeat))
+						.addComponent(verticalLine2)
+						.addGroup(layout.createSequentialGroup()
+								.addGroup(layout.createParallelGroup()
+										.addComponent(issueBillSelectOrderLabel)
+										.addComponent(issueBillSelectOrder, 26, 26, 26))
+								.addComponent(issueBillSelectSeatScroll)
+								.addComponent(issueBillCreate))
+						.addComponent(verticalLine3)
+						.addGroup(layout.createSequentialGroup()
+								.addGroup(layout.createParallelGroup()
+										.addComponent(issueBillSelectBillLabel)
+										.addComponent(issueBillSelectBill))
+								.addComponent(viewBillScrollPane, 130, 130, 130)
+								.addGroup(layout.createParallelGroup()
+										.addComponent(billTotalOwedLabel)
+										.addComponent(billTotalOwed))))
 				//Restaurant Layout
 				.addComponent(restoLayoutContainer)
 		);
@@ -1296,6 +1458,8 @@ public class RestoAppPage extends JFrame {
 		removeViewMenuSubMenuSubMenu();
 		
 		removeViewOrderSubMenu();
+		
+		removeIssueBillSubMenu();
 		
 		pack();
 	}
@@ -1442,6 +1606,23 @@ public class RestoAppPage extends JFrame {
 		viewOrderScrollPane.setVisible(false);
 		viewOrderLabel.setVisible(false);
 		viewOrderButton.setVisible(false);
+	}
+	
+	//Issue Bill SubMenu
+	private void removeIssueBillSubMenu() {
+		issueBillSelectTableLabel.setVisible(false);
+		issueBillSelectTable.setVisible(false);
+		issueBillEntireTable.setVisible(false);
+		issueBillEachSeat.setVisible(false);
+		issueBillSelectOrderLabel.setVisible(false);
+		issueBillSelectOrder.setVisible(false);
+		issueBillSelectSeatScroll.setVisible(false);
+		issueBillCreate.setVisible(false);
+		issueBillSelectBillLabel.setVisible(false);
+		issueBillSelectBill.setVisible(false);
+		viewBillScrollPane.setVisible(false);
+		billTotalOwedLabel.setVisible(false);
+		billTotalOwed.setVisible(false);
 	}
 	
 	//Refresh Data
