@@ -15,6 +15,7 @@ import ca.mcgill.ecse223.resto.model.Bill;
 import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.Order;
 import ca.mcgill.ecse223.resto.model.OrderItem;
+import ca.mcgill.ecse223.resto.model.PricedMenuItem;
 import ca.mcgill.ecse223.resto.model.Reservation;
 import ca.mcgill.ecse223.resto.model.MenuItem.ItemCategory;
 import ca.mcgill.ecse223.resto.model.RestoApp;
@@ -470,5 +471,36 @@ public class RestoAppController {
 		if(billCreated == false)
 			throw new InvalidInputException("Unable to bill seat(s)");
 		RestoAppApplication.save();
+	}
+	
+	//returns total amount owed by all seats given in input
+	public static double getOwedAmount(Seat seat) throws InvalidInputException {
+		if(!currentlyBilled(seat))
+			throw new InvalidInputException("Specified seat is not billed");
+		Table table = seat.getTable();
+		Order order = table.getOrder(table.numberOfOrders()-1);
+		double total = 0.00;
+		for(OrderItem orderItem : order.getOrderItems()) {
+			if(orderItem.getSeats().contains(seat)) {
+				PricedMenuItem menuItem = orderItem.getPricedMenuItem();
+				total += menuItem.getPrice()*orderItem.getQuantity()/orderItem.numberOfSeats();
+			}
+		}
+		return total;
+	}
+	
+	public static boolean currentlyBilled(Seat seat) {
+		if(seat == null)
+			return false;
+		RestoApp r = RestoAppApplication.getRestoApp();
+		Table table = seat.getTable();
+		if(table.getStatus()!=Status.Ordered || !r.getCurrentTables().contains(table))
+			return false;
+		Order order = table.getOrder(table.numberOfOrders()-1);
+		List<Bill> bills = order.getBills();
+		Bill lastBill = seat.getBill(seat.numberOfBills()-1);
+		if(!bills.contains(lastBill))
+			return false;
+		return true;
 	}
 }

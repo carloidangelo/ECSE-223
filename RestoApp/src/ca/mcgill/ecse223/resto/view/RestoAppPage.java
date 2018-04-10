@@ -202,7 +202,7 @@ public class RestoAppPage extends JFrame {
 	
 	private JPanel issueBillSelectSeat;
 	private JScrollPane issueBillSelectSeatScroll;
-	private List<Table> issueBillSeats;
+	private List<Seat> issueBillSeats;
 	
 	private JLabel issueBillSelectTableLabel;
 	private JComboBox <String> issueBillSelectTable;
@@ -221,7 +221,7 @@ public class RestoAppPage extends JFrame {
 	
 	private JTable viewBillTable;
 	private DefaultTableModel viewBillDtm;
-	private String viewBillColumnNames[] = {"Table", "Seat", "Amount Owed"};
+	private String viewBillColumnNames[] = {"Seat", "Table", "Amount Owed"};
 	//uses HEIGHT_OVERVIEW_TABLE
 	private JScrollPane viewBillScrollPane;
 	private JLabel billTotalOwed;
@@ -438,8 +438,10 @@ public class RestoAppPage extends JFrame {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
 				selectedOrder = cb.getSelectedIndex();
+				refreshIssueBillSelectSeats();
 			}
 		});
+		issueBillSeats = new ArrayList<Seat>();
 		
 		issueBillSelectSeat = new JPanel();
 		issueBillSelectSeatScroll = new JScrollPane(issueBillSelectSeat);
@@ -464,6 +466,7 @@ public class RestoAppPage extends JFrame {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
 				selectedBill = cb.getSelectedIndex();
+				refreshViewBillTable();
 			}
 		});
 		
@@ -1037,6 +1040,77 @@ public class RestoAppPage extends JFrame {
 				viewBillScrollPane.setVisible(true);
 				billTotalOwedLabel.setVisible(true);
 				billTotalOwed.setVisible(true);
+				
+				refreshData();
+			}
+		});
+		
+		//create new bill button
+		issueBillCreate.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				try {
+					RestoAppController.issueBill(issueBillSeats);
+				}
+				catch (InvalidInputException e){
+					error = e.getMessage();
+					errorMessage.setText(error);
+				}
+				
+				refreshData();
+			}
+		});
+		
+		//issue bill to entire table button
+		issueBillEntireTable.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				Table table = tables.get(selectedTable4);
+				List<Seat> seats = table.getSeats();
+				List<Seat> billedSeats = new ArrayList<Seat>();
+				for(Seat seat : seats) {
+					if(RestoAppController.currentlyBilled(seat))
+						billedSeats.add(seat);
+				}
+				
+				try {
+					RestoAppController.issueBill(issueBillSeats);
+				}
+				catch (InvalidInputException e){
+					error = e.getMessage();
+					errorMessage.setText(error);
+				}
+				
+				refreshData();
+			}
+		});
+		
+		//issue bill to each seat button
+		issueBillEachSeat.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				
+				Table table = tables.get(selectedTable4);
+				List<Seat> seats = table.getSeats();
+				List<Seat> billedSeats = new ArrayList<Seat>();
+				for(Seat seat : seats) {
+					if(RestoAppController.currentlyBilled(seat))
+						billedSeats.add(seat);
+				}
+				
+				try {
+					for(Seat seat : seats) {
+						List<Seat> seatList = new ArrayList<Seat>();
+						seatList.add(seat);
+						RestoAppController.issueBill(seatList);
+					}
+				}
+				catch (InvalidInputException e){
+					error = e.getMessage();
+					errorMessage.setText(error);
+				}
 				
 				refreshData();
 			}
@@ -1650,6 +1724,7 @@ public class RestoAppPage extends JFrame {
 		selectTableUpdateTable.removeAllItems();
 		selectTableRemoveTable.removeAllItems();
 		viewOrderTableList.removeAllItems();
+		issueBillSelectTable.removeAllItems();
 		Integer index = 0;
 		for (Table table : RestoAppController.getCurrentTables()) {
 			tables.put(index, table);
@@ -1658,12 +1733,16 @@ public class RestoAppPage extends JFrame {
 			selectTableUpdateTable.addItem("#" + table.getNumber());
 			selectTableRemoveTable.addItem("#" + table.getNumber());
 			viewOrderTableList.addItem("#" + table.getNumber());
+			issueBillSelectTable.addItem("#" + table.getNumber());
 			index++;
 		};
 		
-		//change table status combo box refresh
+		//change table status and issue bill (select order and select bill) combo box refresh
+		bills = new HashMap<Integer, Bill>();
+		issueBillSelectBill.removeAllItems();
 		groups = new HashMap<Integer, Order>();
 		SelectGroupList.removeAllItems();
+		issueBillSelectOrder.removeAllItems();
 		Integer indexGroup = 0;
 		for (Order order : RestoAppController.getCurrentOrders()) {
 			String tablesInGroup = "";
@@ -1674,12 +1753,21 @@ public class RestoAppPage extends JFrame {
 				if(i < order.numberOfTables()-1)
 					tablesInGroup += ", ";
 			}
+			
+			Integer indexBill = 0;
+			for(Bill bill : order.getBills()) {
+				bills.put(indexBill, bill);
+				
+				issueBillSelectBill.addItem("Bill #" + (indexBill+1) + "of order #" + order.getNumber());
+				indexBill++;
+			}
+			
 			groups.put(indexGroup, order);
 			
-			SelectGroupList.addItem(tablesInGroup);
+			SelectGroupList.addItem("#" + order.getNumber() + ": table(s) "+tablesInGroup);
+			issueBillSelectOrder.addItem("#" + order.getNumber() + ": table(s) "+tablesInGroup);
 			indexGroup++;
 		}
-	
 		
 		//for change table status, combo box resets
 		SelectedGroup = -1;
@@ -1697,6 +1785,13 @@ public class RestoAppPage extends JFrame {
 		selectedTable3 = -1;
 		viewOrderTableList.setSelectedIndex(selectedTable3);
 		
+		//for issue bill, combo box resets
+		selectedTable4 = -1;
+		issueBillSelectTable.setSelectedIndex(selectedTable4);
+		selectedBill = -1;
+		issueBillSelectBill.setSelectedIndex(selectedBill);
+		selectedOrder = -1;
+		issueBillSelectOrder.setSelectedIndex(selectedOrder);
 		
 		//for update table, combo box goes to table selected in restaurant layout, -1 if none selected
 		Table layoutSelectedTable = restoLayout.getSelectedTable();
@@ -1754,10 +1849,62 @@ public class RestoAppPage extends JFrame {
 			sizeY2 += 10;
 		}
 		
+		refreshIssueBillSelectSeats();
+		refreshViewBillTable();
+		
 		restoLayout.setTables(RestoAppController.getCurrentTables());
 		
 		pack();
 
+	}
+	
+	private void refreshIssueBillSelectSeats() {
+		issueBillSeats.clear();
+		issueBillSelectSeat.removeAll();
+		if(selectedOrder >= 0) {
+			for (Table table : groups.get(selectedOrder).getTables()){
+				for(final Seat seat : table.getCurrentSeats()) {
+					JCheckBox seatCheckBox = new JCheckBox("Seat #" + (table.indexOfCurrentSeat(seat)+1) + " of table #"+table.getNumber());
+					seatCheckBox.addItemListener(new ItemListener() {
+					    public void itemStateChanged(ItemEvent e) {
+					        if(e.getStateChange() == ItemEvent.SELECTED) {
+					        	issueBillSeats.add(seat);
+					        } else {
+					        	issueBillSeats.remove(seat);
+					        };
+					    }
+					});
+					issueBillSelectSeat.add(seatCheckBox);
+				}
+			}
+		}
+		
+		pack();
+	}
+	
+	private void refreshViewBillTable(){
+		if(selectedBill >= 0) {
+			Bill bill = bills.get(selectedBill);
+			for(Seat seat : bill.getIssuedForSeats()) {
+				Table table = seat.getTable();
+				try {
+					Object []obj = {table.indexOfCurrentSeat(seat), table.getNumber(), "$"+RestoAppController.getOwedAmount(seat)};
+					viewBillDtm.addRow(obj);
+				}catch (InvalidInputException e){
+					//do nothing
+				}
+			}
+			double total = 0.00;
+			for (Seat seat : bill.getIssuedForSeats())
+				try {
+					total += RestoAppController.getOwedAmount(seat);
+				}catch (InvalidInputException e){
+					//do nothing
+				}
+			billTotalOwed.setText("$"+total);
+		}
+		
+		pack();
 	}
 	
 	/*Helper Methods*/
