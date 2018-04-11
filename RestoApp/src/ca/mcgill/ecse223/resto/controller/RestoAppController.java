@@ -12,6 +12,7 @@ import ca.mcgill.ecse223.resto.application.RestoAppApplication;
 import ca.mcgill.ecse223.resto.model.Table;
 import ca.mcgill.ecse223.resto.model.Table.Status;
 import ca.mcgill.ecse223.resto.model.Bill;
+import ca.mcgill.ecse223.resto.model.Menu;
 import ca.mcgill.ecse223.resto.model.MenuItem;
 import ca.mcgill.ecse223.resto.model.Order;
 import ca.mcgill.ecse223.resto.model.OrderItem;
@@ -90,6 +91,10 @@ public class RestoAppController {
 	
 	public static List<Order> getCurrentOrders() {
 		return RestoAppApplication.getRestoApp().getCurrentOrders();
+	}
+	
+	public static List<MenuItem> getMenuItems() {
+		return RestoAppApplication.getRestoApp().getMenu().getMenuItems();
 	}
 	
 	public static void createTable(String numberString, String xString, String yString, String widthString, String lengthString, String numOfSeatsString) throws InvalidInputException {
@@ -321,12 +326,15 @@ public class RestoAppController {
 			error = "Date cannot be empty";		
 		if(time == null)
 			error = "Time cannot be empty";
-		if(contactName == null)
+		if(contactName.equals(""))
 			error = "Contact name cannot be empty";
-		if(contactEmailAddress == null)
+		if(contactEmailAddress.equals(""))
 			error = "Contact email address cannot be empty";
-		if(contactPhoneNumber == null)
+		if(contactPhoneNumber.equals(""))
 			error = "Contact phone number cannot be empty";
+		if (error.length() > 0) {
+			throw new InvalidInputException(error.trim());
+		}
 		if(isDateInPast(date))
 			error = "Invalid date";
 		if (isTimeInPast(time)&&isDateToday(date))
@@ -410,7 +418,7 @@ public class RestoAppController {
 			lastOrder = table.getOrder(table.numberOfOrders() - 1);
 		}
 		List <Seat> currentSeats = table.getCurrentSeats();
-		List <OrderItem> result = null;
+		List <OrderItem> result = new ArrayList<OrderItem>();
 		for(Seat seat:currentSeats) {
 			List <OrderItem> orderItems = seat.getOrderItems();
 			for(OrderItem orderItem :orderItems) {
@@ -503,4 +511,241 @@ public class RestoAppController {
 			return false;
 		return true;
 	}
+	
+	public static void addMenuItem(String name, ItemCategory category, double price) throws InvalidInputException{
+		String error = "";
+		if (name == null || name.equals("")) {
+			error = "Name cannot be empty";	
+		}		
+		if(category == null) {
+			error = "Item Category cannot be empty";
+		}	
+		if(price <= 0) {
+			error = "Price must be greater than zero";
+		}
+		if (error.length() > 0) {
+			throw new InvalidInputException(error.trim());
+		}
+		RestoApp r = RestoAppApplication.getRestoApp();
+		Menu menu = r.getMenu();
+		try {
+			MenuItem menuItem = new MenuItem(name,menu);
+			menuItem.setItemCategory(category);
+			PricedMenuItem pmi = menuItem.addPricedMenuItem(price, r);
+			menuItem.setCurrentPricedMenuItem(pmi);
+		}
+		catch (RuntimeException e) {
+			throw new InvalidInputException(e.getMessage());
+		}
+		RestoAppApplication.save();
+	}
+	
+	public static void removeMenuItem(MenuItem menuItem) throws InvalidInputException{
+		if (menuItem == null) {
+			throw new InvalidInputException("Must select a Menu Item");
+		}
+		boolean current = menuItem.hasCurrentPricedMenuItem();
+		if (current == false) {
+			throw new InvalidInputException("Menu Item must have a current price");
+		}
+		menuItem.setCurrentPricedMenuItem(null);
+		RestoAppApplication.save();
+	}
+	
+	public static void updateMenuItemaddMenuItem(MenuItem menuItem, String name, ItemCategory category, double price) throws InvalidInputException{
+		String error = "";
+		if (menuItem == null) {
+			error = "Must select a Menu Item";	
+		}
+		if (name == null || name.equals("")) {
+			error = "Name cannot be empty";	
+		}
+		if(category == null) {
+			error = "Item Category cannot be empty";
+		}
+		if(price <= 0) {
+			error = "Price must be greater than zero";
+		}
+		if (error.length() > 0) {
+			throw new InvalidInputException(error.trim());
+		}
+		boolean current = menuItem.hasCurrentPricedMenuItem();
+		if (current == false) {
+			throw new InvalidInputException("Menu Item must have a current price");
+		}
+		boolean duplicate = menuItem.setName(name);
+		if (duplicate == false) {
+			throw new InvalidInputException("There is already a Menu Item with that name");
+		}
+		menuItem.setItemCategory(category);
+		if (price != menuItem.getCurrentPricedMenuItem().getPrice()) {
+			RestoApp r = RestoAppApplication.getRestoApp();
+			PricedMenuItem pmi = menuItem.addPricedMenuItem(price, r);
+			menuItem.setCurrentPricedMenuItem(pmi);
+		}
+		RestoAppApplication.save();
+	}
+	
+	public static void orderMenuItem(MenuItem menuItem, int quantity, List<Seat> seats) throws InvalidInputException{
+		String error = "";
+		if (menuItem == null) {
+			error = "Must select a Menu Item";	
+		}
+		if (seats == null || seats.size() == 0) {
+			error = "Must select at least one seat";	
+		}
+		if(quantity <= 0) {
+			error = "Quantity must be greater than zero";
+		}
+		if (error.length() > 0) {
+			throw new InvalidInputException(error.trim());
+		}
+		RestoApp r = RestoAppApplication.getRestoApp();
+		boolean current = menuItem.hasCurrentPricedMenuItem();
+		if (current == false) {
+			throw new InvalidInputException("Menu Item must have a current price");
+		}
+		List<Table> currentTables = r.getCurrentTables();
+		Order lastOrder = null;
+		for (Seat seat: seats) {
+			Table table = seat.getTable();
+			current = currentTables.contains(table);
+			if (current == false) {
+				throw new InvalidInputException("All seats must be part of a current table");
+			}
+			List<Seat> currentSeats = table.getCurrentSeats();
+			current = currentSeats.contains(seat);
+			if (current == false) {
+				throw new InvalidInputException("All selected seats must be current seats");
+			}
+			if (lastOrder == null) {
+				if (table.numberOfOrders() > 0) {
+					lastOrder = table.getOrder(table.numberOfOrders() - 1);
+				} else {
+					throw new InvalidInputException("A table associated with a selected seat does not have any orders");
+				}
+			} else {
+				Order comparedOrder = null;
+				if (table.numberOfOrders() > 0) {
+					comparedOrder = table.getOrder(table.numberOfOrders() - 1);
+				} else {
+					throw new InvalidInputException("A table associated with a selected seat does not have any orders");
+				}
+				if (!comparedOrder.equals(lastOrder)) {
+					throw new InvalidInputException("All selected seats must have tables that are part of the same order");
+				}
+			}
+		}
+		if (lastOrder == null) {
+			throw new InvalidInputException("A table associated with a selected seat does not have any orders");
+		}
+		PricedMenuItem pmi = menuItem.getCurrentPricedMenuItem();
+		boolean itemCreated = false;
+		OrderItem newItem = null;
+		for (Seat seat: seats) {
+			Table table = seat.getTable();
+			if (itemCreated) {
+				table.addToOrderItem(newItem, seat);
+			} else {
+				OrderItem lastItem = null;
+				if (lastOrder.numberOfOrderItems() > 0) {
+					lastItem = lastOrder.getOrderItem(lastOrder.numberOfOrderItems() - 1);
+				}
+				table.orderItem(quantity, lastOrder, seat, pmi);
+				if (lastOrder.numberOfOrderItems() > 0 && 
+						!lastOrder.getOrderItem(lastOrder.numberOfOrderItems() - 1).equals(lastItem)) {
+					itemCreated = true;
+					newItem = lastOrder.getOrderItem(lastOrder.numberOfOrderItems() - 1);
+				}
+			}
+		}
+		if (itemCreated == false) {
+			throw new InvalidInputException("Menu Item was unable to get ordered");
+		}	
+		RestoAppApplication.save();
+	}
+	
+	public static void cancelOrderItem(OrderItem orderItem) throws InvalidInputException
+	{
+		String error = "";
+		if (orderItem.equals(null)) 
+			{
+				error = error + "An order item must be selected";
+				throw new InvalidInputException(error.trim());
+			}
+		try 
+		{
+			if (error.length() > 0) {
+				throw new InvalidInputException(error.trim());
+			}
+			
+			List<Seat> seats = orderItem.getSeats();
+			Order order = orderItem.getOrder();
+			List<Table> tables = new ArrayList<Table>();
+			
+			for (Seat seat : seats)
+			{
+				Table seatTable = seat.getTable();
+				Order lastOrder = null;
+				if (seatTable.numberOfOrders()>0)
+				{
+					lastOrder = seatTable.getOrder(seatTable.numberOfOrders()-1);
+				}
+				else 
+				{
+					
+				}
+				
+				if (lastOrder.equals(order) && !tables.contains(seatTable))
+				{
+					tables.add(seatTable);
+				}
+				
+			}
+				
+				for (Table table : tables) 
+				{
+					table.cancelOrderItem(orderItem);
+				}
+				
+		}
+		
+		catch (RuntimeException e) {
+			throw new InvalidInputException(e.getMessage());
+		}
+		RestoAppApplication.save();	
+	}
+	
+	public static void cancelOrder(Table table) throws InvalidInputException
+	{
+		String error = "";
+		if (table.equals(null)) 
+			{
+				error = error + "A table must be selected";
+				throw new InvalidInputException(error.trim());
+			}
+		try 
+		{	
+			RestoApp restoApp = RestoAppApplication.getRestoApp();
+			List<Table> currentTables = restoApp.getCurrentTables();
+			boolean current = currentTables.contains(table);
+			if (current == false)
+			{
+				error = error + "Number of seats must be positive. ";
+			}
+			if (error.length() > 0) {
+				throw new InvalidInputException(error.trim());
+			}
+			
+			table.cancelOrder();
+		}
+			
+			catch (RuntimeException e) {
+				throw new InvalidInputException(e.getMessage());
+			}
+			
+		RestoAppApplication.save();	
+			
+	}
+	
 }

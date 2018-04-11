@@ -192,6 +192,7 @@ public class RestoAppPage extends JFrame {
 	private DefaultTableModel viewOrderDtm;
 	private String viewOrderListColumnNames[] = {"Order Item", "Seat"};
 	private static final int HEIGHT_OVERVIEW_TABLE = 200;
+
 	private JScrollPane viewOrderScrollPane;
 	
 	//Issue Bill
@@ -227,6 +228,26 @@ public class RestoAppPage extends JFrame {
 	private JLabel billTotalOwed;
 	private JLabel billTotalOwedLabel;
 	
+	//Make Order SubMenu
+	private JLabel OISelectTableLabel;
+	private JComboBox <String> OISelectTableList;
+	private Integer OIselectedTable = -1;
+	private JButton OIupdateSeatDisplayButton;
+	
+	private JLabel OISelectSeatsLabel;
+	private JPanel OISelectSeatsMenu;
+	private JScrollPane OISelectSeatsMenuScroll;
+	private List<Seat> OIseats;
+	
+	private JLabel OISelectMenuItemLabel;
+	private JComboBox <String> OISelectMenuItemList;
+	private Integer OIselectedMenuItem = -1;
+	private List<MenuItem> OImenuItems;
+	
+	private JLabel OIQuantityLabel;
+	private JTextField OIQuantityField;
+	
+	private JButton OIButton;
 	
 	public RestoAppPage() {
 		initComponents();
@@ -484,6 +505,38 @@ public class RestoAppPage extends JFrame {
 		
 		billTotalOwedLabel = new JLabel("Total amount owed:");
 		billTotalOwed = new JLabel("");
+		
+		//Make Order SubMenu
+		OISelectTableLabel = new JLabel("Select Table");
+		OISelectTableList = new JComboBox<String>(new String[0]);
+		OISelectTableList.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				OIselectedTable = cb.getSelectedIndex();
+			}
+		});
+		OIupdateSeatDisplayButton = new JButton("Update Seat Display");
+		
+		OISelectSeatsLabel = new JLabel("Select Seat(s)");
+		OISelectSeatsMenu = new JPanel();
+		OISelectSeatsMenuScroll = new JScrollPane(OISelectSeatsMenu);
+		OISelectSeatsMenuScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		OIseats = new ArrayList<Seat>();
+		
+		OISelectMenuItemLabel = new JLabel("Select Menu Item");
+		OISelectMenuItemList = new JComboBox<String>(new String[0]);
+		OISelectMenuItemList.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				OIselectedMenuItem = cb.getSelectedIndex();
+			}
+		});
+		OImenuItems = new ArrayList<MenuItem>(); 
+		
+		OIQuantityLabel = new JLabel("Quantity");
+		OIQuantityField = new JTextField("");
+		
+		OIButton = new JButton("Order Item");
 		
 		/*Action Listeners*/
 		//Menu Button
@@ -884,37 +937,35 @@ public class RestoAppPage extends JFrame {
 		RESMakeReservation.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				error = "";
-				
 				if (error.length() == 0) {
-					try {
-						Date date = (Date) RESDateCalendar.getModel().getValue();
-						String time = RESTimeField.getText();
-						DateFormat formatter = new SimpleDateFormat("hh:mm");
-						java.sql.Time timeValue = null;
-						try {
-							timeValue = new java.sql.Time(formatter.parse(time).getTime());
-						} catch (ParseException e1) {
-							// TODO Auto-generated catch block
-						 	e1.printStackTrace();
-						}
-						int numberInParty = Integer.parseInt(RESNumberInPartyField.getText()); 
-						String name = RESContactNameField.getText();
-						String email = RESContactEmailField.getText();
-						String phoneNumber = RESContactPhoneNumberField.getText();
-						RestoAppController.reserveTable(date, timeValue, numberInParty, name, email, phoneNumber, REStables);
-						
-					} catch (InvalidInputException e) {
-					// TODO Auto-generated catch block
-						error = e.getMessage();
+					Date date = (Date) RESDateCalendar.getModel().getValue();
+					String time = RESTimeField.getText();
+					String numberInPartyString = RESNumberInPartyField.getText();
+					String name = RESContactNameField.getText();
+					String email = RESContactEmailField.getText();
+					String phoneNumber = RESContactPhoneNumberField.getText();
+					if (time.equals("") || numberInPartyString.equals("")) {
+						error = "Every field must be filled";
 						errorMessage.setText(error);
-					}
-					catch (NumberFormatException e) {
+					} else {
+						try {
+							DateFormat formatter = new SimpleDateFormat("hh:mm");
+							java.sql.Time timeValue = null;
+							timeValue = new java.sql.Time(formatter.parse(time).getTime());
+							int numberInParty = Integer.parseInt(RESNumberInPartyField.getText()); 
+							RestoAppController.reserveTable(date, timeValue, numberInParty, name, email, phoneNumber, REStables);
+							
+						} catch (InvalidInputException e) {
 						// TODO Auto-generated catch block
-							error = "Please provide non-empty numerical input.";
+							error = e.getMessage();
 							errorMessage.setText(error);
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
+					}
+					
 				}
-				
 				refreshData();
 			}
 		});	
@@ -988,6 +1039,7 @@ public class RestoAppPage extends JFrame {
 		//View Order SubMenu Button
 		viewOrder.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				removeMakeOrderSubmenu();
 				viewOrderSelectTable.setVisible(true);
 				viewOrderTableList.setVisible(true);
 				viewOrderScrollPane.setVisible(true);
@@ -1115,6 +1167,85 @@ public class RestoAppPage extends JFrame {
 					errorMessage.setText(error);
 				}
 				
+				refreshData();
+			}
+		});
+		
+		//Make Order Button
+		makeOrder.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				removeViewOrderSubMenu();
+				OISelectTableLabel.setVisible(true);
+				OISelectTableList.setVisible(true);
+				OIupdateSeatDisplayButton.setVisible(true);
+				OISelectSeatsLabel.setVisible(true);
+				OISelectSeatsMenuScroll.setVisible(true);	
+				OISelectMenuItemLabel.setVisible(true);
+				OISelectMenuItemList.setVisible(true);
+				OIQuantityLabel.setVisible(true);
+				OIQuantityField.setVisible(true);
+				OIButton.setVisible(true);
+				refreshData();
+			}
+		});
+		
+		OIupdateSeatDisplayButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				if (OIselectedTable >= 0) {
+					OIseats.clear();
+					OISelectSeatsMenu.removeAll();
+					int sizeY = 10;
+					int counter = 1;
+					Table table = RestoAppController.getCurrentTables().get(OIselectedTable);
+					for (final Seat seat : table.getCurrentSeats()){
+						JCheckBox seatCheckBox2 = new JCheckBox("Seat #" + String.valueOf(counter));
+						seatCheckBox2.addItemListener(new ItemListener() {
+						    public void itemStateChanged(ItemEvent e) {
+						        if(e.getStateChange() == ItemEvent.SELECTED) {
+						        	OIseats.add(seat);
+						        } else {
+						        	OIseats.remove(seat);
+						        };
+						    }
+						});
+						OISelectSeatsMenu.add(seatCheckBox2);
+						OISelectSeatsMenu.setPreferredSize(new Dimension(500, sizeY));
+						sizeY += 10;
+						counter++;
+					}
+				}
+				refreshData();
+			}
+		});
+		
+		OIButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				List<MenuItem> menuItems = RestoAppController.getMenuItems();
+				for (MenuItem menuItem : menuItems) {
+					if (menuItem.hasCurrentPricedMenuItem()) {
+						OImenuItems.add(menuItem);
+					}
+				}
+				String quantityText = OIQuantityField.getText();
+				if (!quantityText.equals("")) {
+					if (OIselectedMenuItem == -1) {
+						error = "Must select a Menu Item";
+						errorMessage.setText(error);
+					}else {
+						int quantity = Integer.parseInt(quantityText);
+						try {
+							RestoAppController.orderMenuItem(OImenuItems.get(OIselectedMenuItem),quantity, OIseats);
+						} catch (InvalidInputException e) {
+							// TODO Auto-generated catch block
+							error = e.getMessage();
+							errorMessage.setText(error);
+						}
+					}
+				}else {
+					error = "Must indicate a quantity";
+					errorMessage.setText(error);
+				}
 				refreshData();
 			}
 		});
@@ -1285,9 +1416,10 @@ public class RestoAppPage extends JFrame {
 								.addComponent(viewOrderSelectTable,100,150,200)
 								.addComponent(viewOrderLabel))
 						.addGroup(layout.createSequentialGroup()
-								.addComponent(viewOrderTableList)
-								.addComponent(viewOrderScrollPane,500,500,600))
-						.addComponent(viewOrderButton))
+								.addGroup(layout.createParallelGroup()
+										.addComponent(viewOrderTableList)
+										.addComponent(viewOrderButton))
+								.addComponent(viewOrderScrollPane,500,500,600)))
 				//Issue Bill SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup()
@@ -1312,6 +1444,21 @@ public class RestoAppPage extends JFrame {
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(billTotalOwedLabel)
 										.addComponent(billTotalOwed))))
+				//Make Order SubMenu
+				.addGroup(layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup()
+								.addComponent(OISelectTableLabel)
+								.addComponent(OISelectTableList)
+								.addComponent(OIupdateSeatDisplayButton))
+						.addGroup(layout.createParallelGroup()
+								.addComponent(OISelectSeatsLabel)
+								.addComponent(OISelectSeatsMenuScroll))
+						.addGroup(layout.createParallelGroup()
+								.addComponent(OISelectMenuItemLabel)
+								.addComponent(OISelectMenuItemList)
+								.addComponent(OIQuantityLabel)
+								.addComponent(OIQuantityField)
+								.addComponent(OIButton)))						
 				//Restaurant Layout
 				.addComponent(restoLayoutContainer));
 		
@@ -1474,14 +1621,15 @@ public class RestoAppPage extends JFrame {
 						.addComponent(alcoholicBeverageMenu)
 						.addComponent(nonAlcoholicBeverageMenu))
 				//View Order SubMenu
-				.addGroup(layout.createParallelGroup()
-						.addGroup(layout.createSequentialGroup()
+				.addGroup(layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup()
 								.addComponent(viewOrderSelectTable)
 								.addComponent(viewOrderLabel))
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(viewOrderScrollPane)
-								.addComponent(viewOrderTableList))
-						.addComponent(viewOrderButton))
+						.addGroup(layout.createParallelGroup()
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(viewOrderTableList,20,20,30)
+										.addComponent(viewOrderButton))
+								.addComponent(viewOrderScrollPane)))
 				//Issue Bill SubMenu
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup()
@@ -1506,6 +1654,21 @@ public class RestoAppPage extends JFrame {
 								.addGroup(layout.createParallelGroup()
 										.addComponent(billTotalOwedLabel)
 										.addComponent(billTotalOwed))))
+				//Make Order SubMenu
+				.addGroup(layout.createParallelGroup()
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(OISelectTableLabel)
+								.addComponent(OISelectTableList)
+								.addComponent(OIupdateSeatDisplayButton))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(OISelectSeatsLabel)
+								.addComponent(OISelectSeatsMenuScroll))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(OISelectMenuItemLabel)
+								.addComponent(OISelectMenuItemList)
+								.addComponent(OIQuantityLabel)
+								.addComponent(OIQuantityField)
+								.addComponent(OIButton)))
 				//Restaurant Layout
 				.addComponent(restoLayoutContainer)
 		);
@@ -1537,6 +1700,8 @@ public class RestoAppPage extends JFrame {
 		removeViewOrderSubMenu();
 		
 		removeIssueBillSubMenu();
+		
+		removeMakeOrderSubmenu();
 		
 		pack();
 	}
@@ -1702,6 +1867,21 @@ public class RestoAppPage extends JFrame {
 		billTotalOwed.setVisible(false);
 	}
 	
+	//Make Order SubMenu
+	private void removeMakeOrderSubmenu() {
+		OISelectTableLabel.setVisible(false);
+		OISelectTableList.setVisible(false);
+		OIupdateSeatDisplayButton.setVisible(false);
+		OISelectSeatsLabel.setVisible(false);
+		OISelectSeatsMenu.removeAll();
+		OISelectSeatsMenuScroll.setVisible(false);	
+		OISelectMenuItemLabel.setVisible(false);
+		OISelectMenuItemList.setVisible(false);
+		OIQuantityLabel.setVisible(false);
+		OIQuantityField.setVisible(false);
+		OIButton.setVisible(false);
+	}
+	
 	//Refresh Data
 	private void refreshData() {
 		
@@ -1720,7 +1900,7 @@ public class RestoAppPage extends JFrame {
 		//update table table selector removed to prevent unwanted actionPerformed calls
 		selectTableUpdateTable.removeActionListener(selectTableUpdateTableListener);
 		
-		//move table & update table & view order combo box refresh
+		//move table & update table & remove table & view order & issue bill & make order combo box refresh (Tables)
 		tables = new HashMap<Integer, Table>();
 		tablesReverse = new HashMap<Table, Integer>();
 		tableList.removeAllItems();
@@ -1728,6 +1908,7 @@ public class RestoAppPage extends JFrame {
 		selectTableRemoveTable.removeAllItems();
 		viewOrderTableList.removeAllItems();
 		issueBillSelectTable.removeAllItems();
+		OISelectTableList.removeAllItems();
 		Integer index = 0;
 		for (Table table : RestoAppController.getCurrentTables()) {
 			tables.put(index, table);
@@ -1737,6 +1918,7 @@ public class RestoAppPage extends JFrame {
 			selectTableRemoveTable.addItem("#" + table.getNumber());
 			viewOrderTableList.addItem("#" + table.getNumber());
 			issueBillSelectTable.addItem("#" + table.getNumber());
+			OISelectTableList.addItem("#" + table.getNumber());
 			index++;
 		};
 		
@@ -1772,6 +1954,16 @@ public class RestoAppPage extends JFrame {
 			indexGroup++;
 		}
 		
+		//make order combo box refresh (MenuItems)
+		OISelectMenuItemList.removeAllItems();
+		Integer MIindex = 0;
+		for (MenuItem menuItem : RestoAppController.getMenuItems()) {
+			if (menuItem.hasCurrentPricedMenuItem()) {
+				OISelectMenuItemList.addItem(menuItem.getName() + " $" + Double.toString(menuItem.getCurrentPricedMenuItem().getPrice()));
+			}
+			MIindex++;
+		};
+		
 		//for change table status, combo box resets
 		SelectedGroup = -1;
 		SelectGroupList.setSelectedIndex(SelectedGroup);
@@ -1795,6 +1987,12 @@ public class RestoAppPage extends JFrame {
 		issueBillSelectBill.setSelectedIndex(selectedBill);
 		selectedOrder = -1;
 		issueBillSelectOrder.setSelectedIndex(selectedOrder);
+		
+		//for make order, combo box resets
+		OIselectedTable = -1;
+		OISelectTableList.setSelectedIndex(OIselectedTable);
+		OIselectedMenuItem = -1;
+		OISelectMenuItemList.setSelectedIndex(OIselectedMenuItem);
 		
 		//for update table, combo box goes to table selected in restaurant layout, -1 if none selected
 		Table layoutSelectedTable = restoLayout.getSelectedTable();
@@ -1861,6 +2059,8 @@ public class RestoAppPage extends JFrame {
 
 	}
 	
+	/*Helper Methods*/
+	
 	private void refreshIssueBillSelectSeats() {
 		issueBillSeats.clear();
 		issueBillSelectSeat.removeAll();
@@ -1909,8 +2109,6 @@ public class RestoAppPage extends JFrame {
 		
 		pack();
 	}
-	
-	/*Helper Methods*/
 	
 	void tableClicked() {
 		selectedTable1 = tablesReverse.get(restoLayout.getSelectedTable());
