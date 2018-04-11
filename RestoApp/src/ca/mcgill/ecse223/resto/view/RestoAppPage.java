@@ -11,6 +11,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -196,6 +197,7 @@ public class RestoAppPage extends JFrame {
 	private static final int HEIGHT_OVERVIEW_TABLE = 200;
 
 	private JScrollPane viewOrderScrollPane;
+	private List <OrderItem> orderItems;
 	
 	//Issue Bill
 	private JLabel issueBillSelectOrderLabel;
@@ -1055,15 +1057,19 @@ public class RestoAppPage extends JFrame {
 		viewOrderButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				error = "";
-			
+				viewOrderDtm.setRowCount(0);
 				try {
-					List <OrderItem> orderItems = RestoAppController.getOrderItem(tables.get(selectedTable3));
+					orderItems = RestoAppController.getOrderItem(tables.get(selectedTable3));
+					if(orderItems == null) {
+						throw new InvalidInputException("No order item found");
+					}
 					for(OrderItem orderItem : orderItems) {
-						String orderItemName = orderItem.toString();
+						String orderItemName = orderItem.getPricedMenuItem().getMenuItem().getName();
 						List <Seat> seats = orderItem.getSeats();
-						Seat[] seatArray = seats.toArray(new Seat[seats.size()]);
-						Object []obj = {orderItemName, seatArray};
-						viewOrderDtm.addRow(obj);
+						for(Seat seat:seats) {
+							Object []obj = {orderItemName, seat.getTable().indexOfSeat(seat)};
+							viewOrderDtm.addRow(obj);
+						}	
 					}
 					
 				}
@@ -1408,13 +1414,13 @@ public class RestoAppPage extends JFrame {
 				//View Order SubMenu
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup()
-								.addComponent(viewOrderSelectTable,100,150,200)
+								.addComponent(viewOrderSelectTable,150,150,150)
 								.addComponent(viewOrderLabel))
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup()
-										.addComponent(viewOrderTableList)
+										.addComponent(viewOrderTableList,150,150,150)
 										.addComponent(viewOrderButton))
-								.addComponent(viewOrderScrollPane,500,500,600)))
+								.addComponent(viewOrderScrollPane,300,300,400)))
 				//Issue Bill SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup()
@@ -1480,7 +1486,7 @@ public class RestoAppPage extends JFrame {
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {CHGTABSTASelectTable, CHGTABSTAAssignTables, SelectGroupList, CHGTABSTASelectGroup, CHGTABSTARemoveGroup});
 		
 		//View Order
-		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {viewOrderSelectTable, viewOrderTableList, viewOrderScrollPane, viewOrderButton, viewOrderLabel});
+		//layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {viewOrderSelectTable, viewOrderTableList, viewOrderScrollPane, viewOrderButton, viewOrderLabel});
 
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
@@ -1891,6 +1897,11 @@ public class RestoAppPage extends JFrame {
 		tableLengthField.setText("");
 		numOfSeatsField.setText("");
 		newTableNumber.setText("");
+		RESTimeField.setText("");
+		RESNumberInPartyField.setText("");
+		RESContactNameField.setText("");
+		RESContactEmailField.setText("");
+		RESContactPhoneNumberField.setText("");
 		
 		//update table table selector removed to prevent unwanted actionPerformed calls
 		selectTableUpdateTable.removeActionListener(selectTableUpdateTableListener);
@@ -2111,6 +2122,7 @@ public class RestoAppPage extends JFrame {
 		
 		pack();
 	}
+
 	
 	void tableClicked() {
 		selectedTable1 = tablesReverse.get(restoLayout.getSelectedTable());
