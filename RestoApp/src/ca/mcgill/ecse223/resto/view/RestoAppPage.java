@@ -1004,6 +1004,9 @@ public class RestoAppPage extends JFrame {
 			
 				try {
 					List <OrderItem> orderItems = RestoAppController.getOrderItem(tables.get(selectedTable3));
+					if(orderItems == null) {
+						throw new InvalidInputException("No order item found");
+					}
 					for(OrderItem orderItem : orderItems) {
 						String orderItemName = orderItem.toString();
 						List <Seat> seats = orderItem.getSeats();
