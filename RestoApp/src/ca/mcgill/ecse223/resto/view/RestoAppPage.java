@@ -3,6 +3,8 @@ package ca.mcgill.ecse223.resto.view;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.DateFormat;
@@ -1120,22 +1122,20 @@ public class RestoAppPage extends JFrame {
 				error = "";
 				
 				Table table = tables.get(selectedTable4);
-				List<Seat> seats = table.getSeats();
-				List<Seat> billedSeats = new ArrayList<Seat>();
-				for(Seat seat : seats) {
-					if(RestoAppController.currentlyBilled(seat))
-						billedSeats.add(seat);
+				if(table == null)
+					errorMessage.setText("No table specified");
+				else {
+					List<Seat> seats = table.getSeats();
+					
+					try {
+						RestoAppController.issueBill(seats);
+					}
+					catch (InvalidInputException e){
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+					refreshData();
 				}
-				
-				try {
-					RestoAppController.issueBill(issueBillSeats);
-				}
-				catch (InvalidInputException e){
-					error = e.getMessage();
-					errorMessage.setText(error);
-				}
-				
-				refreshData();
 			}
 		});
 		
@@ -1145,26 +1145,24 @@ public class RestoAppPage extends JFrame {
 				error = "";
 				
 				Table table = tables.get(selectedTable4);
-				List<Seat> seats = table.getSeats();
-				List<Seat> billedSeats = new ArrayList<Seat>();
-				for(Seat seat : seats) {
-					if(RestoAppController.currentlyBilled(seat))
-						billedSeats.add(seat);
-				}
-				
-				try {
-					for(Seat seat : seats) {
-						List<Seat> seatList = new ArrayList<Seat>();
-						seatList.add(seat);
-						RestoAppController.issueBill(seatList);
+				if(table == null)
+					errorMessage.setText("No table specified");
+				else {
+					List<Seat> seats = table.getSeats();
+					
+					try {
+						for(Seat seat : seats) {
+							List<Seat> seatList = new ArrayList<Seat>();
+							seatList.add(seat);
+							RestoAppController.issueBill(seatList);
+						}
 					}
+					catch (InvalidInputException e){
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+					refreshData();
 				}
-				catch (InvalidInputException e){
-					error = e.getMessage();
-					errorMessage.setText(error);
-				}
-				
-				refreshData();
 			}
 		});
 		
@@ -1940,7 +1938,7 @@ public class RestoAppPage extends JFrame {
 			for(Bill bill : order.getBills()) {
 				bills.put(indexBill, bill);
 				
-				issueBillSelectBill.addItem("Bill #" + (indexBill+1) + "of order #" + order.getNumber());
+				issueBillSelectBill.addItem("Bill #" + (indexBill+1) + " of order #" + order.getNumber());
 				indexBill++;
 			}
 			
@@ -2083,12 +2081,17 @@ public class RestoAppPage extends JFrame {
 	}
 	
 	private void refreshViewBillTable(){
+		for(int i = 0; i < viewBillDtm.getRowCount(); i++)
+			viewBillDtm.removeRow(i);
+		billTotalOwed.setText("");
 		if(selectedBill >= 0) {
 			Bill bill = bills.get(selectedBill);
 			for(Seat seat : bill.getIssuedForSeats()) {
 				Table table = seat.getTable();
 				try {
-					Object []obj = {table.indexOfCurrentSeat(seat), table.getNumber(), "$"+RestoAppController.getOwedAmount(seat)};
+					BigDecimal bd = new BigDecimal(RestoAppController.getOwedAmount(seat));
+				    bd = bd.setScale(2, RoundingMode.HALF_DOWN);
+					Object []obj = {(table.indexOfCurrentSeat(seat)+1), table.getNumber(), "$"+bd};
 					viewBillDtm.addRow(obj);
 				}catch (InvalidInputException e){
 					//do nothing
@@ -2101,7 +2104,9 @@ public class RestoAppPage extends JFrame {
 				}catch (InvalidInputException e){
 					//do nothing
 				}
-			billTotalOwed.setText("$"+total);
+			BigDecimal bd = new BigDecimal(total);
+		    bd = bd.setScale(2, RoundingMode.HALF_DOWN);
+			billTotalOwed.setText("$"+bd);
 		}
 		
 		pack();
