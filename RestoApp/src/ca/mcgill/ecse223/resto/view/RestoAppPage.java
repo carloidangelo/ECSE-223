@@ -1416,13 +1416,13 @@ public class RestoAppPage extends JFrame {
 				//View Order SubMenu
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup()
-								.addComponent(viewOrderSelectTable,100,150,200)
+								.addComponent(viewOrderSelectTable,150,150,150)
 								.addComponent(viewOrderLabel))
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup()
-										.addComponent(viewOrderTableList)
+										.addComponent(viewOrderTableList,150,150,150)
 										.addComponent(viewOrderButton))
-								.addComponent(viewOrderScrollPane,500,500,600)))
+								.addComponent(viewOrderScrollPane,300,300,400)))
 				//Issue Bill SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup()
@@ -1488,7 +1488,7 @@ public class RestoAppPage extends JFrame {
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {CHGTABSTASelectTable, CHGTABSTAAssignTables, SelectGroupList, CHGTABSTASelectGroup, CHGTABSTARemoveGroup});
 		
 		//View Order
-		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {viewOrderSelectTable, viewOrderTableList, viewOrderScrollPane, viewOrderButton, viewOrderLabel});
+		//layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {viewOrderSelectTable, viewOrderTableList, viewOrderScrollPane, viewOrderButton, viewOrderLabel});
 
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
@@ -1899,6 +1899,11 @@ public class RestoAppPage extends JFrame {
 		tableLengthField.setText("");
 		numOfSeatsField.setText("");
 		newTableNumber.setText("");
+		RESTimeField.setText("");
+		RESNumberInPartyField.setText("");
+		RESContactNameField.setText("");
+		RESContactEmailField.setText("");
+		RESContactPhoneNumberField.setText("");
 		
 		//update table table selector removed to prevent unwanted actionPerformed calls
 		selectTableUpdateTable.removeActionListener(selectTableUpdateTableListener);
