@@ -92,6 +92,7 @@ class OrderItem {
 }
 
 class HighChair {
+   Integer quantity;
    0..3 -- 0..1 Table;
    0..3 -- 0..1 Reservation;
 }
