@@ -2390,7 +2390,7 @@ public class RestoAppPage extends JFrame {
 				}
 			}
 		}
-		
+		repaint();
 		pack();
 	}
 	
