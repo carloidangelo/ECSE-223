@@ -88,8 +88,12 @@ class Table {
    }
    
    // check that the provided quantity is an integer greater than 0
-   private boolean quantityIsPositive(int quantity) {
-      return quantity > 0;
+   //private boolean quantityIsPositive(int quantity) {
+   //   return HighChair.quantity > 0;
+   //}
+
+   private boolean highChairAvailable(){
+      return !(quantity >= 3);
    }
 
    // check that the provided order item is the last item of the current order of the table

@@ -51,7 +51,6 @@ public class RestoLayout extends JPanel {
 	}
 	
 	private void init() {
-		
 		selectedTable = null;
 		visualTables = new HashMap<Rectangle2D, Table>();
 		if (RestoAppController.getCurrentTables().size() > 0) {

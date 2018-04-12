@@ -303,8 +303,11 @@ public class RestoAppController {
 				}
 			}
 		}
-		if(RestoAppController.allTablesAvailableOrDifferentCurrentOrder(tables, order))
+		if(RestoAppController.allTablesAvailableOrDifferentCurrentOrder(tables, order)) {
 			r.removeCurrentOrder(order);
+		}else {
+			
+		}
 		RestoAppApplication.save();
 	}
 	
@@ -314,7 +317,6 @@ public class RestoAppController {
 			if(!(table.getStatus() == Status.Available || lastOrder != order))
 				return false;
 		}
-		
 		return true;
 	}
 	
@@ -526,10 +528,10 @@ public class RestoAppController {
 	public static void addMenuItem(String name, ItemCategory category, double price) throws InvalidInputException{
 		String error = "";
 		if (name == null || name.equals("")) {
-			error = "Name cannot be empty";	
+			error = "Must indicate a name";	
 		}		
 		if(category == null) {
-			error = "Item Category cannot be empty";
+			error = "Must select an item category";
 		}	
 		if(price <= 0) {
 			error = "Price must be greater than zero";
@@ -553,26 +555,26 @@ public class RestoAppController {
 	
 	public static void removeMenuItem(MenuItem menuItem) throws InvalidInputException{
 		if (menuItem == null) {
-			throw new InvalidInputException("Must select a Menu Item");
+			throw new InvalidInputException("Must select a menu item");
 		}
 		boolean current = menuItem.hasCurrentPricedMenuItem();
 		if (current == false) {
-			throw new InvalidInputException("Menu Item must have a current price");
+			throw new InvalidInputException("Menu item must have a current price");
 		}
 		menuItem.setCurrentPricedMenuItem(null);
 		RestoAppApplication.save();
 	}
 	
-	public static void updateMenuItemaddMenuItem(MenuItem menuItem, String name, ItemCategory category, double price) throws InvalidInputException{
+	public static void updateMenuItem(MenuItem menuItem, String name, ItemCategory category, double price) throws InvalidInputException{
 		String error = "";
 		if (menuItem == null) {
-			error = "Must select a Menu Item";	
+			error = "Must select a menu item";	
 		}
 		if (name == null || name.equals("")) {
-			error = "Name cannot be empty";	
+			error = "Must indicate a name";	
 		}
 		if(category == null) {
-			error = "Item Category cannot be empty";
+			error = "Must select an item category";
 		}
 		if(price <= 0) {
 			error = "Price must be greater than zero";
@@ -582,11 +584,11 @@ public class RestoAppController {
 		}
 		boolean current = menuItem.hasCurrentPricedMenuItem();
 		if (current == false) {
-			throw new InvalidInputException("Menu Item must have a current price");
+			throw new InvalidInputException("Menu item must have a current price");
 		}
 		boolean duplicate = menuItem.setName(name);
 		if (duplicate == false) {
-			throw new InvalidInputException("There is already a Menu Item with that name");
+			throw new InvalidInputException("There is already a menu item with that name");
 		}
 		menuItem.setItemCategory(category);
 		if (price != menuItem.getCurrentPricedMenuItem().getPrice()) {
@@ -600,7 +602,7 @@ public class RestoAppController {
 	public static void orderMenuItem(MenuItem menuItem, int quantity, List<Seat> seats) throws InvalidInputException{
 		String error = "";
 		if (menuItem == null) {
-			error = "Must select a Menu Item";	
+			error = "Must select a menu item";	
 		}
 		if (seats == null || seats.size() == 0) {
 			error = "Must select at least one seat";	
@@ -614,7 +616,7 @@ public class RestoAppController {
 		RestoApp r = RestoAppApplication.getRestoApp();
 		boolean current = menuItem.hasCurrentPricedMenuItem();
 		if (current == false) {
-			throw new InvalidInputException("Menu Item must have a current price");
+			throw new InvalidInputException("Menu item must have a current price");
 		}
 		List<Table> currentTables = r.getCurrentTables();
 		Order lastOrder = null;
@@ -671,7 +673,7 @@ public class RestoAppController {
 			}
 		}
 		if (itemCreated == false) {
-			throw new InvalidInputException("Menu Item was unable to get ordered");
+			throw new InvalidInputException("Menu item was unable to get ordered");
 		}	
 		RestoAppApplication.save();
 	}
