@@ -82,6 +82,7 @@ class OrderItem {
 class HighChair {
    0..3 -- 0..1 Table;
    0..3 -- 0..1 Reservation;
+   3 -<@> 1 RestoApp;
 }
 
 class Menu {   
