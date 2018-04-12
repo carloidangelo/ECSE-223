@@ -71,6 +71,7 @@ public class RestoAppPage extends JFrame {
 	
 	//Reservation SubMenu
 	private JButton reserveTable;
+	private JButton highChairOptions;
 	
 	//Change Table Status SubMenu
 	private JComboBox <String> SelectGroupList;
@@ -308,6 +309,7 @@ public class RestoAppPage extends JFrame {
 	private Integer HCSelectedHighChair = -1;
 	private JTextField HCQuantityField;
 	private JLabel HCQuantity;
+	private JButton HCConfirm;
 	
 	public RestoAppPage() {
 		initComponents();
@@ -347,6 +349,7 @@ public class RestoAppPage extends JFrame {
 		
 		//Reservation SubMenu
 		reserveTable = new JButton("Reserve Table");
+		highChairOptions = new JButton("High chair Options");
 		
 		//Change Table Status SubMenu
 		CHGTABSTASelectTable = new JLabel("Select Table(s)");
@@ -674,6 +677,7 @@ public class RestoAppPage extends JFrame {
 				HCSelectedHighChair = cb.getSelectedIndex();
 			}
 		});
+		HCConfirm = new JButton("Add High Chair(s)");
 		
 		/*Action Listeners*/
 		//Menu Button
@@ -1058,6 +1062,7 @@ public class RestoAppPage extends JFrame {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				returnToMainMenu();
 				reserveTable.setVisible(true);
+				highChairOptions.setVisible(true);
 				refreshData();
 			}
 		});
@@ -1065,8 +1070,7 @@ public class RestoAppPage extends JFrame {
 		//Reserve Table Button
 		reserveTable.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				error = "";
-				
+				removeHighChairOptionsSubMenu();
 				RESSelectTable.setVisible(true);
 				RESDate.setVisible(true);
 				RESTime.setVisible(true);
@@ -1668,6 +1672,17 @@ public class RestoAppPage extends JFrame {
 				
 			}
 		});
+		
+		highChairOptions.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				removeReserveTableSubmenu();
+				HCQuantityField.setVisible(true);
+				HCQuantity.setVisible(true);
+				HCAddHighChair.setVisible(true);
+				HCConfirm.setVisible(true);
+				refreshData();
+			}
+		});
 			
 		//Restaurant Layout Display
 		restoLayout = new RestoLayout(this);
@@ -1719,7 +1734,8 @@ public class RestoAppPage extends JFrame {
 						.addComponent(changeTableLocation))
 				//Reservation SubMenu
 				.addGroup(layout.createSequentialGroup()
-						.addComponent(reserveTable))
+						.addComponent(reserveTable)
+						.addComponent(highChairOptions))
 				//Change Table Status SubMenu
 				.addGroup(layout.createParallelGroup()
 						.addComponent(CHGTABSTASelectTable,100,150,200)	
@@ -1822,6 +1838,13 @@ public class RestoAppPage extends JFrame {
 												.addComponent(RESContactEmailField)
 												.addComponent(RESContactPhoneNumberField))
 										.addComponent(RESMakeReservation,200,200,400))))
+				//add highchair option to reservation submenu
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(HCAddHighChair,100,150,150)
+						.addGroup(layout.createParallelGroup()
+								.addComponent(HCQuantity)
+								.addComponent(HCQuantityField))
+						.addComponent(HCConfirm))
 				//View Menu SubMenu SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(appetizerMenu)
@@ -1940,8 +1963,11 @@ public class RestoAppPage extends JFrame {
 																				UMSelectMenuItemList, UMSelectItemCategoryList, UMnameField, UMpriceField, UMremoveMenuItemButton});
 
 		//View Order
-		//layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {viewOrderSelectTable, viewOrderTableList, viewOrderScrollPane, viewOrderButton, viewOrderLabel});
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {viewOrderSelectTable, viewOrderTableList, viewOrderScrollPane, viewOrderButton, viewOrderLabel});
 
+		//High Chair
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {HCAddHighChair, HCQuantity, HCQuantityField, HCConfirm});
+				
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
 				//Error
@@ -1967,7 +1993,8 @@ public class RestoAppPage extends JFrame {
 						.addComponent(changeTableLocation))
 				//Reservation SubMenu
 				.addGroup(layout.createParallelGroup()
-						.addComponent(reserveTable))
+						.addComponent(reserveTable)
+						.addComponent(highChairOptions))
 				//Change Table Status SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(CHGTABSTASelectTable)	
@@ -2156,6 +2183,13 @@ public class RestoAppPage extends JFrame {
 								.addComponent(UMremoveMenuItemButton)
 								.addComponent(UMaddMenuItemButton))
 						.addComponent(UMupdateMenuItemButton))
+				//add highchair option to reservation submenu
+				.addGroup(layout.createParallelGroup()
+						.addComponent(HCAddHighChair,20,20,30)
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(HCQuantity)
+								.addComponent(HCQuantityField))
+						.addComponent(HCConfirm))
 				//Restaurant Layout
 				.addComponent(restoLayoutContainer)
 		);
@@ -2192,6 +2226,7 @@ public class RestoAppPage extends JFrame {
 		removeUpdateMenuSubmenu();
 		
 		removeCancelOrderSubMenu();
+		removeHighChairOptionsSubMenu();
 		
 		pack();
 	}
@@ -2213,6 +2248,7 @@ public class RestoAppPage extends JFrame {
 	//Reservation SubMenu
 	private void removeReservationSubmenu() {
 		reserveTable.setVisible(false);
+		highChairOptions.setVisible(false);
 	}
 	
 	//Change Table Status SubMenu
@@ -2401,6 +2437,15 @@ public class RestoAppPage extends JFrame {
 		UMaddMenuItemButton.setVisible(false);
 		UMupdateMenuItemButton.setVisible(false);
 	}
+	
+	//High Chair
+	private void removeHighChairOptionsSubMenu() {
+		HCQuantityField.setVisible(false);
+		HCQuantity.setVisible(false);
+		HCAddHighChair.setVisible(false);
+		HCConfirm.setVisible(false);
+	}
+
 	
 	//Refresh Data
 	private void refreshData() {
