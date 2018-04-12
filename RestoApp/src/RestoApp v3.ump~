@@ -28,27 +28,15 @@ class Reservation{
    autounique reservationNumber;
    *reservations -- 1..* Table tables; // only from currentTables
    public boolean doesOverlap(Date date, Time time){
-    boolean overlap=false; 
-	   int date1 = this.date.getDate();
-	   int date2 = date.getDate();
-	   int month1 = this.date.getMonth();
-	   int month2 = date.getMonth();
-	   int year1 = this.date.getYear();
-	   int year2 = date.getYear();
-	   if(date1 == date2 && month1 == month2 && year1 == year2) {
-		   long time1 = this.time.getTime();
-		   long time2 = time.getTime();
-		   long twoh= 7200000;
-		   long timediff = Math.abs(time2 - time1);
-		   if(timediff < twoh) {
-			   overlap=true;
-			   return overlap;
-		   }
-		   else {
-			   overlap=false;
-		   }
-	   }
-	   return overlap;
+    boolean overlap = false;
+    long time1 = this.getTime().getTime();
+    long time2 = time.getTime();
+    long twoh= 7200000;
+    long timediff = Math.abs(time2 - time1);
+    if(timediff <= twoh) {
+    	overlap=true;
+    }
+    return overlap;
   }
    
 }
@@ -94,6 +82,7 @@ class OrderItem {
 class HighChair {
    0..3 -- 0..1 Table;
    0..3 -- 0..1 Reservation;
+   3 -<@> 1 RestoApp;
 }
 
 class Menu {   
