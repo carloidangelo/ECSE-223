@@ -7,7 +7,7 @@ import java.util.*;
 
 // line 31 "../../../../../RestoAppPersistence.ump"
 // line 1 "../../../../../RestoAppTableStateMachine.ump"
-// line 56 "../../../../../RestoApp v3.ump"
+// line 44 "../../../../../RestoApp v3.ump"
 public class Table implements Serializable
 {
 
@@ -287,7 +287,7 @@ public class Table implements Serializable
       case Ordered:
         if (allSeatsBilled())
         {
-        // line 89 "../../../../../RestoAppTableStateMachine.ump"
+        // line 85 "../../../../../RestoAppTableStateMachine.ump"
           
           setStatus(Status.Available);
           wasEventProcessed = true;
@@ -374,13 +374,15 @@ public class Table implements Serializable
         // create a new bill with the provided order and seat; if the provided seat is already assigned to
             // another bill for the current order, then the seat is first removed from the other bill and if no seats
             // are left for the bill, the bill is deleted
-            
-            Bill lastBill = s.getBill(s.numberOfBills()-1);
-    	  	if(o.getBills().contains(lastBill)) {
-    			lastBill.removeIssuedForSeat(s);
-    			if(lastBill.numberOfIssuedForSeats() == 0)
-    				lastBill.delete();
-    	 	}
+            if(s.numberOfBills() > 0){
+	            Bill lastBill = s.getBill(s.numberOfBills()-1);
+	    	  	if(o.getBills().contains(lastBill)) {
+	    			if(lastBill.numberOfIssuedForSeats() == 1)
+						  lastBill.delete();
+					  else
+						  lastBill.removeIssuedForSeat(s);
+	    	 	}
+	    	}
     	  	RestoApp r = o.getRestoApp();
     	  	r.addBill(o, s);
         setStatus(Status.Ordered);
@@ -401,21 +403,24 @@ public class Table implements Serializable
     switch (aStatus)
     {
       case Ordered:
-        // line 70 "../../../../../RestoAppTableStateMachine.ump"
+        // line 63 "../../../../../RestoAppTableStateMachine.ump"
         // add provided seat to provided bill unless seat has already been added, in which case nothing needs
             // to be done; if the provided seat is already assigned to another bill for the current order, then the
             // seat is first removed from the other bill and if no seats are left for the bill, the bill is deleted
             
             List<Seat> billedSeats = b.getIssuedForSeats();
-		  	if(billedSeats.contains(s)) {
-			  Bill lastBill = s.getBill(s.numberOfBills()-1);
-			  Table table = s.getTable();
-			  Order currentOrder = table.getOrder(table.numberOfOrders()-1);
-			  if(currentOrder.getBills().contains(lastBill)) {
-				  lastBill.removeIssuedForSeat(s);
-				  if(lastBill.numberOfIssuedForSeats() == 0)
-					  lastBill.delete();
-			 }
+		  	if(!billedSeats.contains(s)) {
+		  		if(s.numberOfBills() > 0) {
+				  Bill lastBill = s.getBill(s.numberOfBills()-1);
+				  Table table = s.getTable();
+				  Order currentOrder = table.getOrder(table.numberOfOrders()-1);
+				  if(currentOrder.getBills().contains(lastBill)) {
+					  if(lastBill.numberOfIssuedForSeats() == 1)
+						  lastBill.delete();
+					  else
+						  lastBill.removeIssuedForSeat(s);
+					}
+				 }
 			 b.addIssuedForSeat(s);
 		  }
         setStatus(Status.Ordered);
@@ -950,7 +955,7 @@ public class Table implements Serializable
   /**
    * check that the provided quantity is an integer greater than 0
    */
-  // line 96 "../../../../../RestoAppTableStateMachine.ump"
+  // line 92 "../../../../../RestoAppTableStateMachine.ump"
    private boolean quantityIsPositive(int quantity){
     return quantity > 0;
   }
@@ -959,7 +964,7 @@ public class Table implements Serializable
   /**
    * check that the provided order item is the last item of the current order of the table
    */
-  // line 101 "../../../../../RestoAppTableStateMachine.ump"
+  // line 97 "../../../../../RestoAppTableStateMachine.ump"
    private boolean iIsLastItem(OrderItem i){
     return i.getOrder().numberOfOrderItems() == 1;
   }
@@ -968,7 +973,7 @@ public class Table implements Serializable
   /**
    * check that all seats of the table have a bill that belongs to the current order of the table
    */
-  // line 106 "../../../../../RestoAppTableStateMachine.ump"
+  // line 102 "../../../../../RestoAppTableStateMachine.ump"
    private boolean allSeatsBilled(){
     Order order = getOrder(numberOfOrders()-1);
 	   
@@ -998,7 +1003,7 @@ public class Table implements Serializable
       return true;
   }
 
-  // line 66 "../../../../../RestoApp v3.ump"
+  // line 54 "../../../../../RestoApp v3.ump"
    public boolean doesOverlap(int x, int y, int width, int length){
     if ( ((x+width)<this.getX()) || (x>(this.getX()+this.getWidth())) || ((y+length)<this.getY()) || (y>(this.getY()+this.getLength())) )
 		{
