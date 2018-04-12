@@ -278,6 +278,12 @@ public class RestoAppPage extends JFrame {
 	private JButton UMaddMenuItemButton;
 	private JButton UMupdateMenuItemButton;
 	
+	//add highchair option to reservation submenu
+	private JComboBox <String> HCAddHighChair;
+	private Integer HCSelectedHighChair = -1;
+	private JTextField HCQuantityField;
+	private JLabel HCQuantity;
+	
 	public RestoAppPage() {
 		initComponents();
 		returnToMainMenu();
@@ -596,6 +602,18 @@ public class RestoAppPage extends JFrame {
 		UMremoveMenuItemButton = new JButton("Remove");
 		UMaddMenuItemButton = new JButton("Add Menu Item");
 		UMupdateMenuItemButton = new JButton("Update Menu Item");
+		
+		//Highchair portion
+		
+		HCHighChairQuantityField = new JTextField("");
+		HCQuantity = new JLabel("Amount (max 3)");
+		HCAddHighChair = new JComboBox<String>(new String[0]);
+		HCAddHighChair.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				HCSelectedHighChair = cb.getSelectedIndex();
+			}
+		});
 		
 		/*Action Listeners*/
 		//Menu Button
