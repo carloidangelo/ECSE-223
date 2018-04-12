@@ -7,7 +7,7 @@ import java.util.*;
 
 // line 31 "../../../../../RestoAppPersistence.ump"
 // line 1 "../../../../../RestoAppTableStateMachine.ump"
-// line 56 "../../../../../RestoApp v3.ump"
+// line 44 "../../../../../RestoApp v3.ump"
 public class Table implements Serializable
 {
 
@@ -366,14 +366,12 @@ public class Table implements Serializable
             // another bill for the current order, then the seat is first removed from the other bill and if no seats
             // are left for the bill, the bill is deleted
             
-	         if(s.numberOfBills() > 0)   {
-    	  		Bill lastBill = s.getBill(s.numberOfBills()-1);
-	    	  	if(o.getBills().contains(lastBill)) {
-	    			lastBill.removeIssuedForSeat(s);
-	    			if(lastBill.numberOfIssuedForSeats() == 0)
-	    				lastBill.delete();
-	    	 	}
-    		}
+            Bill lastBill = s.getBill(s.numberOfBills()-1);
+    	  	if(o.getBills().contains(lastBill)) {
+    			lastBill.removeIssuedForSeat(s);
+    			if(lastBill.numberOfIssuedForSeats() == 0)
+    				lastBill.delete();
+    	 	}
     	  	RestoApp r = o.getRestoApp();
     	  	r.addBill(o, s);
         setStatus(Status.Ordered);
@@ -991,7 +989,7 @@ public class Table implements Serializable
       return true;
   }
 
-  // line 66 "../../../../../RestoApp v3.ump"
+  // line 54 "../../../../../RestoApp v3.ump"
    public boolean doesOverlap(int x, int y, int width, int length){
     if ( ((x+width)<this.getX()) || (x>(this.getX()+this.getWidth())) || ((y+length)<this.getY()) || (y>(this.getY()+this.getLength())) )
 		{

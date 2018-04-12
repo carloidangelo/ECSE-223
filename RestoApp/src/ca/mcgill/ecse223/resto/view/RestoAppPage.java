@@ -6,13 +6,16 @@ import java.awt.event.ItemListener;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -83,7 +86,7 @@ public class RestoAppPage extends JFrame {
 	private HashMap<Integer, Order> groups;
 	
 	//Order SubMenu
-	private JButton makeOrder;
+	private JButton orderMenuItem;
 	private JButton cancelOrder;
 	private JButton viewOrder;
 	
@@ -228,10 +231,10 @@ public class RestoAppPage extends JFrame {
 	private JLabel billTotalOwed;
 	private JLabel billTotalOwedLabel;
 	
-	//Make Order SubMenu
+	//Order Menu Item SubMenu
 	private JLabel OISelectTableLabel;
-	private JComboBox <String> OISelectTableList;
-	private Integer OIselectedTable = -1;
+	private JComboBox <String> OISelectOrderList;
+	private Integer OIselectedOrder = -1;
 	private JButton OIupdateSeatDisplayButton;
 	
 	private JLabel OISelectSeatsLabel;
@@ -248,6 +251,25 @@ public class RestoAppPage extends JFrame {
 	private JTextField OIQuantityField;
 	
 	private JButton OIButton;
+	
+	//Update Menu SubMenu
+	private JLabel UMSelectMenuItemLabel;
+	private JComboBox <String> UMSelectMenuItemList;
+	private Integer UMselectedMenuItem = -1;
+	private List<MenuItem> UMmenuItems;
+	
+	private JLabel UMSelectItemCategoryLabel;
+	private JComboBox <String> UMSelectItemCategoryList;
+	private Integer UMselectedItemCategory = -1;
+	
+	private JLabel UMnameLabel;
+	private JLabel UMpriceLabel;
+	private JTextField UMnameField;
+	private JTextField UMpriceField;
+	
+	private JButton UMremoveMenuItemButton;
+	private JButton UMaddMenuItemButton;
+	private JButton UMupdateMenuItemButton;
 	
 	public RestoAppPage() {
 		initComponents();
@@ -310,7 +332,7 @@ public class RestoAppPage extends JFrame {
 		});
 		
 		//Order SubMenu
-		makeOrder = new JButton("Make Order");
+		orderMenuItem = new JButton("Order Menu Item");
 		cancelOrder = new JButton("Cancel Order");
 		viewOrder = new JButton("View Order");
 		
@@ -394,7 +416,7 @@ public class RestoAppPage extends JFrame {
 		//Reserve Table SubMenu
 		RESSelectTable = new JLabel("Select Table(s)");
 		RESDate = new JLabel("Date");
-		RESTime = new JLabel("Time");
+		RESTime = new JLabel("Time (hh:mm)");
 		RESNumberInParty = new JLabel("Number in party");
 		RESContactName = new JLabel("Contact Name");
 		RESContactEmail = new JLabel("Contact Email");
@@ -506,13 +528,13 @@ public class RestoAppPage extends JFrame {
 		billTotalOwedLabel = new JLabel("Total amount owed:");
 		billTotalOwed = new JLabel("");
 		
-		//Make Order SubMenu
-		OISelectTableLabel = new JLabel("Select Table");
-		OISelectTableList = new JComboBox<String>(new String[0]);
-		OISelectTableList.addActionListener(new java.awt.event.ActionListener() {
+		//Order Menu Item SubMenu
+		OISelectTableLabel = new JLabel("Select Order");
+		OISelectOrderList = new JComboBox<String>(new String[0]);
+		OISelectOrderList.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
-				OIselectedTable = cb.getSelectedIndex();
+				OIselectedOrder = cb.getSelectedIndex();
 			}
 		});
 		OIupdateSeatDisplayButton = new JButton("Update Seat Display");
@@ -538,6 +560,35 @@ public class RestoAppPage extends JFrame {
 		
 		OIButton = new JButton("Order Item");
 		
+		//Update Menu SubMenu
+		UMSelectMenuItemLabel = new JLabel("Select Menu Item");
+		UMSelectMenuItemList = new JComboBox<String>(new String[0]);
+		UMSelectMenuItemList.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				UMselectedMenuItem = cb.getSelectedIndex();
+			}
+		});
+		UMmenuItems = new ArrayList<MenuItem>();
+		
+		UMSelectItemCategoryLabel = new JLabel("Select Item Category");
+		UMSelectItemCategoryList = new JComboBox<String>(new String[0]);
+		UMSelectItemCategoryList.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				UMselectedItemCategory = cb.getSelectedIndex();
+			}
+		});
+		
+		UMnameLabel = new JLabel("Name");
+		UMpriceLabel = new JLabel("Price");
+		UMnameField = new JTextField("");
+		UMpriceField = new JTextField("");
+		
+		UMremoveMenuItemButton = new JButton("Remove");
+		UMaddMenuItemButton = new JButton("Add Menu Item");
+		UMupdateMenuItemButton = new JButton("Update Menu Item");
+		
 		/*Action Listeners*/
 		//Menu Button
 		menu.addActionListener(new java.awt.event.ActionListener() {
@@ -552,7 +603,7 @@ public class RestoAppPage extends JFrame {
 		//View Menu Button
 		viewMenu.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				removeViewMenuSubMenu();
+				removeUpdateMenuSubmenu();
 				removeViewMenuSubMenuSubMenu();
 				appetizer.setVisible(true);
 				main.setVisible(true);
@@ -563,6 +614,25 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
+		//Update Menu Button
+		updateMenu.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				removeViewMenuSubMenu();
+				removeViewMenuSubMenuSubMenu();
+				UMSelectMenuItemLabel.setVisible(true);
+				UMSelectMenuItemList.setVisible(true);
+				UMSelectItemCategoryLabel.setVisible(true);
+				UMSelectItemCategoryList.setVisible(true);
+				UMnameLabel.setVisible(true);
+				UMpriceLabel.setVisible(true);
+				UMnameField.setVisible(true);
+				UMpriceField.setVisible(true);
+				UMremoveMenuItemButton.setVisible(true);
+				UMaddMenuItemButton.setVisible(true);
+				UMupdateMenuItemButton.setVisible(true);
+				refreshData();
+			}
+		});
 		//Appetizer Button
 		appetizer.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -939,6 +1009,7 @@ public class RestoAppPage extends JFrame {
 				error = "";
 				if (error.length() == 0) {
 					Date date = (Date) RESDateCalendar.getModel().getValue();
+					date = cleanDate(date);
 					String time = RESTimeField.getText();
 					String numberInPartyString = RESNumberInPartyField.getText();
 					String name = RESContactNameField.getText();
@@ -950,10 +1021,11 @@ public class RestoAppPage extends JFrame {
 					} else {
 						try {
 							DateFormat formatter = new SimpleDateFormat("hh:mm");
-							java.sql.Time timeValue = null;
-							timeValue = new java.sql.Time(formatter.parse(time).getTime());
+							formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+							java.util.Date testDate = formatter.parse(time);
+							Time newTime = new Time(testDate.getTime() + date.getTime());
 							int numberInParty = Integer.parseInt(RESNumberInPartyField.getText()); 
-							RestoAppController.reserveTable(date, timeValue, numberInParty, name, email, phoneNumber, REStables);
+							RestoAppController.reserveTable(date, newTime, numberInParty, name, email, phoneNumber, REStables);
 							
 						} catch (InvalidInputException e) {
 						// TODO Auto-generated catch block
@@ -1029,7 +1101,7 @@ public class RestoAppPage extends JFrame {
 		order.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				returnToMainMenu();
-				makeOrder.setVisible(true);
+				orderMenuItem.setVisible(true);
 				cancelOrder.setVisible(true);
 				viewOrder.setVisible(true);
 				refreshData();
@@ -1039,7 +1111,7 @@ public class RestoAppPage extends JFrame {
 		//View Order SubMenu Button
 		viewOrder.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				removeMakeOrderSubmenu();
+				removeOrderMenuItemSubmenu();
 				viewOrderSelectTable.setVisible(true);
 				viewOrderTableList.setVisible(true);
 				viewOrderScrollPane.setVisible(true);
@@ -1168,12 +1240,12 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
-		//Make Order Button
-		makeOrder.addActionListener(new java.awt.event.ActionListener() {
+		//order menu item Button
+		orderMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeViewOrderSubMenu();
 				OISelectTableLabel.setVisible(true);
-				OISelectTableList.setVisible(true);
+				OISelectOrderList.setVisible(true);
 				OIupdateSeatDisplayButton.setVisible(true);
 				OISelectSeatsLabel.setVisible(true);
 				OISelectSeatsMenuScroll.setVisible(true);	
@@ -1186,35 +1258,40 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
+		//Update Seat Display (order menu item submenu)
 		OIupdateSeatDisplayButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				if (OIselectedTable >= 0) {
+				if (OIselectedOrder >= 0) {
 					OIseats.clear();
 					OISelectSeatsMenu.removeAll();
+					OISelectSeatsMenu.repaint();
 					int sizeY = 10;
-					int counter = 1;
-					Table table = RestoAppController.getCurrentTables().get(OIselectedTable);
-					for (final Seat seat : table.getCurrentSeats()){
-						JCheckBox seatCheckBox2 = new JCheckBox("Seat #" + String.valueOf(counter));
-						seatCheckBox2.addItemListener(new ItemListener() {
-						    public void itemStateChanged(ItemEvent e) {
-						        if(e.getStateChange() == ItemEvent.SELECTED) {
-						        	OIseats.add(seat);
-						        } else {
-						        	OIseats.remove(seat);
-						        };
-						    }
-						});
-						OISelectSeatsMenu.add(seatCheckBox2);
-						OISelectSeatsMenu.setPreferredSize(new Dimension(500, sizeY));
-						sizeY += 10;
-						counter++;
+					Order order = RestoAppController.getCurrentOrders().get(OIselectedOrder);
+					for(int i = 0; i < order.numberOfTables(); i++) {
+						Table table = order.getTable(i);
+						for (final Seat seat : table.getCurrentSeats()){
+							JCheckBox seatCheckBox2 = new JCheckBox("Seat #" + (table.indexOfCurrentSeat(seat) + 1) + 
+																		" of table #" + table.getNumber());
+							seatCheckBox2.addItemListener(new ItemListener() {
+							    public void itemStateChanged(ItemEvent e) {
+							        if(e.getStateChange() == ItemEvent.SELECTED) {
+							        	OIseats.add(seat);
+							        } else {
+							        	OIseats.remove(seat);
+							        };
+							    }
+							});
+							OISelectSeatsMenu.add(seatCheckBox2);
+							OISelectSeatsMenu.setPreferredSize(new Dimension(500, sizeY));
+							sizeY += 10;
+						}
 					}
 				}
 				refreshData();
 			}
 		});
 		
+		//order menu item confirm button
 		OIButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				error = "";
@@ -1242,6 +1319,109 @@ public class RestoAppPage extends JFrame {
 				}else {
 					error = "Must indicate a quantity";
 					errorMessage.setText(error);
+				}
+				OIseats.clear();
+				OISelectSeatsMenu.removeAll();
+				OISelectSeatsMenu.repaint();
+				refreshData();
+			}
+		});
+		
+		//remove menu item
+		UMremoveMenuItemButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				List<MenuItem> menuItems = RestoAppController.getMenuItems();
+				for (MenuItem menuItem : menuItems) {
+					if (menuItem.hasCurrentPricedMenuItem()) {
+						UMmenuItems.add(menuItem);
+					}
+				}
+				if (UMselectedMenuItem == -1) {
+					error = "Must select a Menu Item";
+					errorMessage.setText(error);
+				} else {
+					try {
+						RestoAppController.removeMenuItem(UMmenuItems.get(UMselectedMenuItem));
+					} catch (InvalidInputException e) {
+						// TODO Auto-generated catch block
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+				}
+				refreshData();
+			}
+		});
+		
+		//add menu item
+		UMaddMenuItemButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				List<ItemCategory> itemCategories = RestoAppController.getItemCategories();
+				String priceString = UMpriceField.getText();
+				if (priceString.equals("")) {
+					error = "Must indicate a price";
+					errorMessage.setText(error);
+				} else {
+					if (UMselectedItemCategory == -1) {
+						error = "Must select an Item Category";
+						errorMessage.setText(error);	
+					} else {
+						String name = UMnameField.getText();
+						double price = Double.parseDouble(priceString);
+						price = Math.round(price * 100);
+						price = price/100;
+						try {
+							RestoAppController.addMenuItem(name, itemCategories.get(UMselectedItemCategory),
+																	price);
+						} catch (InvalidInputException e) {
+							// TODO Auto-generated catch block
+							error = e.getMessage();
+							errorMessage.setText(error);
+						}
+					}
+				}
+				refreshData();
+			}
+		});
+		
+		//update menu item
+		UMupdateMenuItemButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				List<ItemCategory> itemCategories = RestoAppController.getItemCategories();
+				List<MenuItem> menuItems = RestoAppController.getMenuItems();
+				for (MenuItem menuItem : menuItems) {
+					if (menuItem.hasCurrentPricedMenuItem()) {
+						UMmenuItems.add(menuItem);
+					}
+				}
+				String priceString = UMpriceField.getText();
+				if (priceString.equals("")) {
+					error = "Must indicate a price";
+					errorMessage.setText(error);
+				} else {
+					if (UMselectedMenuItem == -1) {
+						error = "Must select a Menu Item";
+						errorMessage.setText(error);
+					}else if (UMselectedItemCategory == -1) {
+						error = "Must select an Item Category";
+						errorMessage.setText(error);	
+					} else {
+						String name = UMnameField.getText();
+						double price = Double.parseDouble(priceString);
+						price = Math.round(price * 100);
+						price = price/100;
+						try {
+							RestoAppController.updateMenuItem(UMmenuItems.get(UMselectedMenuItem), name, 
+																itemCategories.get(UMselectedItemCategory), 
+																price);
+						} catch (InvalidInputException e) {
+							// TODO Auto-generated catch block
+							error = e.getMessage();
+							errorMessage.setText(error);
+						}
+					}
 				}
 				refreshData();
 			}
@@ -1302,7 +1482,7 @@ public class RestoAppPage extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addComponent(CHGTABSTASelectTable,100,150,200)	
 						.addGroup(layout.createSequentialGroup()
-								.addComponent(CHGTABSTASelectTableMenuScroll,500,500,600)
+								.addComponent(CHGTABSTASelectTableMenuScroll,500,500,500)
 								.addGroup(layout.createParallelGroup()
 										.addGroup(layout.createSequentialGroup()
 												.addComponent(CHGTABSTAAssignTables))
@@ -1313,7 +1493,7 @@ public class RestoAppPage extends JFrame {
 												.addComponent(CHGTABSTARemoveGroup)))))
 				//Order SubMenu
 				.addGroup(layout.createSequentialGroup()
-						.addComponent(makeOrder)
+						.addComponent(orderMenuItem)
 						.addComponent(cancelOrder)
 						.addComponent(viewOrder))
 				//View Menu SubMenu
@@ -1381,7 +1561,7 @@ public class RestoAppPage extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addComponent(RESSelectTable,100,150,200)	
 						.addGroup(layout.createSequentialGroup()
-								.addComponent(RESSelectTableMenuScroll,500,500,600)
+								.addComponent(RESSelectTableMenuScroll,500,500,500)
 								.addGroup(layout.createParallelGroup()
 										.addGroup(layout.createSequentialGroup()
 												.addComponent(RESDate)
@@ -1430,7 +1610,7 @@ public class RestoAppPage extends JFrame {
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(issueBillSelectOrderLabel, 75, 75, 75)
 										.addComponent(issueBillSelectOrder, 200, 200, 200))
-								.addComponent(issueBillSelectSeatScroll, 288, 288, 288)
+								.addComponent(issueBillSelectSeatScroll, 350, 350, 400)
 								.addComponent(issueBillCreate, 288, 288, 288))
 						.addComponent(verticalLine3, 1, 1, 1)
 						.addGroup(layout.createParallelGroup()
@@ -1441,21 +1621,37 @@ public class RestoAppPage extends JFrame {
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(billTotalOwedLabel)
 										.addComponent(billTotalOwed))))
-				//Make Order SubMenu
+				//Order Menu Item SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup()
 								.addComponent(OISelectTableLabel)
-								.addComponent(OISelectTableList)
+								.addComponent(OISelectOrderList)
 								.addComponent(OIupdateSeatDisplayButton))
 						.addGroup(layout.createParallelGroup()
 								.addComponent(OISelectSeatsLabel)
-								.addComponent(OISelectSeatsMenuScroll))
+								.addComponent(OISelectSeatsMenuScroll,630,630,630))
 						.addGroup(layout.createParallelGroup()
 								.addComponent(OISelectMenuItemLabel)
 								.addComponent(OISelectMenuItemList)
 								.addComponent(OIQuantityLabel)
 								.addComponent(OIQuantityField)
-								.addComponent(OIButton)))						
+								.addComponent(OIButton)))	
+				//Update Menu SubMenu
+				.addGroup(layout.createParallelGroup()
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(UMSelectMenuItemLabel,200,200,400)
+								.addComponent(UMSelectItemCategoryLabel)
+								.addComponent(UMnameLabel)
+								.addComponent(UMpriceLabel))								
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(UMSelectMenuItemList)
+								.addComponent(UMSelectItemCategoryList)
+								.addComponent(UMnameField)
+								.addComponent(UMpriceField))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(UMremoveMenuItemButton)
+								.addComponent(UMaddMenuItemButton,600,612,612))
+						.addComponent(UMupdateMenuItemButton,800,818,818))
 				//Restaurant Layout
 				.addComponent(restoLayoutContainer));
 		
@@ -1464,7 +1660,7 @@ public class RestoAppPage extends JFrame {
 		
 		//Menu SubMenus
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {menu, viewMenu, updateMenu, addTable, removeTable, updateTable, 
-																				changeTableLocation, reserveTable, makeOrder, cancelOrder, viewOrder,
+																				changeTableLocation, reserveTable, orderMenuItem, cancelOrder, viewOrder,
 																				appetizer, main, dessert, alcoholicBeverage, nonAlcoholicBeverage});
 		//AddTable
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {tableNumber, xCoord, yCoord, tableWidth, tableLength, numOfSeats,
@@ -1483,6 +1679,10 @@ public class RestoAppPage extends JFrame {
 		
 		//View Order
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {viewOrderSelectTable, viewOrderTableList, viewOrderScrollPane, viewOrderButton, viewOrderLabel});
+		
+		//Update Menu
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {UMSelectMenuItemLabel, UMSelectItemCategoryLabel, UMnameLabel, UMpriceLabel,
+																				UMSelectMenuItemList, UMSelectItemCategoryList, UMnameField, UMpriceField, UMremoveMenuItemButton});
 
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
@@ -1525,7 +1725,7 @@ public class RestoAppPage extends JFrame {
 												.addComponent(CHGTABSTARemoveGroup)))))
 				//Order SubMenu
 				.addGroup(layout.createParallelGroup()
-						.addComponent(makeOrder)
+						.addComponent(orderMenuItem)
 						.addComponent(cancelOrder)
 						.addComponent(viewOrder))
 				//View Menu SubMenu
@@ -1640,7 +1840,7 @@ public class RestoAppPage extends JFrame {
 								.addGroup(layout.createParallelGroup()
 										.addComponent(issueBillSelectOrderLabel)
 										.addComponent(issueBillSelectOrder, 26, 26, 26))
-								.addComponent(issueBillSelectSeatScroll)
+								.addComponent(issueBillSelectSeatScroll,75,75,200)
 								.addComponent(issueBillCreate))
 						.addComponent(verticalLine3)
 						.addGroup(layout.createSequentialGroup()
@@ -1651,21 +1851,37 @@ public class RestoAppPage extends JFrame {
 								.addGroup(layout.createParallelGroup()
 										.addComponent(billTotalOwedLabel)
 										.addComponent(billTotalOwed))))
-				//Make Order SubMenu
+				//Order Menu Item SubMenu
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup()
 								.addComponent(OISelectTableLabel)
-								.addComponent(OISelectTableList)
+								.addComponent(OISelectOrderList,20,20,30)
 								.addComponent(OIupdateSeatDisplayButton))
 						.addGroup(layout.createSequentialGroup()
 								.addComponent(OISelectSeatsLabel)
-								.addComponent(OISelectSeatsMenuScroll))
+								.addComponent(OISelectSeatsMenuScroll,75,75,200))
 						.addGroup(layout.createSequentialGroup()
 								.addComponent(OISelectMenuItemLabel)
 								.addComponent(OISelectMenuItemList)
 								.addComponent(OIQuantityLabel)
 								.addComponent(OIQuantityField)
 								.addComponent(OIButton)))
+				//Update Menu SubMenu
+				.addGroup(layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup()
+								.addComponent(UMSelectMenuItemLabel)
+								.addComponent(UMSelectItemCategoryLabel)
+								.addComponent(UMnameLabel)
+								.addComponent(UMpriceLabel))								
+						.addGroup(layout.createParallelGroup()
+								.addComponent(UMSelectMenuItemList)
+								.addComponent(UMSelectItemCategoryList)
+								.addComponent(UMnameField)
+								.addComponent(UMpriceField))
+						.addGroup(layout.createParallelGroup()
+								.addComponent(UMremoveMenuItemButton)
+								.addComponent(UMaddMenuItemButton))
+						.addComponent(UMupdateMenuItemButton))
 				//Restaurant Layout
 				.addComponent(restoLayoutContainer)
 		);
@@ -1698,7 +1914,8 @@ public class RestoAppPage extends JFrame {
 		
 		removeIssueBillSubMenu();
 		
-		removeMakeOrderSubmenu();
+		removeOrderMenuItemSubmenu();
+		removeUpdateMenuSubmenu();
 		
 		pack();
 	}
@@ -1738,7 +1955,7 @@ public class RestoAppPage extends JFrame {
 	
 	//Order SubMenu
 	private void removeOrderSubMenu() {
-		makeOrder.setVisible(false);
+		orderMenuItem.setVisible(false);
 		cancelOrder.setVisible(false);
 		viewOrder.setVisible(false);
 	}
@@ -1864,10 +2081,10 @@ public class RestoAppPage extends JFrame {
 		billTotalOwed.setVisible(false);
 	}
 	
-	//Make Order SubMenu
-	private void removeMakeOrderSubmenu() {
+	//Order Menu Item SubMenu
+	private void removeOrderMenuItemSubmenu() {
 		OISelectTableLabel.setVisible(false);
-		OISelectTableList.setVisible(false);
+		OISelectOrderList.setVisible(false);
 		OIupdateSeatDisplayButton.setVisible(false);
 		OISelectSeatsLabel.setVisible(false);
 		OISelectSeatsMenu.removeAll();
@@ -1877,6 +2094,21 @@ public class RestoAppPage extends JFrame {
 		OIQuantityLabel.setVisible(false);
 		OIQuantityField.setVisible(false);
 		OIButton.setVisible(false);
+	}
+	
+	//Update Menu SubMenu
+	private void removeUpdateMenuSubmenu() {
+		UMSelectMenuItemLabel.setVisible(false);
+		UMSelectMenuItemList.setVisible(false);
+		UMSelectItemCategoryLabel.setVisible(false);
+		UMSelectItemCategoryList.setVisible(false);
+		UMnameLabel.setVisible(false);
+		UMpriceLabel.setVisible(false);
+		UMnameField.setVisible(false);
+		UMpriceField.setVisible(false);
+		UMremoveMenuItemButton.setVisible(false);
+		UMaddMenuItemButton.setVisible(false);
+		UMupdateMenuItemButton.setVisible(false);
 	}
 	
 	//Refresh Data
@@ -1893,11 +2125,22 @@ public class RestoAppPage extends JFrame {
 		tableLengthField.setText("");
 		numOfSeatsField.setText("");
 		newTableNumber.setText("");
+		RESTimeField.setText("");
+		RESNumberInPartyField.setText("");
+		RESContactNameField.setText("");
+		RESContactEmailField.setText("");
+		RESContactPhoneNumberField.setText("");
+		OIQuantityField.setText("");
+		UMnameField.setText("");
+		UMpriceField.setText("");
+		
+		OImenuItems.clear();
+		UMmenuItems.clear();
 		
 		//update table table selector removed to prevent unwanted actionPerformed calls
 		selectTableUpdateTable.removeActionListener(selectTableUpdateTableListener);
 		
-		//move table & update table & remove table & view order & issue bill & make order combo box refresh (Tables)
+		//move table & update table & remove table & view order & issue bill & order menu item combo box refresh (Tables)
 		tables = new HashMap<Integer, Table>();
 		tablesReverse = new HashMap<Table, Integer>();
 		tableList.removeAllItems();
@@ -1905,7 +2148,6 @@ public class RestoAppPage extends JFrame {
 		selectTableRemoveTable.removeAllItems();
 		viewOrderTableList.removeAllItems();
 		issueBillSelectTable.removeAllItems();
-		OISelectTableList.removeAllItems();
 		Integer index = 0;
 		for (Table table : RestoAppController.getCurrentTables()) {
 			tables.put(index, table);
@@ -1915,7 +2157,6 @@ public class RestoAppPage extends JFrame {
 			selectTableRemoveTable.addItem("#" + table.getNumber());
 			viewOrderTableList.addItem("#" + table.getNumber());
 			issueBillSelectTable.addItem("#" + table.getNumber());
-			OISelectTableList.addItem("#" + table.getNumber());
 			index++;
 		};
 		
@@ -1925,6 +2166,7 @@ public class RestoAppPage extends JFrame {
 		groups = new HashMap<Integer, Order>();
 		SelectGroupList.removeAllItems();
 		issueBillSelectOrder.removeAllItems();
+		OISelectOrderList.removeAllItems();
 		Integer indexGroup = 0;
 		for (Order order : RestoAppController.getCurrentOrders()) {
 			String tablesInGroup = "";
@@ -1948,17 +2190,28 @@ public class RestoAppPage extends JFrame {
 			
 			SelectGroupList.addItem("#" + order.getNumber() + ": table(s) "+tablesInGroup);
 			issueBillSelectOrder.addItem("#" + order.getNumber() + ": table(s) "+tablesInGroup);
+			OISelectOrderList.addItem("#" + order.getNumber() + ": table(s) "+tablesInGroup);
 			indexGroup++;
 		}
 		
-		//make order combo box refresh (MenuItems)
+		//order menu item & update menu submenu combo box refresh (MenuItems)
 		OISelectMenuItemList.removeAllItems();
+		UMSelectMenuItemList.removeAllItems();
 		Integer MIindex = 0;
 		for (MenuItem menuItem : RestoAppController.getMenuItems()) {
 			if (menuItem.hasCurrentPricedMenuItem()) {
 				OISelectMenuItemList.addItem(menuItem.getName() + " $" + Double.toString(menuItem.getCurrentPricedMenuItem().getPrice()));
+				UMSelectMenuItemList.addItem(menuItem.getName() + " $" + Double.toString(menuItem.getCurrentPricedMenuItem().getPrice()));
 			}
 			MIindex++;
+		};
+		
+		//update menu submenu combo box refresh (ItemCategories)
+		UMSelectItemCategoryList.removeAllItems();
+		Integer ICindex = 0;
+		for (ItemCategory itemCategory : RestoAppController.getItemCategories()) {
+			UMSelectItemCategoryList.addItem(itemCategory.toString());
+			ICindex++;
 		};
 		
 		//for change table status, combo box resets
@@ -1985,11 +2238,17 @@ public class RestoAppPage extends JFrame {
 		selectedOrder = -1;
 		issueBillSelectOrder.setSelectedIndex(selectedOrder);
 		
-		//for make order, combo box resets
-		OIselectedTable = -1;
-		OISelectTableList.setSelectedIndex(OIselectedTable);
+		//for order menu item, combo box resets
+		OIselectedOrder = -1;
+		OISelectOrderList.setSelectedIndex(OIselectedOrder);
 		OIselectedMenuItem = -1;
 		OISelectMenuItemList.setSelectedIndex(OIselectedMenuItem);
+		
+		//for update menu subMenu, combo box resets
+		UMselectedItemCategory = -1;
+		UMSelectItemCategoryList.setSelectedIndex(UMselectedItemCategory);
+		UMselectedMenuItem = -1;
+		UMSelectMenuItemList.setSelectedIndex(UMselectedMenuItem);
 		
 		//for update table, combo box goes to table selected in restaurant layout, -1 if none selected
 		Table layoutSelectedTable = restoLayout.getSelectedTable();
@@ -2024,8 +2283,8 @@ public class RestoAppPage extends JFrame {
 			    }
 			});
 			RESSelectTableMenu.add(tableCheckBox);
-			RESSelectTableMenu.setPreferredSize(new Dimension(500, sizeY));
-			sizeY += 10;
+			RESSelectTableMenu.setPreferredSize(new Dimension(400, sizeY));
+			sizeY += 8;
 		}
 		
 		CHGTABSTAtables.clear();
@@ -2043,8 +2302,8 @@ public class RestoAppPage extends JFrame {
 			    }
 			});
 			CHGTABSTASelectTableMenu.add(tableCheckBox2);
-			CHGTABSTASelectTableMenu.setPreferredSize(new Dimension(500, sizeY2));
-			sizeY2 += 10;
+			CHGTABSTASelectTableMenu.setPreferredSize(new Dimension(400, sizeY2));
+			sizeY2 += 8;
 		}
 		
 		refreshIssueBillSelectSeats();
@@ -2061,6 +2320,7 @@ public class RestoAppPage extends JFrame {
 	private void refreshIssueBillSelectSeats() {
 		issueBillSeats.clear();
 		issueBillSelectSeat.removeAll();
+		int Y = 10;
 		if(selectedOrder >= 0) {
 			for (Table table : groups.get(selectedOrder).getTables()){
 				for(final Seat seat : table.getCurrentSeats()) {
@@ -2075,6 +2335,8 @@ public class RestoAppPage extends JFrame {
 					    }
 					});
 					issueBillSelectSeat.add(seatCheckBox);
+					issueBillSelectSeat.setPreferredSize(new Dimension(350,Y));
+					Y = Y + 17;
 				}
 			}
 		}
@@ -2131,7 +2393,18 @@ public class RestoAppPage extends JFrame {
 		}
 		return listTemp;
 	}
-
+	
+	private static Date cleanDate(Date date) {
+	    Calendar cal = Calendar.getInstance();
+	    cal.setTimeInMillis(date.getTime());
+	    cal.set(Calendar.HOUR_OF_DAY, 0);
+	    cal.set(Calendar.MINUTE, 0);
+	    cal.set(Calendar.SECOND, 0);
+	    cal.set(Calendar.MILLISECOND, 0);
+	    java.util.Date tempCleanedDate = cal.getTime();
+	    java.sql.Date cleanedDate = new java.sql.Date(tempCleanedDate.getTime());
+	    return cleanedDate;
+	}
 }
 
 	
