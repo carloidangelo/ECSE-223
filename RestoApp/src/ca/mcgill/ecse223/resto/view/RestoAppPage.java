@@ -1125,6 +1125,7 @@ public class RestoAppPage extends JFrame {
 				viewOrderScrollPane.setVisible(true);
 				viewOrderLabel.setVisible(true);
 				viewOrderButton.setVisible(true);
+				viewOrderDtm.setRowCount(0);
 				refreshData();
 			}
 		});
