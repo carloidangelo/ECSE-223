@@ -20,6 +20,8 @@ import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
@@ -193,7 +195,7 @@ public class RestoAppPage extends JFrame {
 	private JTable viewOrderList;
 	private Integer selectedTable3 = -1;
 	private DefaultTableModel viewOrderDtm;
-	private String viewOrderListColumnNames[] = {"Order Item", "Seat"};
+	private String viewOrderListColumnNames[] = {"Order Item", "Quantity", "Seats"};
 	private static final int HEIGHT_OVERVIEW_TABLE = 200;
 
 	private JScrollPane viewOrderScrollPane;
@@ -231,6 +233,7 @@ public class RestoAppPage extends JFrame {
 	private JScrollPane viewBillScrollPane;
 	private JLabel billTotalOwed;
 	private JLabel billTotalOwedLabel;
+	private JButton refreshBillTable;
 	
 	//Make Order SubMenu
 	private JLabel OISelectTableLabel;
@@ -491,7 +494,6 @@ public class RestoAppPage extends JFrame {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
 				selectedBill = cb.getSelectedIndex();
-				refreshViewBillTable();
 			}
 		});
 		
@@ -509,6 +511,8 @@ public class RestoAppPage extends JFrame {
 		
 		billTotalOwedLabel = new JLabel("Total amount owed:");
 		billTotalOwed = new JLabel("");
+		
+		refreshBillTable = new JButton("Refresh table");
 		
 		//Make Order SubMenu
 		OISelectTableLabel = new JLabel("Select Table");
@@ -1066,10 +1070,16 @@ public class RestoAppPage extends JFrame {
 					for(OrderItem orderItem : orderItems) {
 						String orderItemName = orderItem.getPricedMenuItem().getMenuItem().getName();
 						List <Seat> seats = orderItem.getSeats();
-						for(Seat seat:seats) {
-							Object []obj = {orderItemName, seat.getTable().indexOfSeat(seat)};
-							viewOrderDtm.addRow(obj);
-						}	
+						String seatList = "";
+						for(int i = 0; i < seats.size(); i++) {
+							Seat seat = seats.get(i);
+							Table table = seat.getTable();
+							seatList += ("#"+(table.indexOfCurrentSeat(seat)+1));
+							if(i < seats.size()-1)
+								seatList += ", ";
+						}
+						Object []obj = {orderItemName, orderItem.getQuantity(), seatList};
+						viewOrderDtm.addRow(obj);
 					}
 					
 				}
@@ -1079,6 +1089,40 @@ public class RestoAppPage extends JFrame {
 				}
 				
 				refreshData();
+			}
+		});
+		
+		refreshBillTable.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+
+				viewBillDtm.setRowCount(0);
+				billTotalOwed.setText("");
+				if(selectedBill >= 0) {
+					Bill bill = bills.get(selectedBill);
+					for(Seat seat : bill.getIssuedForSeats()) {
+						Table table = seat.getTable();
+						try {
+							BigDecimal bd = new BigDecimal(RestoAppController.getOwedAmount(seat));
+						    bd = bd.setScale(2, RoundingMode.HALF_DOWN);
+							Object []obj = {(table.indexOfCurrentSeat(seat)+1), table.getNumber(), "$"+bd};
+							viewBillDtm.addRow(obj);
+						}catch (InvalidInputException e){
+							error = e.getMessage();
+							errorMessage.setText(error);
+						}
+					}
+					double total = 0.00;
+					for (Seat seat : bill.getIssuedForSeats())
+						try {
+							total += RestoAppController.getOwedAmount(seat);
+						}catch (InvalidInputException e){
+							//do nothing
+						}
+					BigDecimal bd = new BigDecimal(total);
+				    bd = bd.setScale(2, RoundingMode.HALF_DOWN);
+					billTotalOwed.setText("$"+bd);
+				}
 			}
 		});
 		
@@ -1100,6 +1144,7 @@ public class RestoAppPage extends JFrame {
 				viewBillScrollPane.setVisible(true);
 				billTotalOwedLabel.setVisible(true);
 				billTotalOwed.setVisible(true);
+				refreshBillTable.setVisible(true);
 				
 				refreshData();
 			}
@@ -1420,7 +1465,7 @@ public class RestoAppPage extends JFrame {
 								.addGroup(layout.createParallelGroup()
 										.addComponent(viewOrderTableList,150,150,150)
 										.addComponent(viewOrderButton))
-								.addComponent(viewOrderScrollPane,300,300,400)))
+								.addComponent(viewOrderScrollPane,300,600,600)))
 				//Issue Bill SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup()
@@ -1440,7 +1485,8 @@ public class RestoAppPage extends JFrame {
 						.addGroup(layout.createParallelGroup()
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(issueBillSelectBillLabel, 75, 75, 75)
-										.addComponent(issueBillSelectBill, 150, 150, 150))
+										.addComponent(issueBillSelectBill, 150, 150, 150)
+										.addComponent(refreshBillTable))
 								.addComponent(viewBillScrollPane, 300, 400, 400)
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(billTotalOwedLabel)
@@ -1650,7 +1696,8 @@ public class RestoAppPage extends JFrame {
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup()
 										.addComponent(issueBillSelectBillLabel)
-										.addComponent(issueBillSelectBill))
+										.addComponent(issueBillSelectBill)
+										.addComponent(refreshBillTable))
 								.addComponent(viewBillScrollPane, 130, 130, 130)
 								.addGroup(layout.createParallelGroup()
 										.addComponent(billTotalOwedLabel)
@@ -1866,6 +1913,7 @@ public class RestoAppPage extends JFrame {
 		viewBillScrollPane.setVisible(false);
 		billTotalOwedLabel.setVisible(false);
 		billTotalOwed.setVisible(false);
+		refreshBillTable.setVisible(false);
 	}
 	
 	//Make Order SubMenu
@@ -2057,7 +2105,6 @@ public class RestoAppPage extends JFrame {
 		}
 		
 		refreshIssueBillSelectSeats();
-		refreshViewBillTable();
 		
 		restoLayout.setTables(RestoAppController.getCurrentTables());
 		
@@ -2090,39 +2137,6 @@ public class RestoAppPage extends JFrame {
 		
 		pack();
 	}
-	
-	private void refreshViewBillTable(){
-		for(int i = 0; i < viewBillDtm.getRowCount(); i++)
-			viewBillDtm.removeRow(i);
-		billTotalOwed.setText("");
-		if(selectedBill >= 0) {
-			Bill bill = bills.get(selectedBill);
-			for(Seat seat : bill.getIssuedForSeats()) {
-				Table table = seat.getTable();
-				try {
-					BigDecimal bd = new BigDecimal(RestoAppController.getOwedAmount(seat));
-				    bd = bd.setScale(2, RoundingMode.HALF_DOWN);
-					Object []obj = {(table.indexOfCurrentSeat(seat)+1), table.getNumber(), "$"+bd};
-					viewBillDtm.addRow(obj);
-				}catch (InvalidInputException e){
-					//do nothing
-				}
-			}
-			double total = 0.00;
-			for (Seat seat : bill.getIssuedForSeats())
-				try {
-					total += RestoAppController.getOwedAmount(seat);
-				}catch (InvalidInputException e){
-					//do nothing
-				}
-			BigDecimal bd = new BigDecimal(total);
-		    bd = bd.setScale(2, RoundingMode.HALF_DOWN);
-			billTotalOwed.setText("$"+bd);
-		}
-		
-		pack();
-	}
-
 	
 	void tableClicked() {
 		selectedTable1 = tablesReverse.get(restoLayout.getSelectedTable());
