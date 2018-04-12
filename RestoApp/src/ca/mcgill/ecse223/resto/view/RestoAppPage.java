@@ -249,6 +249,31 @@ public class RestoAppPage extends JFrame {
 	
 	private JButton OIButton;
 	
+	//Cancel Order SubMenu
+	private JLabel COSelectTableLabel;
+	private JComboBox <String> COSelectTableList;
+	private Integer COselectedTable = -1;
+	private JButton COupdateSeatDisplayButton;
+	
+	private JLabel COSelectSeatLabel;
+	private JComboBox <String> COSelectSeatList;
+	private Integer COselectedSeat = -1;
+	private JButton COupdateOrderItemDisplayButton;
+	//private Seat COseat;
+	private List<Seat> COseats;
+	
+	private JLabel COSelectOrderItemLabel;
+	private JComboBox <String> COSelectOrderItemList;
+	private Integer COselectedOrderItem = -1;
+	//private OrderItem COorderItem;
+	private List<OrderItem> COorderItems;
+	
+	private JButton COcancelOrderButton;
+	private JButton COcancelOrderItemButton;
+	
+	private Table COtempTable;
+	private Seat COtempSeat;
+	
 	public RestoAppPage() {
 		initComponents();
 		returnToMainMenu();
@@ -537,6 +562,43 @@ public class RestoAppPage extends JFrame {
 		OIQuantityField = new JTextField("");
 		
 		OIButton = new JButton("Order Item");
+		
+		//Cancel Order SubMenu
+		//ggg
+		COSelectTableLabel = new JLabel("Select Table");
+		COSelectTableList = new JComboBox<String>(new String[0]);
+		COSelectTableList.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				COselectedTable = cb.getSelectedIndex();
+			}
+		});
+		COupdateSeatDisplayButton = new JButton("Update Seat Display");
+		
+		COSelectSeatLabel = new JLabel("Select Seat");
+		COSelectSeatList = new JComboBox<String>(new String[0]);
+		COSelectSeatList.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				COselectedSeat = cb.getSelectedIndex();
+			}
+		});
+		COupdateOrderItemDisplayButton = new JButton("Update Order Item Display");
+		
+		COSelectOrderItemLabel = new JLabel("Select Item");
+		COSelectOrderItemList = new JComboBox<String>(new String[0]);
+		COSelectOrderItemList.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				JComboBox<String> cb = (JComboBox<String>) evt.getSource();
+				COselectedOrderItem = cb.getSelectedIndex();
+			}
+		});
+		
+		COseats = new ArrayList<Seat>();
+		COorderItems = new ArrayList<OrderItem>();
+		
+		COcancelOrderButton = new JButton("Cancel order");
+		COcancelOrderItemButton = new JButton("Cancel item");
 		
 		/*Action Listeners*/
 		//Menu Button
@@ -1040,6 +1102,7 @@ public class RestoAppPage extends JFrame {
 		viewOrder.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeMakeOrderSubmenu();
+				removeCancelOrderSubMenu();
 				viewOrderSelectTable.setVisible(true);
 				viewOrderTableList.setVisible(true);
 				viewOrderScrollPane.setVisible(true);
@@ -1172,6 +1235,7 @@ public class RestoAppPage extends JFrame {
 		makeOrder.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				removeViewOrderSubMenu();
+				removeCancelOrderSubMenu();
 				OISelectTableLabel.setVisible(true);
 				OISelectTableList.setVisible(true);
 				OIupdateSeatDisplayButton.setVisible(true);
@@ -1247,6 +1311,118 @@ public class RestoAppPage extends JFrame {
 			}
 		});
 		
+		//Cancel order button
+		cancelOrder.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				removeViewOrderSubMenu();
+				removeMakeOrderSubmenu();
+				COSelectTableLabel.setVisible(true);
+				COSelectTableList.setVisible(true);
+				COupdateSeatDisplayButton.setVisible(true);
+				COSelectSeatLabel.setVisible(true);
+				COSelectSeatList.setVisible(true);	
+				COupdateOrderItemDisplayButton.setVisible(true);
+				COSelectOrderItemLabel.setVisible(true);
+				COSelectOrderItemList.setVisible(true);
+				COcancelOrderButton.setVisible(true);
+				COcancelOrderItemButton.setVisible(true);
+				refreshData();
+			}
+		});
+		
+		COupdateSeatDisplayButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				if (COselectedTable >= 0) {
+					COSelectSeatList.removeAllItems();
+					int counter = 1;
+					Table table = RestoAppController.getCurrentTables().get(COselectedTable);
+					for (final Seat seat : table.getCurrentSeats()){
+						COSelectSeatList.addItem("Seat #" + String.valueOf(counter));
+						counter++;
+					}
+				}
+				//int temp = COselectedTable;
+				//refreshData();
+				//COselectedTable = temp;
+			}
+			
+		});
+		
+		
+		COupdateOrderItemDisplayButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				if (COselectedSeat >= 0) {
+					//int counter = 1;
+					COSelectOrderItemList.removeAllItems();
+					
+					Seat seat = RestoAppController.getCurrentTables().get(COselectedTable).getSeat(COselectedSeat);
+					if (seat.hasOrderItems() == true) {
+					for (final OrderItem orderItem : seat.getOrderItems()){
+						COSelectOrderItemList.addItem(orderItem.getPricedMenuItem().getMenuItem().getName() + " " + orderItem.getPricedMenuItem().getPrice());
+					}
+					}
+				}
+				//int temp = COselectedSeat;
+				//refreshData();
+				//COselectedSeat = temp;
+			}
+			
+		});
+		
+		COcancelOrderItemButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				if (COselectedOrderItem == -1) {
+					error = "Must select an Order Item";
+					errorMessage.setText(error);
+				}
+				/*else {
+				List<OrderItem> orderItems = RestoAppController.getCurrentTables().get(COselectedTable).getSeat(COselectedSeat).getOrderItems();
+				for (OrderItem orderItem : orderItems) {
+						COorderItems.add(orderItem);
+				}
+				}*/
+				if (error.length() == 0){
+					try {
+						RestoAppController.cancelOrderItem(RestoAppController.getCurrentTables().get(COselectedTable).getSeat(COselectedSeat).getOrderItem(COselectedOrderItem));
+						//System.out.println(COselectedOrderItem);
+						//System.out.println(COorderItems.get(COselectedOrderItem).getPricedMenuItem().getMenuItem().getName());
+					} catch (InvalidInputException e) {
+						// TODO Auto-generated catch block
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+				}
+					refreshData();
+					COSelectOrderItemList.removeAllItems();
+					
+			}
+		});
+		
+		//ggg
+		COcancelOrderButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				error = "";
+				Table table = RestoAppController.getCurrentTables().get(COselectedTable);
+				if (COselectedTable == -1) {
+					error = "Must select a Table";
+					errorMessage.setText(error);
+				}
+				else {
+					try {
+						RestoAppController.cancelOrder(table);
+					} catch (InvalidInputException e) {
+						// TODO Auto-generated catch block
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+			}
+				refreshData();
+				COSelectOrderItemList.removeAllItems();
+				
+			}
+		});
+			
 		//Restaurant Layout Display
 		restoLayout = new RestoLayout(this);
 		restoLayoutContainer = new JScrollPane(restoLayout);
@@ -1455,7 +1631,24 @@ public class RestoAppPage extends JFrame {
 								.addComponent(OISelectMenuItemList)
 								.addComponent(OIQuantityLabel)
 								.addComponent(OIQuantityField)
-								.addComponent(OIButton)))						
+								.addComponent(OIButton)))		
+				
+				//Cancel Order Submenu 
+				.addGroup(layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup()
+								.addComponent(COSelectTableLabel)
+								.addComponent(COSelectTableList)
+								.addComponent(COupdateSeatDisplayButton)
+								.addComponent(COcancelOrderButton))
+						.addGroup(layout.createParallelGroup()
+								.addComponent(COSelectSeatLabel)
+								.addComponent(COSelectSeatList)
+								.addComponent(COupdateOrderItemDisplayButton))
+						.addGroup(layout.createParallelGroup()
+								.addComponent(COSelectOrderItemLabel)
+								.addComponent(COSelectOrderItemList)
+								.addComponent(COcancelOrderItemButton)))
+								
 				//Restaurant Layout
 				.addComponent(restoLayoutContainer));
 		
@@ -1666,6 +1859,23 @@ public class RestoAppPage extends JFrame {
 								.addComponent(OIQuantityLabel)
 								.addComponent(OIQuantityField)
 								.addComponent(OIButton)))
+				
+				//Cancel Order SubMenu
+				.addGroup(layout.createParallelGroup()
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(COSelectTableLabel)
+								.addComponent(COSelectTableList)
+								.addComponent(COupdateSeatDisplayButton)
+								.addComponent(COcancelOrderButton))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(COSelectSeatLabel)
+								.addComponent(COSelectSeatList)
+								.addComponent(COupdateOrderItemDisplayButton))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(COSelectOrderItemLabel)
+								.addComponent(COSelectOrderItemList)
+								.addComponent(COcancelOrderItemButton)))
+				
 				//Restaurant Layout
 				.addComponent(restoLayoutContainer)
 		);
@@ -1699,6 +1909,8 @@ public class RestoAppPage extends JFrame {
 		removeIssueBillSubMenu();
 		
 		removeMakeOrderSubmenu();
+		
+		removeCancelOrderSubMenu();
 		
 		pack();
 	}
@@ -1879,6 +2091,20 @@ public class RestoAppPage extends JFrame {
 		OIButton.setVisible(false);
 	}
 	
+	//Cancel Order SubMenu
+	private void removeCancelOrderSubMenu() {
+		COSelectTableLabel.setVisible(false);
+		COSelectTableList.setVisible(false);
+		COupdateSeatDisplayButton.setVisible(false);
+		COcancelOrderButton.setVisible(false);
+		COSelectSeatLabel.setVisible(false);
+		COSelectSeatList.setVisible(false);
+		COupdateOrderItemDisplayButton.setVisible(false);
+		COSelectOrderItemLabel.setVisible(false);
+		COSelectOrderItemList.setVisible(false);
+		COcancelOrderItemButton.setVisible(false);
+	}
+	
 	//Refresh Data
 	private void refreshData() {
 		
@@ -1897,7 +2123,7 @@ public class RestoAppPage extends JFrame {
 		//update table table selector removed to prevent unwanted actionPerformed calls
 		selectTableUpdateTable.removeActionListener(selectTableUpdateTableListener);
 		
-		//move table & update table & remove table & view order & issue bill & make order combo box refresh (Tables)
+		//move table & update table & remove table & view order & issue bill & make order & cancel order combo box refresh (Tables)
 		tables = new HashMap<Integer, Table>();
 		tablesReverse = new HashMap<Table, Integer>();
 		tableList.removeAllItems();
@@ -1906,6 +2132,9 @@ public class RestoAppPage extends JFrame {
 		viewOrderTableList.removeAllItems();
 		issueBillSelectTable.removeAllItems();
 		OISelectTableList.removeAllItems();
+		COSelectTableList.removeAllItems();
+		//COSelectSeatList.removeAllItems();
+		//COSelectOrderItemList.removeAllItems();
 		Integer index = 0;
 		for (Table table : RestoAppController.getCurrentTables()) {
 			tables.put(index, table);
@@ -1916,6 +2145,7 @@ public class RestoAppPage extends JFrame {
 			viewOrderTableList.addItem("#" + table.getNumber());
 			issueBillSelectTable.addItem("#" + table.getNumber());
 			OISelectTableList.addItem("#" + table.getNumber());
+			COSelectTableList.addItem("#" + table.getNumber());
 			index++;
 		};
 		
@@ -1990,6 +2220,14 @@ public class RestoAppPage extends JFrame {
 		OISelectTableList.setSelectedIndex(OIselectedTable);
 		OIselectedMenuItem = -1;
 		OISelectMenuItemList.setSelectedIndex(OIselectedMenuItem);
+		
+		//for cancel order, combo box resets
+		COselectedTable = -1;
+		COSelectTableList.setSelectedIndex(COselectedTable);
+		COselectedSeat = -1;
+		COSelectSeatList.setSelectedIndex(COselectedSeat);
+		COselectedOrderItem = -1;
+		COSelectOrderItemList.setSelectedIndex(COselectedOrderItem);
 		
 		//for update table, combo box goes to table selected in restaurant layout, -1 if none selected
 		Table layoutSelectedTable = restoLayout.getSelectedTable();

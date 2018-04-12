@@ -36,12 +36,21 @@ class Table {
          } -> Ordered;
          cancelOrderItem(OrderItem i) [iIsLastItem(i)] / {
             // delete order item
+            i.delete();
          } -> NothingOrdered;
          cancelOrderItem(OrderItem i) [!iIsLastItem(i)] / {
             // delete order item
+            i.delete();
          } -> Ordered;
          cancelOrder() / {
             // delete all order items of the table
+            int currentOrderIndex = this.numberOfOrders()-1;
+            Order currentOrder = this.getOrder(currentOrderIndex);
+            List<OrderItem> orderItems = currentOrder.getOrderItems();
+            while(orderItems.size() > 0)
+            {
+    			orderItems.get(0).delete();        
+            }
          } -> NothingOrdered;
          billForSeat(Order o, Seat s) / {
             // create a new bill with the provided order and seat; if the provided seat is already assigned to

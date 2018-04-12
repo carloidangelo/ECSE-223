@@ -679,6 +679,7 @@ public class RestoAppController {
 				throw new InvalidInputException(error.trim());
 			}
 			
+			System.out.println("hello1");
 			List<Seat> seats = orderItem.getSeats();
 			Order order = orderItem.getOrder();
 			List<Table> tables = new ArrayList<Table>();
@@ -706,6 +707,7 @@ public class RestoAppController {
 				for (Table table : tables) 
 				{
 					table.cancelOrderItem(orderItem);
+					System.out.println("hello");
 				}
 				
 		}
@@ -713,6 +715,7 @@ public class RestoAppController {
 		catch (RuntimeException e) {
 			throw new InvalidInputException(e.getMessage());
 		}
+		
 		RestoAppApplication.save();	
 	}
 	
