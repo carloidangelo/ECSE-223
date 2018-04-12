@@ -3,6 +3,8 @@ package ca.mcgill.ecse223.resto.view;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.DateFormat;
@@ -11,6 +13,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -197,6 +200,7 @@ public class RestoAppPage extends JFrame {
 	private static final int HEIGHT_OVERVIEW_TABLE = 200;
 
 	private JScrollPane viewOrderScrollPane;
+	private List <OrderItem> orderItems;
 	
 	//Issue Bill
 	private JLabel issueBillSelectOrderLabel;
@@ -1125,15 +1129,19 @@ public class RestoAppPage extends JFrame {
 		viewOrderButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				error = "";
-			
+				viewOrderDtm.setRowCount(0);
 				try {
-					List <OrderItem> orderItems = RestoAppController.getOrderItem(tables.get(selectedTable3));
+					orderItems = RestoAppController.getOrderItem(tables.get(selectedTable3));
+					if(orderItems == null) {
+						throw new InvalidInputException("No order item found");
+					}
 					for(OrderItem orderItem : orderItems) {
-						String orderItemName = orderItem.toString();
+						String orderItemName = orderItem.getPricedMenuItem().getMenuItem().getName();
 						List <Seat> seats = orderItem.getSeats();
-						Seat[] seatArray = seats.toArray(new Seat[seats.size()]);
-						Object []obj = {orderItemName, seatArray};
-						viewOrderDtm.addRow(obj);
+						for(Seat seat:seats) {
+							Object []obj = {orderItemName, seat.getTable().indexOfSeat(seat)};
+							viewOrderDtm.addRow(obj);
+						}	
 					}
 					
 				}
@@ -1192,22 +1200,20 @@ public class RestoAppPage extends JFrame {
 				error = "";
 				
 				Table table = tables.get(selectedTable4);
-				List<Seat> seats = table.getSeats();
-				List<Seat> billedSeats = new ArrayList<Seat>();
-				for(Seat seat : seats) {
-					if(RestoAppController.currentlyBilled(seat))
-						billedSeats.add(seat);
+				if(table == null)
+					errorMessage.setText("No table specified");
+				else {
+					List<Seat> seats = table.getSeats();
+					
+					try {
+						RestoAppController.issueBill(seats);
+					}
+					catch (InvalidInputException e){
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+					refreshData();
 				}
-				
-				try {
-					RestoAppController.issueBill(issueBillSeats);
-				}
-				catch (InvalidInputException e){
-					error = e.getMessage();
-					errorMessage.setText(error);
-				}
-				
-				refreshData();
 			}
 		});
 		
@@ -1217,26 +1223,24 @@ public class RestoAppPage extends JFrame {
 				error = "";
 				
 				Table table = tables.get(selectedTable4);
-				List<Seat> seats = table.getSeats();
-				List<Seat> billedSeats = new ArrayList<Seat>();
-				for(Seat seat : seats) {
-					if(RestoAppController.currentlyBilled(seat))
-						billedSeats.add(seat);
-				}
-				
-				try {
-					for(Seat seat : seats) {
-						List<Seat> seatList = new ArrayList<Seat>();
-						seatList.add(seat);
-						RestoAppController.issueBill(seatList);
+				if(table == null)
+					errorMessage.setText("No table specified");
+				else {
+					List<Seat> seats = table.getSeats();
+					
+					try {
+						for(Seat seat : seats) {
+							List<Seat> seatList = new ArrayList<Seat>();
+							seatList.add(seat);
+							RestoAppController.issueBill(seatList);
+						}
 					}
+					catch (InvalidInputException e){
+						error = e.getMessage();
+						errorMessage.setText(error);
+					}
+					refreshData();
 				}
-				catch (InvalidInputException e){
-					error = e.getMessage();
-					errorMessage.setText(error);
-				}
-				
-				refreshData();
 			}
 		});
 		
@@ -1590,13 +1594,13 @@ public class RestoAppPage extends JFrame {
 				//View Order SubMenu
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup()
-								.addComponent(viewOrderSelectTable,100,150,200)
+								.addComponent(viewOrderSelectTable,150,150,150)
 								.addComponent(viewOrderLabel))
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup()
-										.addComponent(viewOrderTableList)
+										.addComponent(viewOrderTableList,150,150,150)
 										.addComponent(viewOrderButton))
-								.addComponent(viewOrderScrollPane,500,500,600)))
+								.addComponent(viewOrderScrollPane,300,300,400)))
 				//Issue Bill SubMenu
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup()
@@ -1677,12 +1681,12 @@ public class RestoAppPage extends JFrame {
 		//Change Table Status
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {CHGTABSTASelectTable, CHGTABSTAAssignTables, SelectGroupList, CHGTABSTASelectGroup, CHGTABSTARemoveGroup});
 		
-		//View Order
-		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {viewOrderSelectTable, viewOrderTableList, viewOrderScrollPane, viewOrderButton, viewOrderLabel});
-		
 		//Update Menu
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {UMSelectMenuItemLabel, UMSelectItemCategoryLabel, UMnameLabel, UMpriceLabel,
 																				UMSelectMenuItemList, UMSelectItemCategoryList, UMnameField, UMpriceField, UMremoveMenuItemButton});
+
+		//View Order
+		//layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {viewOrderSelectTable, viewOrderTableList, viewOrderScrollPane, viewOrderButton, viewOrderLabel});
 
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
@@ -2133,7 +2137,6 @@ public class RestoAppPage extends JFrame {
 		OIQuantityField.setText("");
 		UMnameField.setText("");
 		UMpriceField.setText("");
-		
 		OImenuItems.clear();
 		UMmenuItems.clear();
 		
@@ -2182,7 +2185,7 @@ public class RestoAppPage extends JFrame {
 			for(Bill bill : order.getBills()) {
 				bills.put(indexBill, bill);
 				
-				issueBillSelectBill.addItem("Bill #" + (indexBill+1) + "of order #" + order.getNumber());
+				issueBillSelectBill.addItem("Bill #" + (indexBill+1) + " of order #" + order.getNumber());
 				indexBill++;
 			}
 			
@@ -2345,12 +2348,17 @@ public class RestoAppPage extends JFrame {
 	}
 	
 	private void refreshViewBillTable(){
+		for(int i = 0; i < viewBillDtm.getRowCount(); i++)
+			viewBillDtm.removeRow(i);
+		billTotalOwed.setText("");
 		if(selectedBill >= 0) {
 			Bill bill = bills.get(selectedBill);
 			for(Seat seat : bill.getIssuedForSeats()) {
 				Table table = seat.getTable();
 				try {
-					Object []obj = {table.indexOfCurrentSeat(seat), table.getNumber(), "$"+RestoAppController.getOwedAmount(seat)};
+					BigDecimal bd = new BigDecimal(RestoAppController.getOwedAmount(seat));
+				    bd = bd.setScale(2, RoundingMode.HALF_DOWN);
+					Object []obj = {(table.indexOfCurrentSeat(seat)+1), table.getNumber(), "$"+bd};
 					viewBillDtm.addRow(obj);
 				}catch (InvalidInputException e){
 					//do nothing
@@ -2363,11 +2371,14 @@ public class RestoAppPage extends JFrame {
 				}catch (InvalidInputException e){
 					//do nothing
 				}
-			billTotalOwed.setText("$"+total);
+			BigDecimal bd = new BigDecimal(total);
+		    bd = bd.setScale(2, RoundingMode.HALF_DOWN);
+			billTotalOwed.setText("$"+bd);
 		}
 		
 		pack();
 	}
+
 	
 	void tableClicked() {
 		selectedTable1 = tablesReverse.get(restoLayout.getSelectedTable());

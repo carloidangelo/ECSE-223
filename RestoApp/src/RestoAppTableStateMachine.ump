@@ -47,13 +47,15 @@ class Table {
             // create a new bill with the provided order and seat; if the provided seat is already assigned to
             // another bill for the current order, then the seat is first removed from the other bill and if no seats
             // are left for the bill, the bill is deleted
-            
-            Bill lastBill = s.getBill(s.numberOfBills()-1);
-    	  	if(o.getBills().contains(lastBill)) {
-    			lastBill.removeIssuedForSeat(s);
-    			if(lastBill.numberOfIssuedForSeats() == 0)
-    				lastBill.delete();
-    	 	}
+            if(s.numberOfBills() > 0){
+	            Bill lastBill = s.getBill(s.numberOfBills()-1);
+	    	  	if(o.getBills().contains(lastBill)) {
+	    			if(lastBill.numberOfIssuedForSeats() == 1)
+						  lastBill.delete();
+					  else
+						  lastBill.removeIssuedForSeat(s);
+	    	 	}
+	    	}
     	  	RestoApp r = o.getRestoApp();
     	  	r.addBill(o, s);
             
@@ -64,15 +66,18 @@ class Table {
             // seat is first removed from the other bill and if no seats are left for the bill, the bill is deleted
             
             List<Seat> billedSeats = b.getIssuedForSeats();
-		  	if(billedSeats.contains(s)) {
-			  Bill lastBill = s.getBill(s.numberOfBills()-1);
-			  Table table = s.getTable();
-			  Order currentOrder = table.getOrder(table.numberOfOrders()-1);
-			  if(currentOrder.getBills().contains(lastBill)) {
-				  lastBill.removeIssuedForSeat(s);
-				  if(lastBill.numberOfIssuedForSeats() == 0)
-					  lastBill.delete();
-			 }
+		  	if(!billedSeats.contains(s)) {
+		  		if(s.numberOfBills() > 0) {
+				  Bill lastBill = s.getBill(s.numberOfBills()-1);
+				  Table table = s.getTable();
+				  Order currentOrder = table.getOrder(table.numberOfOrders()-1);
+				  if(currentOrder.getBills().contains(lastBill)) {
+					  if(lastBill.numberOfIssuedForSeats() == 1)
+						  lastBill.delete();
+					  else
+						  lastBill.removeIssuedForSeat(s);
+					}
+				 }
 			 b.addIssuedForSeat(s);
 		  }
             
@@ -83,8 +88,12 @@ class Table {
    }
    
    // check that the provided quantity is an integer greater than 0
-   private boolean quantityIsPositive(int quantity) {
-      return quantity > 0;
+   //private boolean quantityIsPositive(int quantity) {
+   //   return HighChair.quantity > 0;
+   //}
+
+   private boolean highChairAvailable(){
+      return !(quantity >= 3);
    }
 
    // check that the provided order item is the last item of the current order of the table

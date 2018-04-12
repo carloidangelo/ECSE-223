@@ -465,16 +465,25 @@ public class RestoAppController {
 		Bill newBill = null;
 		for(Seat seat : seats) {
 			Table table = seat.getTable();
-			if(billCreated)
-				table.addToBill(newBill, seat);
-			else {
-				Bill lastBill = null;
-				if(lastOrder.numberOfBills() > 0)
-					lastBill = lastOrder.getBill(lastOrder.numberOfBills()-1);
-				table.billForSeat(lastOrder, seat);
-				if(lastOrder.numberOfBills() > 0 && !lastOrder.getBill(lastOrder.numberOfBills()-1).equals(lastBill)) {
-					billCreated = true;
-					newBill = lastOrder.getBill(lastOrder.numberOfBills()-1);
+			boolean hasOrdered = false;
+			for(OrderItem orderItem : lastOrder.getOrderItems()) {
+				if(orderItem.getSeats().contains(seat))
+					hasOrdered = true;
+			}
+			if(hasOrdered) {
+				if(billCreated) {
+					table.addToBill(newBill, seat);
+				}
+				else {
+					Bill lastBill = null;
+					if(lastOrder.numberOfBills() > 0) {
+						lastBill = lastOrder.getBill(lastOrder.numberOfBills()-1);
+					}
+					table.billForSeat(lastOrder, seat);
+					if(lastOrder.numberOfBills() > 0 && !lastOrder.getBill(lastOrder.numberOfBills()-1).equals(lastBill)) {
+						billCreated = true;
+						newBill = lastOrder.getBill(lastOrder.numberOfBills()-1);
+					}
 				}
 			}
 		}
@@ -508,6 +517,8 @@ public class RestoAppController {
 			return false;
 		Order order = table.getOrder(table.numberOfOrders()-1);
 		List<Bill> bills = order.getBills();
+		if(seat.numberOfBills() == 0)
+			return false;
 		Bill lastBill = seat.getBill(seat.numberOfBills()-1);
 		if(!bills.contains(lastBill))
 			return false;

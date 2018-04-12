@@ -79,6 +79,11 @@ class OrderItem {
    * orderItems -- 1..* Seat seats; // only from order.tables.seats
 }
 
+class HighChair {
+   0..3 -- 0..1 Table;
+   0..3 -- 0..1 Reservation;
+}
+
 class Menu {   
    1 <@>- * MenuItem menuItems;
 }
