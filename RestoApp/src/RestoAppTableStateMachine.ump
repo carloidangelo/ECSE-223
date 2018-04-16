@@ -57,12 +57,14 @@ class Table {
             // another bill for the current order, then the seat is first removed from the other bill and if no seats
             // are left for the bill, the bill is deleted
             
-            Bill lastBill = s.getBill(s.numberOfBills()-1);
-    	  	if(o.getBills().contains(lastBill)) {
-    			lastBill.removeIssuedForSeat(s);
-    			if(lastBill.numberOfIssuedForSeats() == 0)
-    				lastBill.delete();
-    	 	}
+            if (s.numberOfBills() != 0) {
+                Bill lastBill = s.getBill(s.numberOfBills()-1);
+        	  	if(o.getBills().contains(lastBill)) {
+        			lastBill.removeIssuedForSeat(s);
+        			if(lastBill.numberOfIssuedForSeats() == 0)
+        				lastBill.delete();
+        	 	}
+            }
     	  	RestoApp r = o.getRestoApp();
     	  	r.addBill(o, s);
             

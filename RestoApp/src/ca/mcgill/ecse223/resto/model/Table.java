@@ -376,13 +376,14 @@ public class Table implements Serializable
         // create a new bill with the provided order and seat; if the provided seat is already assigned to
             // another bill for the current order, then the seat is first removed from the other bill and if no seats
             // are left for the bill, the bill is deleted
-            
-            Bill lastBill = s.getBill(s.numberOfBills()-1);
-    	  	if(o.getBills().contains(lastBill)) {
-    			lastBill.removeIssuedForSeat(s);
-    			if(lastBill.numberOfIssuedForSeats() == 0)
-    				lastBill.delete();
-    	 	}
+            if (s.numberOfBills() != 0) {
+                Bill lastBill = s.getBill(s.numberOfBills()-1);
+        	  	if(o.getBills().contains(lastBill)) {
+        			lastBill.removeIssuedForSeat(s);
+        			if(lastBill.numberOfIssuedForSeats() == 0)
+        				lastBill.delete();
+        	 	}
+            }
     	  	RestoApp r = o.getRestoApp();
     	  	r.addBill(o, s);
         setStatus(Status.Ordered);
