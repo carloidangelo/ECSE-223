@@ -25,6 +25,7 @@ public class RestoApp implements Serializable
   private Menu menu;
   private List<PricedMenuItem> pricedMenuItems;
   private List<Bill> bills;
+  private List<HighChair> highChairs;
 
   //------------------------
   // CONSTRUCTOR
@@ -44,6 +45,7 @@ public class RestoApp implements Serializable
     menu = aMenu;
     pricedMenuItems = new ArrayList<PricedMenuItem>();
     bills = new ArrayList<Bill>();
+    highChairs = new ArrayList<HighChair>();
   }
 
   public RestoApp()
@@ -56,6 +58,7 @@ public class RestoApp implements Serializable
     menu = new Menu(this);
     pricedMenuItems = new ArrayList<PricedMenuItem>();
     bills = new ArrayList<Bill>();
+    highChairs = new ArrayList<HighChair>();
   }
 
   //------------------------
@@ -283,6 +286,36 @@ public class RestoApp implements Serializable
   public int indexOfBill(Bill aBill)
   {
     int index = bills.indexOf(aBill);
+    return index;
+  }
+
+  public HighChair getHighChair(int index)
+  {
+    HighChair aHighChair = highChairs.get(index);
+    return aHighChair;
+  }
+
+  public List<HighChair> getHighChairs()
+  {
+    List<HighChair> newHighChairs = Collections.unmodifiableList(highChairs);
+    return newHighChairs;
+  }
+
+  public int numberOfHighChairs()
+  {
+    int number = highChairs.size();
+    return number;
+  }
+
+  public boolean hasHighChairs()
+  {
+    boolean has = highChairs.size() > 0;
+    return has;
+  }
+
+  public int indexOfHighChair(HighChair aHighChair)
+  {
+    int index = highChairs.indexOf(aHighChair);
     return index;
   }
 
@@ -760,6 +793,87 @@ public class RestoApp implements Serializable
     return wasAdded;
   }
 
+  public boolean isNumberOfHighChairsValid()
+  {
+    boolean isValid = numberOfHighChairs() >= minimumNumberOfHighChairs() && numberOfHighChairs() <= maximumNumberOfHighChairs();
+    return isValid;
+  }
+
+  public static int requiredNumberOfHighChairs()
+  {
+    return 3;
+  }
+
+  public static int minimumNumberOfHighChairs()
+  {
+    return 3;
+  }
+
+  public static int maximumNumberOfHighChairs()
+  {
+    return 3;
+  }
+
+  public HighChair addHighChair()
+  {
+    if (numberOfHighChairs() >= maximumNumberOfHighChairs())
+    {
+      return null;
+    }
+    else
+    {
+      return new HighChair(this);
+    }
+  }
+
+  public boolean addHighChair(HighChair aHighChair)
+  {
+    boolean wasAdded = false;
+    if (highChairs.contains(aHighChair)) { return false; }
+    if (numberOfHighChairs() >= maximumNumberOfHighChairs())
+    {
+      return wasAdded;
+    }
+
+    RestoApp existingRestoApp = aHighChair.getRestoApp();
+    boolean isNewRestoApp = existingRestoApp != null && !this.equals(existingRestoApp);
+
+    if (isNewRestoApp && existingRestoApp.numberOfHighChairs() <= minimumNumberOfHighChairs())
+    {
+      return wasAdded;
+    }
+
+    if (isNewRestoApp)
+    {
+      aHighChair.setRestoApp(this);
+    }
+    else
+    {
+      highChairs.add(aHighChair);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeHighChair(HighChair aHighChair)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aHighChair, as it must always have a restoApp
+    if (this.equals(aHighChair.getRestoApp()))
+    {
+      return wasRemoved;
+    }
+
+    //restoApp already at minimum (3)
+    if (numberOfHighChairs() <= minimumNumberOfHighChairs())
+    {
+      return wasRemoved;
+    }
+    highChairs.remove(aHighChair);
+    wasRemoved = true;
+    return wasRemoved;
+  }
+
   public void delete()
   {
     while (reservations.size() > 0)
@@ -805,6 +919,13 @@ public class RestoApp implements Serializable
       bills.remove(aBill);
     }
     
+    while (highChairs.size() > 0)
+    {
+      HighChair aHighChair = highChairs.get(highChairs.size() - 1);
+      aHighChair.delete();
+      highChairs.remove(aHighChair);
+    }
+    
   }
 
   // line 8 "../../../../../RestoAppPersistence.ump"
@@ -817,8 +938,22 @@ public class RestoApp implements Serializable
 
   // line 16 "../../../../../RestoApp v3.ump"
    public java.util.Date getCurrentDate(){
+    Calendar cal = Calendar.getInstance();
+    	java.util.Date date = new java.util.Date();
+    	cal.setTimeInMillis(date.getTime());
+    	cal.set(Calendar.HOUR_OF_DAY, 0);
+    	cal.set(Calendar.MINUTE, 0);
+    	cal.set(Calendar.SECOND, 0);
+    	cal.set(Calendar.MILLISECOND, 0);
+    	java.util.Date tempCleanedDate = cal.getTime();
+    	java.sql.Date cleanedDate = new java.sql.Date(tempCleanedDate.getTime());
+    	return cleanedDate;
+  }
+
+  // line 29 "../../../../../RestoApp v3.ump"
+   public java.util.Date getCurrentTime(){
     java.util.Date date = new java.util.Date();
-    return date;
+	   return date;
   }
   
   //------------------------

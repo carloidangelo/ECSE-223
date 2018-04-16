@@ -8,7 +8,7 @@ import java.sql.Time;
 import java.util.*;
 
 // line 15 "../../../../../RestoAppPersistence.ump"
-// line 21 "../../../../../RestoApp v3.ump"
+// line 34 "../../../../../RestoApp v3.ump"
 public class Reservation implements Serializable
 {
 
@@ -36,6 +36,7 @@ public class Reservation implements Serializable
   //Reservation Associations
   private List<Table> tables;
   private RestoApp restoApp;
+  private List<HighChair> highChairs;
 
   //------------------------
   // CONSTRUCTOR
@@ -61,6 +62,7 @@ public class Reservation implements Serializable
     {
       throw new RuntimeException("Unable to create reservation due to restoApp");
     }
+    highChairs = new ArrayList<HighChair>();
   }
 
   //------------------------
@@ -186,6 +188,36 @@ public class Reservation implements Serializable
   public RestoApp getRestoApp()
   {
     return restoApp;
+  }
+
+  public HighChair getHighChair(int index)
+  {
+    HighChair aHighChair = highChairs.get(index);
+    return aHighChair;
+  }
+
+  public List<HighChair> getHighChairs()
+  {
+    List<HighChair> newHighChairs = Collections.unmodifiableList(highChairs);
+    return newHighChairs;
+  }
+
+  public int numberOfHighChairs()
+  {
+    int number = highChairs.size();
+    return number;
+  }
+
+  public boolean hasHighChairs()
+  {
+    boolean has = highChairs.size() > 0;
+    return has;
+  }
+
+  public int indexOfHighChair(HighChair aHighChair)
+  {
+    int index = highChairs.indexOf(aHighChair);
+    return index;
   }
 
   public boolean isNumberOfTablesValid()
@@ -341,6 +373,87 @@ public class Reservation implements Serializable
     return wasSet;
   }
 
+  public static int minimumNumberOfHighChairs()
+  {
+    return 0;
+  }
+
+  public static int maximumNumberOfHighChairs()
+  {
+    return 3;
+  }
+
+  public boolean addHighChair(HighChair aHighChair)
+  {
+    boolean wasAdded = false;
+    if (highChairs.contains(aHighChair)) { return false; }
+    if (numberOfHighChairs() >= maximumNumberOfHighChairs())
+    {
+      return wasAdded;
+    }
+
+    Reservation existingReservation = aHighChair.getReservation();
+    if (existingReservation == null)
+    {
+      aHighChair.setReservation(this);
+    }
+    else if (!this.equals(existingReservation))
+    {
+      existingReservation.removeHighChair(aHighChair);
+      addHighChair(aHighChair);
+    }
+    else
+    {
+      highChairs.add(aHighChair);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeHighChair(HighChair aHighChair)
+  {
+    boolean wasRemoved = false;
+    if (highChairs.contains(aHighChair))
+    {
+      highChairs.remove(aHighChair);
+      aHighChair.setReservation(null);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+
+  public boolean addHighChairAt(HighChair aHighChair, int index)
+  {  
+    boolean wasAdded = false;
+    if(addHighChair(aHighChair))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfHighChairs()) { index = numberOfHighChairs() - 1; }
+      highChairs.remove(aHighChair);
+      highChairs.add(index, aHighChair);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveHighChairAt(HighChair aHighChair, int index)
+  {
+    boolean wasAdded = false;
+    if(highChairs.contains(aHighChair))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfHighChairs()) { index = numberOfHighChairs() - 1; }
+      highChairs.remove(aHighChair);
+      highChairs.add(index, aHighChair);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addHighChairAt(aHighChair, index);
+    }
+    return wasAdded;
+  }
+
   public void delete()
   {
     ArrayList<Table> copyOfTables = new ArrayList<Table>(tables);
@@ -355,6 +468,10 @@ public class Reservation implements Serializable
     {
       placeholderRestoApp.removeReservation(this);
     }
+    while( !highChairs.isEmpty() )
+    {
+      highChairs.get(0).setReservation(null);
+    }
   }
 
   // line 21 "../../../../../RestoAppPersistence.ump"
@@ -368,7 +485,7 @@ public class Reservation implements Serializable
 	  	nextReservationNumber++;
   }
 
-  // line 31 "../../../../../RestoApp v3.ump"
+  // line 44 "../../../../../RestoApp v3.ump"
    public boolean doesOverlap(Date date, Time time){
     boolean overlap = false;
     long time1 = this.getTime().getTime();

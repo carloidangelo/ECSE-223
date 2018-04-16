@@ -12,10 +12,23 @@ class RestoApp {
    1 <@>- 1 Menu menu;   
    1 <@>- * PricedMenuItem pricedMenuItems;
    1 <@>- * Bill bills;
-    public java.util.Date getCurrentDate(){
-    java.util.Date date = new java.util.Date();
-    return date;
-  }
+ 	public java.util.Date getCurrentDate(){
+		Calendar cal = Calendar.getInstance();
+    	java.util.Date date = new java.util.Date();
+    	cal.setTimeInMillis(date.getTime());
+    	cal.set(Calendar.HOUR_OF_DAY, 0);
+    	cal.set(Calendar.MINUTE, 0);
+    	cal.set(Calendar.SECOND, 0);
+    	cal.set(Calendar.MILLISECOND, 0);
+    	java.util.Date tempCleanedDate = cal.getTime();
+    	java.sql.Date cleanedDate = new java.sql.Date(tempCleanedDate.getTime());
+    	return cleanedDate;
+  	}
+   
+   	public java.util.Date getCurrentTime(){
+	   java.util.Date date = new java.util.Date();
+	   return date;
+   	}
 }
 
 class Reservation{

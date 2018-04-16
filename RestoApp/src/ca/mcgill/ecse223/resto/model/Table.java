@@ -7,7 +7,7 @@ import java.util.*;
 
 // line 31 "../../../../../RestoAppPersistence.ump"
 // line 1 "../../../../../RestoAppTableStateMachine.ump"
-// line 44 "../../../../../RestoApp v3.ump"
+// line 57 "../../../../../RestoApp v3.ump"
 public class Table implements Serializable
 {
 
@@ -38,6 +38,7 @@ public class Table implements Serializable
   private RestoApp restoApp;
   private List<Reservation> reservations;
   private List<Order> orders;
+  private List<HighChair> highChairs;
 
   //------------------------
   // CONSTRUCTOR
@@ -62,6 +63,7 @@ public class Table implements Serializable
     }
     reservations = new ArrayList<Reservation>();
     orders = new ArrayList<Order>();
+    highChairs = new ArrayList<HighChair>();
     setStatus(Status.Available);
   }
 
@@ -287,7 +289,7 @@ public class Table implements Serializable
       case Ordered:
         if (allSeatsBilled())
         {
-        // line 85 "../../../../../RestoAppTableStateMachine.ump"
+        // line 89 "../../../../../RestoAppTableStateMachine.ump"
           
           setStatus(Status.Available);
           wasEventProcessed = true;
@@ -374,15 +376,13 @@ public class Table implements Serializable
         // create a new bill with the provided order and seat; if the provided seat is already assigned to
             // another bill for the current order, then the seat is first removed from the other bill and if no seats
             // are left for the bill, the bill is deleted
-            if(s.numberOfBills() > 0){
-	            Bill lastBill = s.getBill(s.numberOfBills()-1);
-	    	  	if(o.getBills().contains(lastBill)) {
-	    			if(lastBill.numberOfIssuedForSeats() == 1)
-						  lastBill.delete();
-					  else
-						  lastBill.removeIssuedForSeat(s);
-	    	 	}
-	    	}
+            
+            Bill lastBill = s.getBill(s.numberOfBills()-1);
+    	  	if(o.getBills().contains(lastBill)) {
+    			lastBill.removeIssuedForSeat(s);
+    			if(lastBill.numberOfIssuedForSeats() == 0)
+    				lastBill.delete();
+    	 	}
     	  	RestoApp r = o.getRestoApp();
     	  	r.addBill(o, s);
         setStatus(Status.Ordered);
@@ -403,24 +403,21 @@ public class Table implements Serializable
     switch (aStatus)
     {
       case Ordered:
-        // line 63 "../../../../../RestoAppTableStateMachine.ump"
+        // line 70 "../../../../../RestoAppTableStateMachine.ump"
         // add provided seat to provided bill unless seat has already been added, in which case nothing needs
             // to be done; if the provided seat is already assigned to another bill for the current order, then the
             // seat is first removed from the other bill and if no seats are left for the bill, the bill is deleted
             
             List<Seat> billedSeats = b.getIssuedForSeats();
-		  	if(!billedSeats.contains(s)) {
-		  		if(s.numberOfBills() > 0) {
-				  Bill lastBill = s.getBill(s.numberOfBills()-1);
-				  Table table = s.getTable();
-				  Order currentOrder = table.getOrder(table.numberOfOrders()-1);
-				  if(currentOrder.getBills().contains(lastBill)) {
-					  if(lastBill.numberOfIssuedForSeats() == 1)
-						  lastBill.delete();
-					  else
-						  lastBill.removeIssuedForSeat(s);
-					}
-				 }
+		  	if(billedSeats.contains(s)) {
+			  Bill lastBill = s.getBill(s.numberOfBills()-1);
+			  Table table = s.getTable();
+			  Order currentOrder = table.getOrder(table.numberOfOrders()-1);
+			  if(currentOrder.getBills().contains(lastBill)) {
+				  lastBill.removeIssuedForSeat(s);
+				  if(lastBill.numberOfIssuedForSeats() == 0)
+					  lastBill.delete();
+			 }
 			 b.addIssuedForSeat(s);
 		  }
         setStatus(Status.Ordered);
@@ -563,6 +560,36 @@ public class Table implements Serializable
   public int indexOfOrder(Order aOrder)
   {
     int index = orders.indexOf(aOrder);
+    return index;
+  }
+
+  public HighChair getHighChair(int index)
+  {
+    HighChair aHighChair = highChairs.get(index);
+    return aHighChair;
+  }
+
+  public List<HighChair> getHighChairs()
+  {
+    List<HighChair> newHighChairs = Collections.unmodifiableList(highChairs);
+    return newHighChairs;
+  }
+
+  public int numberOfHighChairs()
+  {
+    int number = highChairs.size();
+    return number;
+  }
+
+  public boolean hasHighChairs()
+  {
+    boolean has = highChairs.size() > 0;
+    return has;
+  }
+
+  public int indexOfHighChair(HighChair aHighChair)
+  {
+    int index = highChairs.indexOf(aHighChair);
     return index;
   }
 
@@ -898,6 +925,87 @@ public class Table implements Serializable
     return wasAdded;
   }
 
+  public static int minimumNumberOfHighChairs()
+  {
+    return 0;
+  }
+
+  public static int maximumNumberOfHighChairs()
+  {
+    return 3;
+  }
+
+  public boolean addHighChair(HighChair aHighChair)
+  {
+    boolean wasAdded = false;
+    if (highChairs.contains(aHighChair)) { return false; }
+    if (numberOfHighChairs() >= maximumNumberOfHighChairs())
+    {
+      return wasAdded;
+    }
+
+    Table existingTable = aHighChair.getTable();
+    if (existingTable == null)
+    {
+      aHighChair.setTable(this);
+    }
+    else if (!this.equals(existingTable))
+    {
+      existingTable.removeHighChair(aHighChair);
+      addHighChair(aHighChair);
+    }
+    else
+    {
+      highChairs.add(aHighChair);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeHighChair(HighChair aHighChair)
+  {
+    boolean wasRemoved = false;
+    if (highChairs.contains(aHighChair))
+    {
+      highChairs.remove(aHighChair);
+      aHighChair.setTable(null);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+
+  public boolean addHighChairAt(HighChair aHighChair, int index)
+  {  
+    boolean wasAdded = false;
+    if(addHighChair(aHighChair))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfHighChairs()) { index = numberOfHighChairs() - 1; }
+      highChairs.remove(aHighChair);
+      highChairs.add(index, aHighChair);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveHighChairAt(HighChair aHighChair, int index)
+  {
+    boolean wasAdded = false;
+    if(highChairs.contains(aHighChair))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfHighChairs()) { index = numberOfHighChairs() - 1; }
+      highChairs.remove(aHighChair);
+      highChairs.add(index, aHighChair);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addHighChairAt(aHighChair, index);
+    }
+    return wasAdded;
+  }
+
   public void delete()
   {
     tablesByNumber.remove(getNumber());
@@ -941,6 +1049,10 @@ public class Table implements Serializable
         aOrder.removeTable(this);
       }
     }
+    while( !highChairs.isEmpty() )
+    {
+      highChairs.get(0).setTable(null);
+    }
   }
 
   // line 37 "../../../../../RestoAppPersistence.ump"
@@ -955,16 +1067,19 @@ public class Table implements Serializable
   /**
    * check that the provided quantity is an integer greater than 0
    */
-  // line 92 "../../../../../RestoAppTableStateMachine.ump"
+  // line 96 "../../../../../RestoAppTableStateMachine.ump"
    private boolean quantityIsPositive(int quantity){
     return quantity > 0;
   }
 
 
   /**
+   * private boolean highChairAvailable(){
+   * return !(quantity >= 3);
+   * }
    * check that the provided order item is the last item of the current order of the table
    */
-  // line 97 "../../../../../RestoAppTableStateMachine.ump"
+  // line 105 "../../../../../RestoAppTableStateMachine.ump"
    private boolean iIsLastItem(OrderItem i){
     return i.getOrder().numberOfOrderItems() == 1;
   }
@@ -973,7 +1088,7 @@ public class Table implements Serializable
   /**
    * check that all seats of the table have a bill that belongs to the current order of the table
    */
-  // line 102 "../../../../../RestoAppTableStateMachine.ump"
+  // line 110 "../../../../../RestoAppTableStateMachine.ump"
    private boolean allSeatsBilled(){
     Order order = getOrder(numberOfOrders()-1);
 	   
@@ -1003,7 +1118,7 @@ public class Table implements Serializable
       return true;
   }
 
-  // line 54 "../../../../../RestoApp v3.ump"
+  // line 67 "../../../../../RestoApp v3.ump"
    public boolean doesOverlap(int x, int y, int width, int length){
     if ( ((x+width)<this.getX()) || (x>(this.getX()+this.getWidth())) || ((y+length)<this.getY()) || (y>(this.getY()+this.getLength())) )
 		{

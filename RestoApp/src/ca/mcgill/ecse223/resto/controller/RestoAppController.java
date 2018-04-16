@@ -398,7 +398,7 @@ public class RestoAppController {
 	}
 
 	private static boolean isTimeInPast(Time time) {
-		java.util.Date tempToday = RestoAppApplication.getRestoApp().getCurrentDate();
+		java.util.Date tempToday = RestoAppApplication.getRestoApp().getCurrentTime();
 		return time.before(tempToday);
 	}
 	
