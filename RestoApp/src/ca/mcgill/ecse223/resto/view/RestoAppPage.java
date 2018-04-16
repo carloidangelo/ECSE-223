@@ -1341,8 +1341,8 @@ public class RestoAppPage extends JFrame {
 						error = e.getMessage();
 						errorMessage.setText(error);
 					}
-					refreshData();
 				}
+				refreshData();
 			}
 		});
 		
@@ -1368,8 +1368,8 @@ public class RestoAppPage extends JFrame {
 						error = e.getMessage();
 						errorMessage.setText(error);
 					}
-					refreshData();
 				}
+				refreshData();
 			}
 		});
 		
